@@ -31,14 +31,7 @@
   header.top h1 { margin: 0; font-size: 17px; }
   header.top p { margin: 3px 0 0; font-size: 13px; color: var(--muted); }
 
-  main {
-    display: grid;
-    grid-template-columns: minmax(300px, 440px) 1fr;
-    gap: 20px;
-    padding: 20px;
-    align-items: start;
-  }
-  @media (max-width: 900px) { main { grid-template-columns: 1fr; padding: 12px; } }
+  main { display: block; padding: 0; }
 
   /* ---------- borang ---------- */
   form { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
@@ -78,10 +71,85 @@
   #log .info { color: #166534; }
   #log .amaran { color: #92400e; }
 
+  /* ---------- aliran 4 halaman (wizard) ---------- */
+  .langkah {
+    display: flex; gap: 6px; align-items: center; justify-content: center;
+    flex-wrap: wrap; padding: 12px 14px 0;
+  }
+  .langkah .dot {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: #fff; border: 1px solid var(--line); border-radius: 999px;
+    padding: 4px 13px 4px 5px; font: inherit; font-size: 13px; color: var(--muted); cursor: pointer;
+  }
+  .langkah .dot b {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 21px; height: 21px; border-radius: 50%; background: #e6ebf1;
+    color: var(--muted); font-size: 11.5px; font-weight: 700;
+  }
+  .langkah .dot.aktif { border-color: var(--brand); color: var(--brand); font-weight: 700; }
+  .langkah .dot.aktif b { background: var(--brand); color: #fff; }
+  .langkah .dot.siap { border-color: #bfe3ca; color: #166534; }
+  .langkah .dot.siap b { background: #166534; color: #fff; }
+  .langkah .dot:disabled { opacity: .5; cursor: default; }
+  .langkah .dot:not(:disabled):hover { border-color: var(--brand); }
+
+  .hal { max-width: 1080px; margin: 0 auto; padding: 20px 16px 44px; }
+  .hal[hidden] { display: none !important; }
+  .hal-tajuk { font-size: 21px; margin: 0 0 4px; }
+  .hal-sub { color: var(--muted); font-size: 13.5px; margin: 0 0 18px; }
+  .nav-bawah {
+    display: flex; gap: 10px; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; margin-top: 20px;
+  }
+  .btn-utama {
+    background: var(--brand); color: #fff; border: 0; border-radius: 8px;
+    padding: 13px 22px; font: inherit; font-size: 15px; font-weight: 700; cursor: pointer;
+  }
+  .btn-utama:hover { background: #0e4272; }
+  .btn-undur {
+    background: #fff; border: 1px solid var(--line); border-radius: 8px;
+    padding: 12px 18px; font: inherit; font-size: 14px; cursor: pointer;
+  }
+  .btn-undur:hover { border-color: var(--brand); color: var(--brand); }
+
+  /* halaman 1: kad pilih reka bentuk */
+  .kad-pilih {
+    display: grid; grid-template-columns: minmax(200px, 300px) 1fr; gap: 24px; align-items: center;
+    background: #fff; border: 2px solid var(--brand); border-radius: 14px;
+    padding: 20px; box-shadow: 0 4px 18px rgba(16, 24, 40, .10);
+  }
+  .mini {
+    width: 100%; aspect-ratio: 210 / 297; overflow: hidden;
+    border: 1px solid var(--line); border-radius: 6px; background: #fff;
+    box-shadow: 0 2px 8px rgba(16, 24, 40, .12);
+  }
+  .mini-kertas { width: 794px; height: 1123px; zoom: var(--skala-mini, .37); background: #fff; }
+  .kad-teks h3 { margin: 0 0 6px; font-size: 19px; }
+  .pil-pilih {
+    display: inline-block; background: #166534; color: #fff; font-size: 11px; font-weight: 700;
+    border-radius: 999px; padding: 2px 9px; margin-left: 8px; vertical-align: middle;
+    text-transform: uppercase; letter-spacing: .04em;
+  }
+  .kad-nota { margin: 0 0 12px; color: var(--muted); font-size: 13.5px; }
+  .kad-ciri { margin: 0 0 18px; padding-left: 20px; font-size: 13.5px; }
+  .kad-ciri li { margin-bottom: 5px; }
+  .nota-bawah { text-align: center; color: var(--muted); font-size: 12.5px; margin-top: 16px; }
+  .kepala-hal { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+
+  /* halaman 4: langkah bayaran */
+  .langkah-bayar { margin: 14px 0 0; padding-left: 20px; font-size: 13.5px; }
+  .langkah-bayar li { margin-bottom: 6px; }
+
+  @media (max-width: 720px) {
+    .kad-pilih { grid-template-columns: 1fr; gap: 16px; }
+    .mini { max-width: 300px; margin: 0 auto; }
+    .nav-bawah { flex-direction: column-reverse; }
+    .nav-bawah .btn-utama, .nav-bawah .btn-undur { width: 100%; text-align: center; }
+  }
+
   /* ---------- pratonton A4 ---------- */
   .panel-pratonton { position: sticky; top: 16px; }
-  .bar-pratonton { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 8px 2px; }
-  .bar-pratonton .tajuk { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 0; }
+  .bar-pratonton { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 4px; }
   .btn-skrin {
     background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px;
     font: inherit; font-size: 12px; color: var(--muted); cursor: pointer;
@@ -100,13 +168,13 @@
   }
   @media (max-width: 900px) { .panel-pratonton { position: static; } }
 
-  #resume { font-family: "Segoe UI", Arial, sans-serif; font-size: 10.8pt; line-height: 1.42; color: #111; }
-  #resume ul { margin: 3px 0 0; padding-left: 17px; }
-  #resume ul li { margin-bottom: 1.5px; }
+  .lembar { font-family: "Segoe UI", Arial, sans-serif; font-size: 10.8pt; line-height: 1.42; color: #111; }
+  .lembar ul { margin: 3px 0 0; padding-left: 17px; }
+  .lembar ul li { margin-bottom: 1.5px; }
   /* ---------- templat 2: Biru & Kelabu (dua lajur + foto) ----------
      Semua ukuran dalam pt/mm diambil terus daripada fail rujukan
      "Blue and Gray Simple Professional CV Resume.pdf" (A4, 596 x 842 pt). */
-  #resume .cv-biru {
+  .lembar .cv-biru {
     display: flex; flex-direction: column; min-height: 297mm;
     font-family: "Lato", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
     font-size: 10pt; line-height: 1.35; color: #323b4c; background: #fff;
@@ -115,7 +183,7 @@
   .cvb-nama { position: absolute; left: 82.8mm; top: 11mm; }
   .cvb-nama h1 { margin: 0; font-size: 27pt; font-weight: 800; letter-spacing: -.01em; text-transform: uppercase; font-family: "Montserrat", "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
   .cvb-nama p { margin: 3pt 0 0; font-size: 14.4pt; font-weight: 400; text-transform: uppercase; letter-spacing: .05em; font-family: "Montserrat", "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
-  #resume .cv-biru.tanpa-foto .cvb-nama { left: 15mm; }
+  .lembar .cv-biru.tanpa-foto .cvb-nama { left: 15mm; }
   .cvb-foto {
     position: absolute; left: 7.8mm; top: 21.2mm; width: 49.7mm; height: 49.7mm;
     background: #fdfdfd; overflow: hidden; border: 1.2mm solid #fdfdfd;
@@ -132,18 +200,18 @@
     flex: 1 1 auto; min-width: 0; margin-left: 8.3mm; padding: 12.8mm 12.5mm 10mm 9.5mm;
     border-left: .6pt solid #323b4c;
   }
-  #resume .cv-biru h2 {
+  .lembar .cv-biru h2 {
     font-size: 14pt; font-weight: 700; text-transform: uppercase; letter-spacing: .02em;
     margin: 0 0 5pt; padding-bottom: 5pt;
     font-family: "Montserrat", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   }
   /* garis bawah nipis — rujukan memakai 1.25pt; Chrome membulatkan border ke
      piksel peranti, jadi 2pt di sini yang menghasilkan ~1.25pt pada cetakan */
-  #resume .cvb-kiri h2 { border-bottom: 2pt solid #323b4c; margin-bottom: 9pt; }
-  #resume .cvb-kanan h2 {
+  .lembar .cvb-kiri h2 { border-bottom: 2pt solid #323b4c; margin-bottom: 9pt; }
+  .lembar .cvb-kanan h2 {
     border-bottom: 2pt solid #163853; margin: 14pt 0 9pt; position: relative;
   }
-  #resume .cvb-kanan > h2:first-child { margin-top: 0; }
+  .lembar .cvb-kanan > h2:first-child { margin-top: 0; }
   /* lencana bulat pada garisan pemisah — ikon putih dalam bulatan biru,
      dengan cincin putih (box-shadow) yang memutuskan garisan di belakangnya */
   .cvb-lencana {
@@ -193,6 +261,7 @@
     border-radius: 10px; padding: 2px 10px; margin-left: 8px; vertical-align: middle;
   }
   body.mod-penjual .mod-penjual-pil { display: inline-block; }
+  body.mod-penjual #ke-4 { display: none; }   /* penjual tidak perlu halaman pesanan WhatsApp */
   .panel-pesanan {
     background: #f7fbf8; border: 1px solid #bfe3ca; border-radius: 8px;
     padding: 14px 16px; margin-top: 16px;
@@ -216,7 +285,10 @@
   @page { size: A4; margin: 0; }
   @media print {
     body { background: #fff; }
-    header.top, form, #log, .no-print, .bar-pratonton { display: none !important; }
+    header.top, form, #log, .no-print, .bar-pratonton, .langkah, .nav-bawah,
+    .hal-tajuk, .hal-sub, #hal-1, #hal-2, #hal-4 { display: none !important; }
+    /* hanya helaian resume yang dicetak, tak kira di halaman mana pengguna berada */
+    #hal-3 { display: block !important; max-width: none; padding: 0; }
     main { display: block; padding: 0; gap: 0; }
     .panel-pratonton { position: static; }
     .kertas {
@@ -226,8 +298,8 @@
     }
     /* templat dua lajur mesti memenuhi penuh satu halaman A4 supaya rel kelabu
        sampai ke bawah kertas; tolak 1px supaya tidak melimpah ke halaman kosong */
-    #resume .cv-biru { min-height: calc(297mm - 1px); }
-    #resume .cvb-kiri, #resume .cvb-kanan { break-inside: auto; }
+    .lembar .cv-biru { min-height: calc(297mm - 1px); }
+    .lembar .cvb-kiri, .lembar .cvb-kanan { break-inside: auto; }
   }
 </style>
 </head>
@@ -235,10 +307,40 @@
 
 <header class="top">
   <h1 id="tajuk">Resume Builder MV<span class="mod-penjual-pil" id="pil-mod">MOD PENJUAL</span></h1>
-  <p>Isi butiran di kiri — pratonton A4 dikemas kini serta-merta. Tekan <strong>Jana PDF</strong> bila puas hati.</p>
+  <p>Pilih reka bentuk &rarr; isi butiran &rarr; pratonton &rarr; hantar melalui WhatsApp. Semua diproses dalam pelayar anda.</p>
 </header>
 
+<nav class="langkah no-print" id="langkah" aria-label="Langkah">
+  <button type="button" class="dot aktif" data-hal="1"><b>1</b> Reka bentuk</button>
+  <button type="button" class="dot" data-hal="2"><b>2</b> Butiran</button>
+  <button type="button" class="dot" data-hal="3"><b>3</b> Pratonton</button>
+  <button type="button" class="dot" data-hal="4"><b>4</b> Hantar</button>
+</nav>
+
 <main>
+  <section class="hal" id="hal-1">
+    <h2 class="hal-tajuk">Pilih reka bentuk resume anda</h2>
+    <p class="hal-sub">Satu reka bentuk profesional yang siap guna &mdash; kemas, mudah dibaca, sesuai untuk semua bidang.</p>
+
+    <div class="kad-pilih" id="kad-biru">
+      <div class="mini"><div class="mini-kertas lembar" id="mini-kertas"></div></div>
+      <div class="kad-teks">
+        <h3>Biru &amp; Kelabu <span class="pil-pilih">Dipilih</span></h3>
+        <p class="kad-nota">Dua lajur: banner biru gelap dengan nama &amp; foto bulat, rel kelabu untuk kontak / kemahiran / bahasa, dan lajur kanan untuk profil, pengalaman, pendidikan &amp; rujukan.</p>
+        <ul class="kad-ciri">
+          <li>Muat kemas dalam satu halaman A4</li>
+          <li>Semua bahagian penting sudah ada tempatnya</li>
+          <li>Cetak terus dari pelayar &mdash; jadi PDF tanpa aplikasi tambahan</li>
+        </ul>
+        <button type="button" class="btn-utama" id="mula-isi">Mula Isi Butiran &rarr;</button>
+      </div>
+    </div>
+    <p class="nota-bawah">Percuma untuk cuba dan pratonton. Bayaran <strong>RM29.90</strong> hanya bila anda mahu PDF bersih tanpa tanda air.</p>
+  </section>
+
+  <section class="hal" id="hal-2" hidden>
+    <h2 class="hal-tajuk">Isi butiran anda</h2>
+    <p class="hal-sub">Medan <strong>Nama</strong> dan <strong>Nombor Telefon</strong> wajib diisi. Data disimpan dalam pelayar anda sendiri sahaja.</p>
   <form id="borang">
     <fieldset>
       <legend>Butiran Peribadi</legend>
@@ -304,12 +406,6 @@
       <button type="button" id="kosongkan">Kosongkan</button>
     </div>
 
-    <div class="panel-pesanan" id="panel-pesanan">
-      <p class="harga"><strong>Nak PDF bersih tanpa tanda air? Harga RM<span id="harga">29.90</span></strong></p>
-      <a id="wa" href="#" target="_blank" rel="noopener">Hantar Pesanan ke WhatsApp</a>
-      <p class="nota">Butiran resume anda dihantar sekali sahaja kepada penjual melalui WhatsApp untuk disediakan PDF bersih. Tiada data disimpan di mana-mana pelayan.</p>
-    </div>
-
     <div id="mod-penjual" hidden>
       <p class="harga"><strong>Mod Penjual</strong> &mdash; tiada tanda air. Tampal kod resume daripada pelanggan:</p>
       <textarea id="kod-masuk" placeholder="Tampal kod resume di sini..."></textarea>
@@ -320,12 +416,43 @@
     <div id="log"></div>
   </form>
 
-  <section class="panel-pratonton">
+    <div class="nav-bawah">
+      <button type="button" class="btn-undur" id="balik-2">&larr; Kembali</button>
+      <button type="button" class="btn-utama" id="ke-3">Seterusnya: Pratonton &rarr;</button>
+    </div>
+  </section>
+
+  <section class="hal" id="hal-3" hidden>
     <div class="bar-pratonton">
-      <p class="tajuk">Pratonton (saiz A4)</p>
+      <h2 class="hal-tajuk">Pratonton resume anda</h2>
       <button type="button" class="btn-skrin no-print" id="btn-skrin">Skrin penuh</button>
     </div>
-    <div class="kertas"><article id="resume"></article><div class="cap-air" id="cap-air" aria-hidden="true"></div></div>
+    <p class="hal-sub">Beginilah rupa resume anda. Tanda air <strong>PRATONTON</strong> akan hilang dalam PDF bersih selepas pesanan disahkan.</p>
+    <section class="panel-pratonton">
+      <div class="kertas"><article id="resume" class="lembar"></article><div class="cap-air" id="cap-air" aria-hidden="true"></div></div>
+    </section>
+    <div class="nav-bawah">
+      <button type="button" class="btn-undur" id="balik-3">&larr; Kembali edit butiran</button>
+      <button type="button" class="btn-utama" id="ke-4">Seterusnya: Hantar ke WhatsApp &rarr;</button>
+    </div>
+  </section>
+
+  <section class="hal" id="hal-4" hidden>
+    <h2 class="hal-tajuk">Hantar pesanan anda</h2>
+    <p class="hal-sub">Tekan butang di bawah &mdash; WhatsApp terbuka dengan butiran resume anda sudah siap diisi. Anda cuma perlu tekan hantar.</p>
+    <div class="panel-pesanan" id="panel-pesanan">
+      <p class="harga"><strong>PDF bersih tanpa tanda air &mdash; RM<span id="harga">29.90</span></strong></p>
+      <a id="wa" href="#" target="_blank" rel="noopener">Hantar Pesanan ke WhatsApp</a>
+      <ol class="langkah-bayar">
+        <li>Tekan butang WhatsApp di atas &mdash; butiran resume dihantar sekali sahaja kepada penjual.</li>
+        <li>Kami sahkan pesanan dan hantar arahan bayaran (DuitNow QR / pindahan bank).</li>
+        <li>Anda terima PDF bersih dalam WhatsApp, sedia untuk dihantar kepada majikan.</li>
+      </ol>
+      <p class="nota">Tiada data disimpan di mana-mana pelayan. Butiran hanya dihantar melalui WhatsApp kepada penjual.</p>
+    </div>
+    <div class="nav-bawah">
+      <button type="button" class="btn-undur" id="balik-4">&larr; Kembali ke pratonton</button>
+    </div>
   </section>
 </main>
 
@@ -789,12 +916,14 @@
       if (d2) {
         isiBorang(d2);
         hidupkanModPenjual(true);
-      } else {
-        tulisLog('Kod resume dalam pautan itu tidak sah.', 'ralat');
+        return 3;                       // terus ke pratonton, sedia untuk dicetak
       }
+      tulisLog('Kod resume dalam pautan itu tidak sah.', 'ralat');
     } else if (/penjual/.test(h)) {
       hidupkanModPenjual(true);
+      return 2;                         // panel penjual ada di halaman butiran
     }
+    return 1;
   }
 
   var ketuk = 0, ketukTerakhir = 0;
@@ -808,6 +937,7 @@
       var sudah = penjual;
       hidupkanModPenjual(false);
       kemasSemula();
+      pergiHal(2, true);
       tulisLog(sudah
         ? 'MOD PENJUAL sudah aktif. Muat semula halaman (F5) untuk kembali ke mod pelanggan.'
         : 'MOD PENJUAL dihidupkan (ketuk 5 kali) — tanda air dimatikan. Muat semula halaman untuk kembali ke mod pelanggan.', 'amaran');
@@ -830,8 +960,8 @@
     var skala = Math.min(1, lebarTersedia / 794, tinggiTersedia / 1123);
     akar.style.setProperty('--skala', Math.max(0.28, skala).toFixed(4));
   }
-  window.addEventListener('resize', susunSkala);
-  window.addEventListener('orientationchange', susunSkala);
+  window.addEventListener('resize', function () { susunSkala(); susunMini(); });
+  window.addEventListener('orientationchange', function () { susunSkala(); susunMini(); });
   window.addEventListener('load', susunSkala);        // selepas font web selesai dimuat
 
   /* ---------- pratonton skrin penuh ---------- */
@@ -846,8 +976,95 @@
     if (e.key === 'Escape' && document.body.classList.contains('skrin-penuh')) togolSkrinPenuh(false);
   });
 
+  /* ---------- aliran 4 halaman (wizard) ---------- */
+  var HAL_SEMASA = 1, HAL_MAKS = 1;
+
+  function pergiHal(n, senyap) {
+    n = Math.min(4, Math.max(1, n));
+    if (penjual && n === 4) n = 3;                 // penjual tidak perlu halaman pesanan
+    HAL_SEMASA = n;
+    if (n > HAL_MAKS) HAL_MAKS = n;
+    for (var i = 1; i <= 4; i++) {
+      var hal = el('hal-' + i);
+      if (hal) hal.hidden = (i !== n);
+    }
+    var titik = document.querySelectorAll('#langkah .dot');
+    for (var j = 0; j < titik.length; j++) {
+      var s2 = j + 1;
+      titik[j].classList.toggle('aktif', s2 === n);
+      titik[j].classList.toggle('siap', s2 < n);
+      titik[j].disabled = (s2 > HAL_MAKS);
+    }
+    document.body.setAttribute('data-hal', String(n));
+    if (!senyap) window.scrollTo(0, 0);
+    if (n === 1) susunMini();
+    if (n === 3) susunSkala();
+    if (n === 4) kemasSemula();
+  }
+
+  function bolehKePratonton() {
+    var d = kumpul();
+    if (d.nama && d.telefon) return true;
+    tulisLog('Isi ' + (!d.nama ? 'Nama' : 'Nombor Telefon') + ' dahulu sebelum lihat pratonton.', 'ralat');
+    var medan = !d.nama ? el('nama') : el('telefon');
+    if (medan) {
+      medan.focus();
+      if (medan.scrollIntoView) medan.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }
+    return false;
+  }
+
+  /* data contoh untuk pratonton mini pada halaman 1 */
+  var CONTOH = {
+    nama: 'NURUL AIN BINTI HASSAN',
+    jawatan: 'Junior Quantity Surveyor',
+    telefon: '012-345 6789',
+    emel: 'nurul.ain@gmail.com',
+    lokasi: 'Kuantan, Pahang',
+    ringkasan: 'Graduan Sarjana Muda Ukur Bahan dengan 2 tahun pengalaman dalam projek perumahan mampu milik. Berpengalaman menyediakan BQ dan menyemak tuntutan kontraktor.',
+    kemahiran: 'Pengukuran Kuantiti, AutoCAD, MS Excel, BIM Revit, Pengurusan Kontrak',
+    bahasa: 'Bahasa Melayu (Fasih), English (Fluent)',
+    rujukan: 'En. Ahmad Faizal — Pengurus Projek, EPH Construction, 012-3456789',
+    pengalaman: [
+      { syarikat: 'EPH Construction Sdn Bhd', jawatan: 'Quantity Surveyor', tempoh: 'Mac 2024 - Kini',
+        poin: ['Sediakan BQ untuk 3 projek perumahan mampu milik.', 'Semak dan nilai tuntutan kontraktor bulanan.'] },
+      { syarikat: 'Syarikat Bina Jaya Sdn Bhd', jawatan: 'Pembantu Ukur Bahan', tempoh: 'Jun 2023 - Feb 2024',
+        poin: ['Bantu penyediaan anggaran kos dan bahan.', 'Rekod kemajuan kerja mingguan di tapak.'] }
+    ],
+    pendidikan: [
+      { kelulusan: 'Sarjana Muda Ukur Bahan (Kepujian)', institusi: 'Universiti Teknologi MARA, Shah Alam', tahun: '2021 - 2024' }
+    ],
+    foto: ''
+  };
+
+  function susunMini() {
+    var mini = el('mini-kertas');
+    if (!mini || !mini.parentNode) return;
+    var lebar = mini.parentNode.clientWidth;
+    if (!lebar) return;
+    mini.style.setProperty('--skala-mini', (lebar / 794).toFixed(4));
+  }
+
+  el('mini-kertas').innerHTML = htmlBiru(CONTOH);
+
+  el('mula-isi').addEventListener('click', function () { pergiHal(2); });
+  el('balik-2').addEventListener('click', function () { pergiHal(1); });
+  el('balik-3').addEventListener('click', function () { pergiHal(2); });
+  el('balik-4').addEventListener('click', function () { pergiHal(3); });
+  el('ke-3').addEventListener('click', function () { if (bolehKePratonton()) pergiHal(3); });
+  el('ke-4').addEventListener('click', function () { pergiHal(4); });
+
+  var titikLangkah = document.querySelectorAll('#langkah .dot');
+  for (var tl = 0; tl < titikLangkah.length; tl++) {
+    titikLangkah[tl].addEventListener('click', function () {
+      var n2 = parseInt(this.getAttribute('data-hal'), 10) || 1;
+      if (n2 === 3 && !bolehKePratonton()) return;
+      pergiHal(n2);
+    });
+  }
+
   muat();
-  mulakanMod();
+  var halAwal = mulakanMod();
   if (!document.querySelectorAll('#senarai-pengalaman .baris').length) {
     el('senarai-pengalaman').appendChild(barisPengalaman());
   }
@@ -855,6 +1072,7 @@
     el('senarai-pendidikan').appendChild(barisPendidikan());
   }
   kemasSemula();
+  pergiHal(halAwal || 1, true);
   susunSkala();
 })();
 </script>

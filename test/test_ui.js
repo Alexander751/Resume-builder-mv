@@ -289,7 +289,7 @@ console.log('== 16. Pratonton skrin penuh ==');
 ok(!!el('btn-skrin'), 'butang "Skrin penuh" ada');
 ok(el('btn-skrin').textContent.trim() === 'Skrin penuh', 'label butang betul pada mulanya');
 ok(/body\.skrin-penuh \.panel-pratonton \{[\s\S]{0,220}position: fixed; inset: 0/.test(html), 'CSS panel jadi skrin penuh');
-ok(/@media print[\s\S]{0,300}\.bar-pratonton \{ display: none !important/.test(html), 'bar pratonton disembunyikan semasa cetak');
+ok(/@media print[\s\S]{0,600}\.bar-pratonton[\s\S]{0,200}display: none !important/.test(html), 'bar pratonton disembunyikan semasa cetak');
 ok(/body\.skrin-penuh \{ overflow: hidden/.test(html), 'halaman tidak berskrol dalam mod skrin penuh');
 el('btn-skrin').dispatchEvent(new w.Event('click', { bubbles: true }));
 ok(d.body.classList.contains('skrin-penuh'), 'klik menghidupkan mod skrin penuh');
@@ -298,6 +298,54 @@ ok(el('btn-skrin').textContent.trim() === 'Tutup (Esc)', 'label bertukar kepada 
 d.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
 ok(!d.body.classList.contains('skrin-penuh'), 'kekunci Escape menutup skrin penuh');
 ok(el('btn-skrin').textContent.trim() === 'Skrin penuh', 'label kembali asal selepas ditutup');
+
+console.log('== 17. Aliran 4 halaman (wizard) ==');
+ok(!el('hal-1').hidden && el('hal-2').hidden && el('hal-3').hidden && el('hal-4').hidden,
+   'halaman 1 (pilih reka bentuk) dipaparkan dahulu');
+ok(d.querySelectorAll('#langkah .dot').length === 4, 'penunjuk 4 langkah ada');
+ok(d.querySelector('#langkah .dot').classList.contains('aktif'), 'langkah 1 ditanda aktif');
+ok(d.querySelectorAll('#langkah .dot')[1].disabled, 'langkah 2 belum boleh diklik sebelum mula');
+ok(d.querySelectorAll('#mini-kertas .cv-biru').length === 1, 'pratonton mini dirender dengan data contoh');
+ok(d.querySelector('#mini-kertas .cvb-nama h1').textContent.includes('NURUL AIN'), 'nama contoh muncul dalam mini');
+ok(d.querySelectorAll('#mini-kertas .cvb-lencana').length === 4, 'mini guna gaya yang sama (4 lencana bulat)');
+ok(/\.mini-kertas \{[\s\S]{0,120}zoom: var\(--skala-mini/.test(html), 'mini guna skala automatik');
+ok(!!d.querySelector('#kad-biru .pil-pilih'), 'kad ditanda "Dipilih"');
+
+el('mula-isi').click();
+ok(el('hal-2').hidden === false && el('hal-1').hidden === true, 'butang Mula Isi ke halaman butiran');
+ok(d.querySelectorAll('#langkah .dot')[1].classList.contains('aktif'), 'langkah 2 jadi aktif');
+
+el('nama').value = '';
+el('telefon').value = '';
+el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+el('ke-3').click();
+ok(el('hal-3').hidden === true, 'tidak boleh ke pratonton kalau nama/telefon kosong');
+ok(el('log').textContent.includes('dahulu sebelum lihat pratonton'), 'mesej ralat dipaparkan');
+
+el('nama').value = 'Ahmad bin Ali';
+el('telefon').value = '012-3456789';
+el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+el('ke-3').click();
+ok(el('hal-3').hidden === false && el('hal-2').hidden === true, 'butang Seterusnya ke halaman pratonton');
+ok(d.querySelectorAll('#langkah .dot')[3].disabled, 'halaman hantar belum terbuka');
+el('ke-4').click();
+ok(el('hal-4').hidden === false, 'butang Seterusnya ke halaman hantar WhatsApp');
+ok(!!d.querySelector('#hal-4 #wa') && !!d.querySelector('#hal-4 #panel-pesanan'),
+   'pautan WhatsApp + panel pesanan berada di halaman 4');
+ok(el('wa').href.indexOf('wa.me/') > -1, 'pautan WhatsApp sedia untuk dihantar');
+ok(d.querySelectorAll('#hal-4 .langkah-bayar li').length === 3, '3 langkah bayaran diterangkan');
+
+el('balik-4').click();
+ok(el('hal-3').hidden === false, 'Kembali dari hantar ke pratonton');
+el('balik-3').click();
+ok(el('hal-2').hidden === false, 'Kembali dari pratonton ke butiran');
+el('balik-2').click();
+ok(el('hal-1').hidden === false, 'Kembali dari butiran ke pemilihan reka bentuk');
+ok(d.body.getAttribute('data-hal') === '1', 'atribut data-hal dikemas kini');
+el('mula-isi').click();
+ok(!d.querySelectorAll('#langkah .dot')[3].disabled, 'langkah yang pernah dilawati kekal boleh diklik');
+ok(/@media print[\s\S]{0,400}#hal-3 \{ display: block !important/.test(html),
+   'cetak: helaian resume dicetak dari mana-mana halaman');
 
 console.log('== 11. Semakan statik pada HTML ==');
 ok(html.includes('@page { size: A4'), 'ada tetapan cetak A4 (@page size A4)');
@@ -312,13 +360,13 @@ ok(/^60\d{9,10}$/.test(waNo), 'NOMBOR_WA format antarabangsa sah (60..., tiada +
 ok(waNo !== '60123456789', 'NOMBOR_WA bukan nombor contoh lagi');
 ok(html.includes('body.mod-penjual .cap-air'), 'CSS mematikan tanda air dalam mod penjual');
 ok(/@media print[\s\S]*form, #log[\s\S]*display: none/.test(html), 'borang disembunyikan semasa cetak');
-ok(/@media print[\s\S]*#resume \.cv-biru \{ min-height: calc\(297mm - 1px\)/.test(html),
+ok(/@media print[\s\S]*\.lembar \.cv-biru \{ min-height: calc\(297mm - 1px\)/.test(html),
    'cetak: templat dua lajur dipaksa penuh satu halaman A4 (rel kelabu sampai bawah)');
 ok(/\.cvb-foto \{[\s\S]{0,220}border-radius: 50%/.test(html), 'foto templat biru berbentuk bulat');
 ok(/\.cvb-titik li::before \{[\s\S]{0,130}border-radius: 50%/.test(html), 'titik kemahiran/bahasa bulat (ikut rujukan)');
 ok(/\.cvb-bullet li::before \{[\s\S]{0,130}border-radius: 50%/.test(html), 'titik pengalaman bulat (ikut rujukan)');
-ok(/#resume \.cvb-kiri h2 \{ border-bottom: 2pt/.test(html), 'garis bawah tajuk rel kiri nipis (bukan bar tebal 7pt)');
-ok(/#resume \.cvb-kanan h2 \{[\s\S]{0,160}border-bottom: 2pt/.test(html), 'garis bawah tajuk lajur kanan nipis (bukan bar tebal 7pt)');
+ok(/\.lembar \.cvb-kiri h2 \{ border-bottom: 2pt/.test(html), 'garis bawah tajuk rel kiri nipis (bukan bar tebal 7pt)');
+ok(/\.lembar \.cvb-kanan h2 \{[\s\S]{0,160}border-bottom: 2pt/.test(html), 'garis bawah tajuk lajur kanan nipis (bukan bar tebal 7pt)');
 ok(html.includes('fonts.googleapis.com/css2?family=Lato'), 'font Lato + Montserrat dimuatkan (rujukan guna Lato)');
 
 console.log('== 13. Muat naik foto (Image + kanvas dipalsukan) ==');

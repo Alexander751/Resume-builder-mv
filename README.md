@@ -16,15 +16,14 @@ Semua berlaku dalam pelayar — **tiada data dihantar ke mana-mana pelayan**.
 
 ## Cara guna
 
-Buka `index.html` (klik dua kali) atau laman awam di atas.
+Buka `index.html` (klik dua kali) atau laman awam di atas. Aliran **4 halaman**:
 
-1. Isi **Butiran Peribadi** — Nama dan Nombor Telefon wajib; **Foto** pilihan (muncul bulat di banner)
-2. Isi **Jawatan Disasarkan**, **Ringkasan Profil**
-3. **+ Tambah Pengalaman** / **+ Tambah Pendidikan** untuk setiap rekod; **Hapus** untuk buang
-4. Kemahiran dan Bahasa: pisahkan dengan koma (cth. `AutoCAD, BQ, MS Excel`)
-5. Rujukan: satu baris satu orang
-6. Pratonton di kanan dikemas kini serta-merta
-7. **Jana PDF** → dialog cetak → *Destination: Save as PDF*
+1. **Pilih reka bentuk** — kad *Biru & Kelabu* dengan **pratonton mini sebenar** (bukan gambar) → **Mula Isi Butiran**
+2. **Isi butiran** — Nama + Nombor Telefon wajib; foto, jawatan, ringkasan, pengalaman, pendidikan, kemahiran, bahasa, rujukan → **Seterusnya: Pratonton**
+3. **Pratonton** — helaian A4 penuh (muat tanpa skrol) + butang **Skrin penuh** → **Seterusnya: Hantar ke WhatsApp**
+4. **Hantar** — tekan butang WhatsApp; mesej pesanan + kod resume sudah siap diisi, anda cuma tekan hantar
+
+Butang **Jana PDF** ada di halaman butiran; cetak tetap keluar resume penuh walaupun anda berada di halaman lain.
 
 Data disimpan automatik dalam pelayar (localStorage). **Kosongkan** memadam semuanya.
 
@@ -81,6 +80,17 @@ Data disimpan automatik dalam pelayar (localStorage). **Kosongkan** memadam semu
 - Kod pesanan lama yang membawa templat lain (`s: 'klasik'` dan sebagainya) **masih boleh dibuka** — semuanya kini dipaparkan dengan reka bentuk Biru & Kelabu
 - Cetakan disemak semula selepas pembersihan: PDF **identik** dengan sebelum pembuangan (959 aksara teks, bbox sama, 1 halaman A4) — tiada regresi pada reka bentuk
 
+**Fasa 8** — aliran 4 halaman (wizard mesra pengguna):
+
+- Halaman 1 **pilih reka bentuk**, 2 **butiran**, 3 **pratonton**, 4 **hantar WhatsApp** — setiap satu `<section class="hal">` dengan atribut `hidden`
+- **Pratonton mini di halaman 1 ialah render sebenar** (`htmlBiru(CONTOH)`), bukan gambar: apa yang pelanggan lihat pada kad itu memang apa yang akan dia dapat. Diskalakan dengan `zoom: var(--skala-mini)` (dikira dalam `susunMini()`, dikemas kini pada `resize`)
+- **Petunjuk langkah** di atas (4 pil). Langkah yang sudah dilalui bertukar hijau dan boleh diklik semula; langkah yang belum sampai tidak boleh diklik
+- **Validasi**: tekan "Seterusnya: Pratonton" tanpa Nama/Telefon → mesej ralat muncul dan medan yang tertinggal terus difokus
+- Skop CSS ditukar daripada `#resume` kepada kelas **`.lembar`** supaya helaian utama *dan* pratonton mini boleh berkongsi gaya resume yang sama
+- **Cetakan dari mana-mana halaman tetap betul**: `@media print` menyembunyikan `.langkah`, `.nav-bawah`, tajuk halaman dan `#hal-1/2/4`, lalu memaksa `#hal-3 { display: block !important }`. Disemak: cetak dari halaman 2 dan halaman 3 menghasilkan PDF yang **sama** (1 halaman, 595×842 pt)
+- **Mod penjual**: `#penjual` membuka halaman butiran (panel penjual + Jana PDF ada di situ), `#kod=<kod>` terus ke halaman pratonton; butang "Hantar ke WhatsApp" disembunyikan (`body.mod-penjual #ke-4`). Cetakan penjual disemak: 811 aksara, tiada tanda air, 1 halaman A4
+- Ujian bertambah kepada **169 lulus, 0 gagal** (26 ujian baharu untuk aliran 4 halaman)
+
 ## Ujian
 
 ```bash
@@ -88,7 +98,7 @@ cd test && npm install        # sekali sahaja (jsdom)
 "$LOCALAPPDATA/hermes/node/node.exe" test/test_ui.js
 ```
 
-Keputusan semasa: **144 lulus, 0 gagal**.
+Keputusan semasa: **169 lulus, 0 gagal**.
 
 ## Aliran jualan melalui WhatsApp (tanpa gerbang bayaran)
 
