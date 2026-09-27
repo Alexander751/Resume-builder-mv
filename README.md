@@ -11,21 +11,20 @@ Semua berlaku dalam pelayar — **tiada data dihantar ke mana-mana pelayan**.
 | Fail | Peranan |
 |---|---|
 | `index.html` | Keseluruhan app (HTML + CSS + JS dalam satu fail, tiada binaan, tiada pelayan) |
-| `test/test_ui.js` | Ujian UI jsdom: elemen, pratonton hidup, baris berulang, kedua-dua templat, muat naik foto, jana PDF, simpan automatik |
+| `test/test_ui.js` | Ujian UI jsdom: elemen, pratonton hidup, baris berulang, reka bentuk Biru & Kelabu, muat naik foto, jana PDF, simpan automatik |
 | `QR_Resume_Builder.png` | Kod QR ke laman awam |
 
 ## Cara guna
 
 Buka `index.html` (klik dua kali) atau laman awam di atas.
 
-1. Pilih **Templat** — 5 pilihan: *Klasik*, *Biru & Kelabu*, *Eksekutif*, *Minimalis Teal*, *Kemahiran Dulu*
-2. Isi **Butiran Peribadi** — Nama dan Nombor Telefon wajib; **Foto** hanya untuk templat Biru & Kelabu
-3. Isi **Jawatan Disasarkan**, **Ringkasan Profil**
-4. **+ Tambah Pengalaman** / **+ Tambah Pendidikan** untuk setiap rekod; **Hapus** untuk buang
-5. Kemahiran dan Bahasa: pisahkan dengan koma (cth. `AutoCAD, BQ, MS Excel`)
-6. Rujukan: satu baris satu orang
-7. Pratonton di kanan dikemas kini serta-merta
-8. **Jana PDF** → dialog cetak → *Destination: Save as PDF*
+1. Isi **Butiran Peribadi** — Nama dan Nombor Telefon wajib; **Foto** pilihan (muncul bulat di banner)
+2. Isi **Jawatan Disasarkan**, **Ringkasan Profil**
+3. **+ Tambah Pengalaman** / **+ Tambah Pendidikan** untuk setiap rekod; **Hapus** untuk buang
+4. Kemahiran dan Bahasa: pisahkan dengan koma (cth. `AutoCAD, BQ, MS Excel`)
+5. Rujukan: satu baris satu orang
+6. Pratonton di kanan dikemas kini serta-merta
+7. **Jana PDF** → dialog cetak → *Destination: Save as PDF*
 
 Data disimpan automatik dalam pelayar (localStorage). **Kosongkan** memadam semuanya.
 
@@ -47,35 +46,18 @@ Data disimpan automatik dalam pelayar (localStorage). **Kosongkan** memadam semu
 - Kod resume Base64 untuk pesanan, dipulihkan semula di sisi penjual
 - Mod Penjual (`#penjual` atau `#kod=<kod>`): tanda air dimatikan, panel pesanan disembunyikan
 
-**Fasa 4** — dua templat reka bentuk:
-- Pemilih **`#templat`**: *Klasik* (putih, satu lajur) dan *Biru & Kelabu* (dua lajur dengan rel kelabu + foto)
-- Templat **Biru & Kelabu** dibina semula mengikut ukuran sebenar fail rujukan *Blue and Gray Simple Professional CV Resume* (A4, 596 × 842 pt): banner biru gelap `#323b4c` setinggi 50 mm, rel kiri kelabu `#e4e4e4` selebar 65 mm (Kontak / Kemahiran / Bahasa), lajur kanan dengan garisan bawah biru `#163853` (Profil / Pengalaman Kerja / Pendidikan / Rujukan), garis pemisah menegak pada 73 mm
+**Fasa 4** — reka bentuk resume: **Biru & Kelabu** (satu-satunya reka bentuk)
+- Dibina semula mengikut ukuran sebenar fail rujukan *Blue and Gray Simple Professional CV Resume* (A4, 596 × 842 pt): banner biru gelap `#323b4c` setinggi 50 mm, rel kiri kelabu `#e4e4e4` selebar 65 mm (Kontak / Kemahiran / Bahasa), lajur kanan dengan garisan bawah biru `#163853` (Profil / Pengalaman Kerja / Pendidikan / Rujukan), garis pemisah menegak pada 73 mm
 - Medan baharu: **`#bahasa`**, **`#rujukan`**, **`#foto`** (fail gambar dikecilkan ke 420 px dan disimpan sebagai JPEG dalam pelayar sahaja)
 - Foto berbentuk **bulat** (`border-radius: 50%` pada bingkai dan imej) — PDF rujukan asal memakai bingkai putih petak; bulatan ini pilihan reka bentuk sendiri
-- Foto hanya masuk ke templat Biru & Kelabu; bila tiada foto, nama digeser ke kiri supaya banner tidak berlubang
-- Templat + bahasa + rujukan **turut serta dalam kod pesanan WhatsApp** (maklumat kecil), tetapi **foto tidak** — supaya kod kekal pendek dan boleh disalin; minta pelanggan hantar gambar, kemudian muat naik di sisi penjual
-- Cetakan: `@page { margin: 0 }` supaya templat dua lajur boleh mencetak penuh ke tepi kertas; templat Klasik pula dapat padding 12 mm dari pembalutnya sendiri
+- Bila tiada foto, nama digeser ke kiri supaya banner tidak berlubang
+- Bahasa + rujukan **turut serta dalam kod pesanan WhatsApp** (maklumat kecil), tetapi **foto tidak** — supaya kod kekal pendek dan boleh disalin; minta pelanggan hantar gambar, kemudian muat naik di sisi penjual
+- Cetakan: `@page { margin: 0 }` supaya reka bentuk dua lajur boleh mencetak penuh ke tepi kertas
 - Rel kelabu templat Biru & Kelabu dipaksa memenuhi **penuh satu halaman A4** semasa cetak (`min-height: calc(297mm - 1px)`) — tanpa ini rel berhenti separuh jalan dan tinggal jalur putih di bawah kertas. Tolak 1 px itu penting: tanpa ia, Chrome kadang menambah halaman kedua yang kosong
 - **Lencana bulat 20 pt** pada garisan pemisah untuk setiap tajuk lajur kanan, berisi ikon putih: orang (Profil), beg bimbit (Pengalaman Kerja), topi graduasi (Pendidikan), dua orang (Rujukan). Cincin putih (`box-shadow`, bukan `border`) memutuskan garisan pemisah di belakangnya — sama seperti fail rujukan
 - Garisan bawah tajuk **2 pt** (`border-bottom`), bukan bar tebal; Chrome membulatkan border ke piksel peranti, jadi 2 pt menghasilkan ~1.25 pt pada cetakan — sama dengan rujukan
 - Titik kemahiran, bahasa dan pengalaman **bulat** 3 pt (`border-radius: 50%`), jarak titik ke teks 9 pt (rujukan: titik x20.5, teks x32.5)
 - Font **Lato** (badan, sama seperti rujukan) + **Montserrat** (nama & tajuk, hampir dengan Now-Black rujukan), dimuatkan dari Google Fonts. Ini **satu-satunya** permintaan luar app; buang dua baris `<link>` di `<head>` kalau mahu halaman 100% luar talian — ia akan jatuh semula ke Segoe UI/Arial tanpa merosakkan susun atur
-
-**Fasa 5** — tiga templat profesional tambahan (berasaskan kajian format 2026):
-
-Kajian yang dirujuk (StylingCV, Mac 2026 — 47 templat diuji pada 10 sistem ATS termasuk Workday, Greenhouse, Lever, Taleo) mendapati kadar lulus ATS: **Classic Chronological 98%**, **Hybrid Skills-Led 96%**, **Minimal Modern 95%**, Executive Brief 93%, Two-Column 72%, Infographic 41%. Kesimpulannya: satu lajur + tajuk bahagian standard + eksport PDF.
-
-
-| Templat | Asas kajian | Reka bentuk |
-|---|---|---|
-| **Eksekutif** | Executive Brief (93% ATS) | Satu lajur, nama serif Georgia, kepala berpusat, aksen gangsa `#a98547`, "Ringkasan Eksekutif" di depan, poin guna sengkang em |
-| **Minimalis Teal** | Minimal Modern (95% ATS) | Satu lajur, ruang putih luas (line-height 1.62), aksen teal `#14746f`, bar pendek di atas nama, tiada kotak |
-| **Kemahiran Dulu** | Hybrid Skills-Led (96% ATS) | Satu lajur, "Kemahiran Utama" sebagai grid cip di hadapan, aksen indigo `#4338ca`, kronologi padat |
-
-- Ketiga-tiganya satu lajur (mesra ATS — bukan dua lajur seperti templat Biru & Kelabu yang asalnya daripada fail rujukan Canva)
-- Cip kemahiran guna **border sahaja**, bukan warna latar, supaya selamat dicetak walaupun *Background graphics* tidak ditanda
-- Setiap templat diuji cetak: 1 halaman A4, padding 12 mm, item tidak dipotong merentas halaman
-- Kod pesanan WhatsApp menyimpan templat yang dipilih (`s`), jadi penjual boleh pulihkan mana-mana daripada 5 templat
 
 **Fasa 6** — pratonton muat penuh pada skrin (tanpa skrol):
 
@@ -93,6 +75,12 @@ Kajian yang dirujuk (StylingCV, Mac 2026 — 47 templat diuji pada 10 sistem ATS
 - Cetakan **tidak** mengecil: `zoom: 1 !important` dalam `@media print`, jadi PDF kekal saiz A4 penuh (disemak: 595×842 pt, 1 halaman, bbox teks sama seperti sebelum perubahan)
 - Telefon: panel tidak melekat (`position: static`) dan skala dikira mengikut lebar skrin
 
+**Fasa 7** — satu reka bentuk sahaja: **Biru & Kelabu**
+
+- Templat *Klasik*, *Eksekutif*, *Minimalis Teal*, *Kemahiran Dulu* dan pemilih `#templat` telah **dibuang**. Fail mengecil **53,051 → 37,298 bait** (−15.4 KB), dan app jadi lebih ringkas untuk dijaga
+- Kod pesanan lama yang membawa templat lain (`s: 'klasik'` dan sebagainya) **masih boleh dibuka** — semuanya kini dipaparkan dengan reka bentuk Biru & Kelabu
+- Cetakan disemak semula selepas pembersihan: PDF **identik** dengan sebelum pembuangan (959 aksara teks, bbox sama, 1 halaman A4) — tiada regresi pada reka bentuk
+
 ## Ujian
 
 ```bash
@@ -100,7 +88,7 @@ cd test && npm install        # sekali sahaja (jsdom)
 "$LOCALAPPDATA/hermes/node/node.exe" test/test_ui.js
 ```
 
-Keputusan semasa: **153 lulus, 0 gagal**.
+Keputusan semasa: **144 lulus, 0 gagal**.
 
 ## Aliran jualan melalui WhatsApp (tanpa gerbang bayaran)
 
@@ -151,6 +139,6 @@ var HARGA = 29.90;               // harga jualan PDF bersih (RM)
 ## Belum ada (fasa seterusnya)
 
 - Penjana PDF terus tanpa dialog cetak
-- Templat tambahan (kini ada **5**: Klasik, Biru & Kelabu, Eksekutif, Minimalis Teal, Kemahiran Dulu) dan pilihan warna
+- Templat tambahan (sekarang **satu reka bentuk sahaja** — Biru & Kelabu) dan pilihan warna
 - Rekod pesanan (siapa sudah bayar) — sekarang tiada langsung
 - Eksport .docx

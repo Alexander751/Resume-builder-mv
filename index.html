@@ -100,34 +100,9 @@
   }
   @media (max-width: 900px) { .panel-pratonton { position: static; } }
 
-  #resume .cv-klasik, #resume .cv-eksekutif, #resume .cv-minimalis, #resume .cv-kemahiran { padding: 40px 46px; }
-  @media (max-width: 900px) {
-    #resume .cv-klasik, #resume .cv-eksekutif, #resume .cv-minimalis, #resume .cv-kemahiran { padding: 22px; }
-  }
-
   #resume { font-family: "Segoe UI", Arial, sans-serif; font-size: 10.8pt; line-height: 1.42; color: #111; }
-  #resume .r-nama { font-size: 21pt; margin: 0; letter-spacing: -.01em; }
-  #resume .r-jawatan { margin: 3px 0 0; font-size: 11.5pt; color: var(--brand); font-weight: 600; }
-  #resume .r-kontak { margin: 7px 0 0; font-size: 9.8pt; color: #333; }
-  #resume .r-sek { margin-top: 15px; }
-  #resume .r-sek > h2 {
-    font-size: 10.2pt; text-transform: uppercase; letter-spacing: .09em;
-    margin: 0 0 5px; padding-bottom: 3px; border-bottom: 1px solid #c9ced6; color: #111;
-  }
-  #resume .r-ringkas { margin: 0; text-align: justify; }
-  #resume .item { margin-bottom: 10px; break-inside: avoid; page-break-inside: avoid; }
-  #resume .item-head { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
-  #resume .item-head strong { font-size: 11pt; }
-  #resume .item-head span { font-size: 9.6pt; color: #555; white-space: nowrap; }
-  #resume .item-sub { font-size: 10.2pt; font-style: italic; color: #333; }
   #resume ul { margin: 3px 0 0; padding-left: 17px; }
   #resume ul li { margin-bottom: 1.5px; }
-  #resume .chip {
-    display: inline-block; border: 1px solid #c9ced6; border-radius: 10px;
-    padding: 1px 8px; margin: 0 5px 5px 0; font-size: 9.6pt;
-  }
-  #resume .kosong { color: #9aa1ab; font-style: italic; }
-
   /* ---------- templat 2: Biru & Kelabu (dua lajur + foto) ----------
      Semua ukuran dalam pt/mm diambil terus daripada fail rujukan
      "Blue and Gray Simple Professional CV Resume.pdf" (A4, 596 x 842 pt). */
@@ -201,106 +176,6 @@
     width: 2.6pt; height: 2.6pt; background: #323b4c; border-radius: 50%;
   }
 
-  /* ================= templat 3: EKSEKUTIF =================
-     Berdasarkan format "Executive Brief" (93% lulus ATS): satu lajur,
-     ringkasan di depan, tipografi serif untuk nama, aksen gangsa halus. */
-  #resume .cv-eksekutif {
-    font-family: "Lato", "Segoe UI", Arial, sans-serif;
-    font-size: 10pt; line-height: 1.42; color: #232a31; background: #fff;
-  }
-  .cve-kepala { text-align: center; }
-  .cve-kepala h1 {
-    font-family: Georgia, "Times New Roman", "Noto Serif", serif;
-    font-size: 25pt; font-weight: 700; letter-spacing: .085em; text-transform: uppercase;
-    margin: 0; color: #1c2229;
-  }
-  .cve-jawatan { margin: 5pt 0 0; font-size: 10.5pt; letter-spacing: .22em; text-transform: uppercase; color: #a98547; }
-  .cve-bar { width: 26mm; height: 2.5pt; background: #a98547; margin: 9pt auto; }
-  .cve-kontak { margin: 0; font-size: 9.5pt; color: #4b5563; }
-  #resume .cv-eksekutif section { margin-top: 13pt; }
-  #resume .cv-eksekutif h2 {
-    font-size: 11.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: .16em;
-    color: #1c2229; margin: 0 0 6pt; padding-bottom: 3.5pt; border-bottom: .8pt solid #cfc7b8;
-  }
-  .cve-item { margin-bottom: 8pt; break-inside: avoid; page-break-inside: avoid; }
-  .cve-baris1 { display: flex; justify-content: space-between; gap: 10pt; align-items: baseline; }
-  .cve-baris1 strong { font-family: Georgia, "Times New Roman", serif; font-size: 11.5pt; font-weight: 700; }
-  .cve-baris1 span { font-size: 9.5pt; color: #6b7280; font-style: italic; white-space: nowrap; }
-  .cve-baris2 { font-size: 10pt; color: #4b5563; font-style: italic; }
-  .cve-poin { list-style: none; margin: 2pt 0 0; padding: 0; }
-  .cve-poin li { position: relative; padding-left: 12pt; margin-bottom: 1pt; }
-  .cve-poin li::before { content: '\2014'; position: absolute; left: 0; color: #a98547; }
-  .cve-teks { margin: 0; text-align: justify; }
-  .cve-inline { margin: 0; }
-
-  /* ================= templat 4: MINIMALIS TEAL =================
-     Berdasarkan format "Minimal Modern" (95% lulus ATS): sans-serif,
-     ruang putih luas, aksen teal, tanpa kotak atau graf. */
-  #resume .cv-minimalis {
-    font-family: "Lato", "Segoe UI", Arial, sans-serif;
-    font-size: 10.5pt; line-height: 1.62; color: #2f3a3f; background: #fff;
-  }
-  .cvm-bar { width: 20mm; height: 3pt; background: #14746f; margin-bottom: 12pt; }
-  .cvm-kepala h1 { font-size: 25pt; font-weight: 700; letter-spacing: -.01em; margin: 0; color: #10201f; }
-  .cvm-jawatan { margin: 3pt 0 0; font-size: 11pt; letter-spacing: .16em; text-transform: uppercase; color: #14746f; }
-  .cvm-kontak { margin: 10pt 0 0; font-size: 9.5pt; color: #64748b; }
-  #resume .cv-minimalis section { margin-top: 18pt; }
-  #resume .cv-minimalis h2 {
-    font-size: 10.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: .18em;
-    color: #14746f; margin: 0 0 7pt;
-  }
-  .cvm-item { margin-bottom: 11pt; break-inside: avoid; page-break-inside: avoid; }
-  .cvm-baris1 { display: flex; justify-content: space-between; gap: 10pt; align-items: baseline; }
-  .cvm-baris1 strong { font-size: 11pt; font-weight: 700; color: #10201f; }
-  .cvm-baris1 span { font-size: 9.5pt; color: #94a3b8; white-space: nowrap; }
-  .cvm-baris2 { font-size: 10pt; color: #64748b; }
-  .cvm-poin { list-style: none; margin: 3pt 0 0; padding: 0; }
-  .cvm-poin li { position: relative; padding-left: 11pt; margin-bottom: 2pt; }
-  .cvm-poin li::before {
-    content: ''; position: absolute; left: 0; top: 5pt;
-    width: 3pt; height: 3pt; border-radius: 50%; background: #14746f;
-  }
-  .cvm-teks { margin: 0; }
-
-  /* ================= templat 5: KEMAHIRAN DULU =================
-     Berdasarkan format "Hybrid Skills-Led" (96% lulus ATS): kemahiran
-     di depan untuk penukar bidang, kemudian kronologi padat.
-     Cip guna border sahaja (bukan background) supaya selamat dicetak
-     walaupun "Background graphics" tidak ditanda. */
-  #resume .cv-kemahiran {
-    font-family: "Lato", "Segoe UI", Arial, sans-serif;
-    font-size: 10pt; line-height: 1.45; color: #262b36; background: #fff;
-  }
-  .cvk-kepala { border-bottom: 2pt solid #4338ca; padding-bottom: 9pt; }
-  .cvk-kepala h1 { font-size: 23pt; font-weight: 800; letter-spacing: -.01em; text-transform: uppercase; margin: 0; color: #1e1b4b; }
-  .cvk-jawatan { margin: 2pt 0 0; font-size: 11pt; font-weight: 700; letter-spacing: .04em; color: #4338ca; }
-  .cvk-kontak { margin: 7pt 0 0; font-size: 9.5pt; color: #4b5563; }
-  #resume .cv-kemahiran section { margin-top: 13pt; }
-  #resume .cv-kemahiran h2 {
-    font-size: 11pt; font-weight: 800; text-transform: uppercase; letter-spacing: .1em;
-    color: #4338ca; margin: 0 0 6pt;
-  }
-  .cvk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4pt 7pt; }
-  .cvk-chip {
-    border: .8pt solid #c7d2fe; border-left: 2.5pt solid #4338ca;
-    padding: 3pt 5pt; font-size: 9.5pt; color: #312e81;
-  }
-  .cvk-item {
-    margin-bottom: 8pt; padding-left: 9pt; border-left: .8pt solid #dbe0f5;
-    break-inside: avoid; page-break-inside: avoid;
-  }
-  .cvk-baris1 { display: flex; justify-content: space-between; gap: 10pt; align-items: baseline; }
-  .cvk-baris1 strong { font-size: 11pt; font-weight: 700; color: #1e1b4b; }
-  .cvk-baris1 span { font-size: 9.5pt; color: #6b7280; white-space: nowrap; }
-  .cvk-baris2 { font-size: 10pt; color: #4b5563; }
-  .cvk-poin { list-style: none; margin: 2pt 0 0; padding: 0; }
-  .cvk-poin li { position: relative; padding-left: 10pt; margin-bottom: 1pt; }
-  .cvk-poin li::before {
-    content: ''; position: absolute; left: 0; top: 4.4pt;
-    width: 2.6pt; height: 2.6pt; border-radius: 50%; background: #4338ca;
-  }
-  .cvk-teks { margin: 0; }
-
   /* ---------- tanda air (watermark) + pesanan ---------- */
   .kertas { position: relative; }
   .cap-air {
@@ -349,7 +224,6 @@
       width: auto; max-width: none; aspect-ratio: auto; overflow: visible;
       zoom: 1 !important;   /* batalkan skala pratonton semasa cetak */
     }
-    #resume .cv-klasik, #resume .cv-eksekutif, #resume .cv-minimalis, #resume .cv-kemahiran { font-size: 10.5pt; padding: 12mm; }
     /* templat dua lajur mesti memenuhi penuh satu halaman A4 supaya rel kelabu
        sampai ke bawah kertas; tolak 1px supaya tidak melimpah ke halaman kosong */
     #resume .cv-biru { min-height: calc(297mm - 1px); }
@@ -367,18 +241,6 @@
 <main>
   <form id="borang">
     <fieldset>
-      <legend>Templat</legend>
-      <label for="templat">Reka bentuk resume</label>
-      <select id="templat">
-        <option value="klasik">Klasik — satu lajur, ringkas</option>
-        <option value="biru">Biru &amp; Kelabu — dua lajur, ada foto</option>
-        <option value="eksekutif">Eksekutif — serif, formal, padat</option>
-        <option value="minimalis">Minimalis Teal — lapang, moden</option>
-        <option value="kemahiran">Kemahiran Dulu — cip kemahiran di depan</option>
-      </select>
-    </fieldset>
-
-    <fieldset>
       <legend>Butiran Peribadi</legend>
       <label for="nama">Nama</label>
       <input id="nama" type="text" placeholder="cth. Ahmad bin Ali" autocomplete="name">
@@ -392,7 +254,7 @@
       <label for="lokasi">Lokasi</label>
       <input id="lokasi" type="text" placeholder="cth. Kemaman, Terengganu">
 
-      <label for="foto">Foto (pilihan — templat Biru &amp; Kelabu)</label>
+      <label for="foto">Foto (pilihan)</label>
       <input id="foto" type="file" accept="image/*">
       <div id="foto-info"></div>
       <button type="button" id="buang-foto">Buang foto</button>
@@ -483,7 +345,6 @@
 
   var penjual = false;             // true = mod anda sendiri (tiada tanda air)
   var foto = '';                   // data URL foto (tidak masuk ke kod pesanan)
-  var TEMPLAT = ['klasik', 'biru', 'eksekutif', 'minimalis', 'kemahiran'];
 
   function el(id) { return document.getElementById(id); }
 
@@ -550,7 +411,6 @@
   /* ---------- kumpul data ---------- */
   function kumpul() {
     var d = {
-      templat: el('templat').value,
       nama: el('nama').value.trim(),
       telefon: el('telefon').value.trim(),
       emel: el('emel').value.trim(),
@@ -586,67 +446,9 @@
   }
 
   /* ---------- pratonton ---------- */
-  function seksyen(tajuk, isi) {
-    return isi ? '<section class="r-sek"><h2>' + esc(tajuk) + '</h2>' + isi + '</section>' : '';
-  }
-
-  var PELUKIS = { klasik: htmlKlasik, biru: htmlBiru, eksekutif: htmlEksekutif, minimalis: htmlMinimalis, kemahiran: htmlKemahiran };
-
   function papar(d) {
-    var lukis = PELUKIS[d.templat] || htmlKlasik;
-    el('resume').innerHTML = lukis(d);
+    el('resume').innerHTML = htmlBiru(d);
     capAir(!penjual);
-  }
-
-  /* ---------- templat 1: Klasik ---------- */
-  function htmlKlasik(d) {
-    var html = '<div class="cv-klasik">';
-    html += '<h1 class="r-nama">' + esc(d.nama || 'Nama Anda') + '</h1>';
-    if (d.jawatan) html += '<p class="r-jawatan">' + esc(d.jawatan) + '</p>';
-
-    var kontak = [d.telefon, d.emel, d.lokasi].filter(function (x) { return !!x; }).map(esc);
-    if (kontak.length) html += '<p class="r-kontak">' + kontak.join(' &nbsp;&middot;&nbsp; ') + '</p>';
-    if (!d.nama) html += '<p class="r-kontak kosong">(Isi borang di kiri - resume akan muncul di sini)</p>';
-
-    if (d.ringkasan) html += seksyen('Ringkasan Profil', '<p class="r-ringkas">' + esc(d.ringkasan) + '</p>');
-
-    if (d.pengalaman.length) {
-      var isi = d.pengalaman.map(function (o) {
-        var s = '<div class="item"><div class="item-head"><strong>' + esc(o.jawatan || '(Jawatan)') + '</strong>';
-        s += '<span>' + esc(o.tempoh) + '</span></div>';
-        if (o.syarikat) s += '<div class="item-sub">' + esc(o.syarikat) + '</div>';
-        if (o.poin.length) s += '<ul>' + o.poin.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul>';
-        return s + '</div>';
-      }).join('');
-      html += seksyen('Pengalaman Kerja', isi);
-    }
-
-    if (d.pendidikan.length) {
-      var isi2 = d.pendidikan.map(function (o) {
-        var s = '<div class="item"><div class="item-head"><strong>' + esc(o.kelulusan || '(Kelulusan)') + '</strong>';
-        s += '<span>' + esc(o.tahun) + '</span></div>';
-        if (o.institusi) s += '<div class="item-sub">' + esc(o.institusi) + '</div>';
-        return s + '</div>';
-      }).join('');
-      html += seksyen('Pendidikan', isi2);
-    }
-
-    if (d.kemahiran) html += seksyen('Kemahiran', kepingKemahiran(d.kemahiran, 'chip'));
-    if (d.bahasa) html += seksyen('Bahasa', kepingKemahiran(d.bahasa, 'chip'));
-
-    if (d.rujukan) {
-      var ruj = d.rujukan.split('\n').map(function (s) { return s.trim(); }).filter(Boolean)
-        .map(function (s) { return '<p class="r-ringkas">' + esc(s) + '</p>'; }).join('');
-      html += seksyen('Rujukan', ruj);
-    }
-
-    html += '</div>';
-    return html;
-  }
-
-  function kepingKemahiran(teks, kelas) {
-    return teks.split(',').map(function (s) { return s.trim(); }).filter(Boolean)
-      .map(function (s) { return '<span class="' + kelas + '">' + esc(s) + '</span>'; }).join('');
   }
 
   /* ---------- templat 2: Biru & Kelabu ---------- */
@@ -735,104 +537,6 @@
       .map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('');
   }
 
-  /* ---------- penjana kongsi untuk templat 3-5 ---------- */
-  function barisKontak(d, pemisah) {
-    return [d.telefon, d.emel, d.lokasi].filter(function (x) { return !!x; }).map(esc).join(pemisah);
-  }
-
-  function senaraiInline(teks) {
-    return teks.split(',').map(function (s) { return s.trim(); }).filter(Boolean).map(esc)
-      .join(' &nbsp;&middot;&nbsp; ');
-  }
-
-  function itemKerja(list, p) {
-    return list.map(function (o) {
-      var s = '<div class="' + p + '-item"><div class="' + p + '-baris1"><strong>' +
-              esc(o.jawatan || '(Jawatan)') + '</strong><span>' + esc(o.tempoh) + '</span></div>';
-      if (o.syarikat) s += '<div class="' + p + '-baris2">' + esc(o.syarikat) + '</div>';
-      if (o.poin && o.poin.length) {
-        s += '<ul class="' + p + '-poin">' + o.poin.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>';
-      }
-      return s + '</div>';
-    }).join('');
-  }
-
-  function itemDidik(list, p) {
-    return list.map(function (o) {
-      var s = '<div class="' + p + '-item"><div class="' + p + '-baris1"><strong>' +
-              esc(o.kelulusan || '(Kelulusan)') + '</strong><span>' + esc(o.tahun) + '</span></div>';
-      if (o.institusi) s += '<div class="' + p + '-baris2">' + esc(o.institusi) + '</div>';
-      return s + '</div>';
-    }).join('');
-  }
-
-  function senaraiRujukan(teks, kelas) {
-    return teks.split('\n').map(function (s) { return s.trim(); }).filter(Boolean)
-      .map(function (s) { return '<p class="' + kelas + '">' + esc(s) + '</p>'; }).join('');
-  }
-
-  function sek(tajuk, isi) {
-    return isi ? '<section><h2>' + esc(tajuk) + '</h2>' + isi + '</section>' : '';
-  }
-
-  /* ---------- templat 3: Eksekutif (format Executive Brief) ---------- */
-  function htmlEksekutif(d) {
-    var h = '<div class="cv-eksekutif"><header class="cve-kepala">';
-    h += '<h1>' + esc(d.nama || 'Nama Anda') + '</h1>';
-    if (d.jawatan) h += '<p class="cve-jawatan">' + esc(d.jawatan) + '</p>';
-    h += '<div class="cve-bar"></div>';
-    var k = barisKontak(d, '&nbsp;&nbsp;&middot;&nbsp;&nbsp;');
-    if (k) h += '<p class="cve-kontak">' + k + '</p>';
-    h += '</header>';
-    if (d.ringkasan) h += sek('Ringkasan Eksekutif', '<p class="cve-teks">' + esc(d.ringkasan) + '</p>');
-    if (d.pengalaman.length) h += sek('Pengalaman Kerja', itemKerja(d.pengalaman, 'cve'));
-    if (d.pendidikan.length) h += sek('Pendidikan', itemDidik(d.pendidikan, 'cve'));
-    if (d.kemahiran) h += sek('Kemahiran', '<p class="cve-inline">' + senaraiInline(d.kemahiran) + '</p>');
-    if (d.bahasa) h += sek('Bahasa', '<p class="cve-inline">' + senaraiInline(d.bahasa) + '</p>');
-    if (d.rujukan) h += sek('Rujukan', senaraiRujukan(d.rujukan, 'cve-teks'));
-    return h + '</div>';
-  }
-
-  /* ---------- templat 4: Minimalis Teal (format Minimal Modern) ---------- */
-  function htmlMinimalis(d) {
-    var h = '<div class="cv-minimalis"><header class="cvm-kepala">';
-    h += '<div class="cvm-bar"></div>';
-    h += '<h1>' + esc(d.nama || 'Nama Anda') + '</h1>';
-    if (d.jawatan) h += '<p class="cvm-jawatan">' + esc(d.jawatan) + '</p>';
-    var k = barisKontak(d, '&nbsp;&nbsp;&middot;&nbsp;&nbsp;');
-    if (k) h += '<p class="cvm-kontak">' + k + '</p>';
-    h += '</header>';
-    if (d.ringkasan) h += sek('Profil', '<p class="cvm-teks">' + esc(d.ringkasan) + '</p>');
-    if (d.pengalaman.length) h += sek('Pengalaman Kerja', itemKerja(d.pengalaman, 'cvm'));
-    if (d.pendidikan.length) h += sek('Pendidikan', itemDidik(d.pendidikan, 'cvm'));
-    if (d.kemahiran) h += sek('Kemahiran', '<p class="cvm-teks">' + senaraiInline(d.kemahiran) + '</p>');
-    if (d.bahasa) h += sek('Bahasa', '<p class="cvm-teks">' + senaraiInline(d.bahasa) + '</p>');
-    if (d.rujukan) h += sek('Rujukan', senaraiRujukan(d.rujukan, 'cvm-teks'));
-    return h + '</div>';
-  }
-
-  /* ---------- templat 5: Kemahiran Dulu (format Hybrid Skills-Led) ---------- */
-  function htmlKemahiran(d) {
-    var h = '<div class="cv-kemahiran"><header class="cvk-kepala">';
-    h += '<h1>' + esc(d.nama || 'Nama Anda') + '</h1>';
-    if (d.jawatan) h += '<p class="cvk-jawatan">' + esc(d.jawatan) + '</p>';
-    var k = barisKontak(d, '&nbsp;&nbsp;&middot;&nbsp;&nbsp;');
-    if (k) h += '<p class="cvk-kontak">' + k + '</p>';
-    h += '</header>';
-    if (d.kemahiran) h += sek('Kemahiran Utama', gridCip(d.kemahiran));
-    if (d.ringkasan) h += sek('Ringkasan', '<p class="cvk-teks">' + esc(d.ringkasan) + '</p>');
-    if (d.pengalaman.length) h += sek('Pengalaman Kerja', itemKerja(d.pengalaman, 'cvk'));
-    if (d.pendidikan.length) h += sek('Pendidikan', itemDidik(d.pendidikan, 'cvk'));
-    if (d.bahasa) h += sek('Bahasa', gridCip(d.bahasa));
-    if (d.rujukan) h += sek('Rujukan', senaraiRujukan(d.rujukan, 'cvk-teks'));
-    return h + '</div>';
-  }
-
-  function gridCip(teks) {
-    return '<div class="cvk-grid">' + teks.split(',').map(function (s) { return s.trim(); }).filter(Boolean)
-      .map(function (s) { return '<span class="cvk-chip">' + esc(s) + '</span>'; }).join('') + '</div>';
-  }
-
   function capAir(aktif) {
     var kotak = el('cap-air');
     if (!kotak) return;
@@ -846,7 +550,7 @@
   /* ---------- kod resume (untuk pesanan WhatsApp) ---------- */
   function kodDari(d) {
     var ringkas = {
-      s: d.templat, n: d.nama, t: d.telefon, e: d.emel, l: d.lokasi, j: d.jawatan,
+      s: 'biru', n: d.nama, t: d.telefon, e: d.emel, l: d.lokasi, j: d.jawatan,
       g: d.ringkasan, k: d.kemahiran, b: d.bahasa, u: d.rujukan,
       p: d.pengalaman, d: d.pendidikan
     };
@@ -861,7 +565,7 @@
       while (b64.length % 4) b64 += '=';
       var o = JSON.parse(decodeURIComponent(escape(window.atob(b64))));
       return {
-        templat: (TEMPLAT.indexOf(o.s) >= 0) ? o.s : 'klasik',
+        templat: 'biru',
         nama: o.n || '', telefon: o.t || '', emel: o.e || '', lokasi: o.l || '',
         jawatan: o.j || '', ringkasan: o.g || '', kemahiran: o.k || '',
         bahasa: o.b || '', rujukan: o.u || '',
@@ -928,7 +632,6 @@
     el('kemahiran').value = d.kemahiran || '';
     el('bahasa').value = d.bahasa || '';
     el('rujukan').value = d.rujukan || '';
-    el('templat').value = (TEMPLAT.indexOf(d.templat) >= 0) ? d.templat : 'klasik';
     foto = d.foto || '';
     tulisLogFoto();
     el('senarai-pengalaman').innerHTML = '';
@@ -957,7 +660,7 @@
     kotak.style.fontSize = '12px';
     kotak.style.marginTop = '4px';
     kotak.style.color = ralat ? '#b42318' : (foto ? '#166534' : '#6b7280');
-    kotak.textContent = mesej || (foto ? 'OK - foto akan masuk ke templat Biru & Kelabu.' : 'Belum ada foto (pilihan).');
+    kotak.textContent = mesej || (foto ? 'OK - foto akan masuk ke dalam resume.' : 'Belum ada foto (pilihan).');
   }
 
   function kecilkanFoto(fail, sudah) {

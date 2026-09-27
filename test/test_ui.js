@@ -69,7 +69,7 @@ ok(r.includes('Junior Quantity Surveyor'), 'jawatan disasarkan masuk pratonton')
 ok(r.includes('Graduan Ukur Bahan'), 'ringkasan masuk pratonton');
 ok(r.includes('EPH Construction Sdn Bhd'), 'syarikat masuk pratonton');
 ok(r.includes('Mac 2024 - Kini'), 'tempoh masuk pratonton');
-ok(d.querySelectorAll('#resume ul li').length === 2, '2 poin pengalaman jadi 2 <li>');
+ok(d.querySelectorAll('#resume .cvb-bullet li').length === 2, '2 poin pengalaman jadi 2 bullet');
 
 console.log('== 5. Tambah / padam baris berulang ==');
 el('tambah-pengalaman').click();
@@ -92,14 +92,14 @@ ok(el('log').textContent.includes('1 pendidikan'), 'baris pendidikan kosong dita
 
 el('kosongkan').click();
 ok(d.querySelectorAll('#senarai-pengalaman .baris').length === 0, 'Kosongkan buang semua baris pengalaman');
-ok(resume().includes('Nama Anda'), 'pratonton kembali ke tempat letak');
+ok(resume().includes('NAMA ANDA'), 'pratonton kembali ke tempat letak (banner nama kosong)');
 
 console.log('== 6. Kemahiran + keselamatan ==');
 el('tambah-pengalaman').click();
 isi('#senarai-pengalaman .baris:nth-child(1) .p-jawatan', 'QS');
 el('kemahiran').value = 'AutoCAD, BQ, MS Excel, BIM';
 el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
-ok(d.querySelectorAll('#resume .chip').length === 4, '4 kemahiran jadi 4 chip');
+ok(d.querySelectorAll('#resume .cvb-titik li').length === 4, '4 kemahiran jadi 4 titik rel kiri');
 el('nama').value = '<b>Ali</b>';
 el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
 ok(el('resume').querySelector('b') === null, 'input HTML di-escape (tiada <b> dijana)');
@@ -206,15 +206,13 @@ el('tambah-pendidikan').click();
 isi('#senarai-pendidikan .baris:nth-child(1) .d-kelulusan', 'Sarjana Muda Ukur Bahan');
 isi('#senarai-pendidikan .baris:nth-child(1) .d-institusi', 'UiTM Shah Alam');
 isi('#senarai-pendidikan .baris:nth-child(1) .d-tahun', '2021 - 2024');
-ok(!!el('templat'), 'pemilih #templat wujud');
-ok(!!d.querySelector('#resume .cv-klasik'), 'pembalut .cv-klasik dirender pada templat klasik');
+ok(!el('templat'), 'pemilih templat sudah dibuang (satu reka bentuk sahaja)');
 el('bahasa').value = 'Bahasa Melayu (Fasih), English (Fluent)';
 el('rujukan').value = 'En. Ahmad — Pengurus Projek, EPH Construction';
-el('templat').value = 'biru';
 el('borang').dispatchEvent(new w.Event('change', { bubbles: true }));
 const biru = d.querySelector('#resume .cv-biru');
-ok(!!biru, 'templat biru dirender');
-ok(d.querySelector('#resume .cv-klasik') === null, 'pembalut klasik tiada bila templat biru');
+ok(!!biru, 'templat Biru & Kelabu dirender secara lalai');
+ok(d.querySelectorAll('#resume > div').length === 1, 'hanya satu reka bentuk dirender dalam #resume');
 ok(d.querySelector('#resume .cvb-nama h1').textContent.includes('Ahmad bin Ali'), 'nama di dalam banner biru');
 ok(biru.className.includes('tanpa-foto'), 'kelas tanpa-foto bila tiada foto');
 const kiriTeks = d.querySelector('#resume .cvb-kiri').textContent;
@@ -242,44 +240,33 @@ const dom6 = new JSDOM(html, {
   url: 'https://alexander751.github.io/Resume-builder-mv/#kod=' + kodBiru,
   beforeParse(w2) { w2.print = () => {}; w2.confirm = () => true; }
 });
-ok(dom6.window.document.getElementById('templat').value === 'biru', 'templat dipulihkan dari kod pesanan');
-ok(!!dom6.window.document.querySelector('#resume .cv-biru'), 'kod memulihkan paparan templat biru');
+ok(!dom6.window.document.getElementById('templat'),
+   'kod pesanan lama (s: klasik) tetap dibuka dengan reka bentuk Biru & Kelabu');
+ok(!!dom6.window.document.querySelector('#resume .cv-biru'), 'kod memulihkan paparan Biru & Kelabu');
 ok(dom6.window.document.querySelector('#resume .cvb-kiri').textContent.includes('English (Fluent)'),
    'bahasa dipulihkan dari kod');
 
-console.log('== 14. Tiga templat profesional baharu ==');
-ok(el('templat').options.length === 5, 'pemilih templat ada 5 pilihan');
-const templatBaharu = [
-  ['eksekutif', '.cv-eksekutif', ['Ringkasan Eksekutif', 'Pengalaman Kerja', 'Pendidikan', 'Kemahiran', 'Bahasa', 'Rujukan']],
-  ['minimalis', '.cv-minimalis', ['Profil', 'Pengalaman Kerja', 'Pendidikan', 'Kemahiran', 'Bahasa', 'Rujukan']],
-  ['kemahiran', '.cv-kemahiran', ['Kemahiran Utama', 'Ringkasan', 'Pengalaman Kerja', 'Pendidikan', 'Bahasa', 'Rujukan']]
-];
-templatBaharu.forEach(function (t) {
-  const id = t[0], sel = t[1], senaraiSeksyen = t[2];
-  el('templat').value = id;
-  el('borang').dispatchEvent(new w.Event('change', { bubbles: true }));
-  const akar = d.querySelector('#resume ' + sel);
-  ok(!!akar, 'templat ' + id + ' dirender (' + sel + ')');
-  ok(!!akar && akar.textContent.includes('Ahmad bin Ali'), 'nama muncul dalam templat ' + id);
-  ok(!!akar && senaraiSeksyen.every(function (s) { return akar.textContent.includes(s); }),
-     'semua bahagian ada dalam templat ' + id);
-  ok(d.querySelectorAll('#resume > div').length === 1, 'hanya satu pembalut templat dirender (' + id + ')');
-  ok(!!akar && akar.textContent.indexOf('<b>') === -1, 'tiada HTML mentah tercetus dalam templat ' + id);
-});
-el('templat').value = 'kemahiran';
-el('borang').dispatchEvent(new w.Event('change', { bubbles: true }));
-ok(d.querySelectorAll('#resume .cvk-chip').length === 4, 'cip kemahiran + bahasa dijadikan grid (4 cip)');
-el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
-const kodKem = decodeURIComponent(el('wa').href).split('Kod resume saya')[1].split('\n').pop().trim();
-const dom8 = new JSDOM(html, {
+console.log('== 14. Satu reka bentuk sahaja (Biru & Kelabu) ==');
+ok(!/cv-klasik|cv-eksekutif|cv-minimalis|cv-kemahiran/.test(html), 'tiada sisa kelas templat lama dalam fail');
+ok(!/htmlKlasik|htmlEksekutif|htmlMinimalis|htmlKemahiran|PELUKIS/.test(html), 'tiada sisa fungsi templat lama');
+ok(!/var TEMPLAT = \[/.test(html), 'senarai TEMPLAT sudah dibuang');
+ok(!/<select id="templat"/.test(html), 'borang tiada pemilih templat');
+ok(/el\('resume'\)\.innerHTML = htmlBiru\(d\)/.test(html), 'papar() sentiasa memanggil htmlBiru()');
+ok(!/r-sek|r-nama|\.chip/.test(html), 'tiada sisa gaya templat Klasik');
+ok(html.includes('function htmlBiru') && html.includes('.cv-biru'), 'reka bentuk Biru & Kelabu kekal utuh');
+ok(html.includes('.cvb-lencana') && html.includes('.cvb-titik') && html.includes('ikonLencana'),
+   'elemen bulat Biru & Kelabu masih ada');
+ok(d.querySelectorAll('#resume .cvb-lencana').length === 4, 'lencana bulat masih dirender selepas pembersihan');
+ok(d.querySelectorAll('#resume .cvb-titik li').length === 4, 'titik bulat rel kiri masih dirender');
+const kodBersih = decodeURIComponent(el('wa').href).split('Kod resume saya')[1].split('\n').pop().trim();
+const dom9 = new JSDOM(html, {
   runScripts: 'dangerously',
-  url: 'https://alexander751.github.io/Resume-builder-mv/#kod=' + kodKem,
-  beforeParse(w8) { w8.print = () => {}; w8.confirm = () => true; }
+  url: 'https://alexander751.github.io/Resume-builder-mv/#kod=' + kodBersih,
+  beforeParse(w9) { w9.print = () => {}; w9.confirm = () => true; }
 });
-ok(dom8.window.document.getElementById('templat').value === 'kemahiran', 'templat baharu dipulihkan dari kod pesanan');
-ok(!!dom8.window.document.querySelector('#resume .cv-kemahiran'), 'paparan templat kemahiran dipulihkan dari kod');
-ok(dom8.window.document.querySelector('#resume .cvk-kepala h1').textContent.includes('Ahmad bin Ali'),
-   'nama dipulihkan dalam templat kemahiran');
+ok(!!dom9.window.document.querySelector('#resume .cv-biru'), 'kod pesanan baharu masih memulihkan reka bentuk');
+ok(dom9.window.document.querySelector('#resume .cvb-nama h1').textContent.includes('Ahmad bin Ali'),
+   'nama dipulihkan dari kod selepas pembersihan');
 
 console.log('== 15. Pratonton muat penuh pada skrin (tanpa skrol) ==');
 ok(/\.kertas \{[\s\S]{0,400}zoom: var\(--skala, 1\)/.test(html), 'kertas guna skala automatik (--skala)');
@@ -363,8 +350,7 @@ console.log('== 13. Muat naik foto (Image + kanvas dipalsukan) ==');
   input.dispatchEvent(new w7.Event('change', { bubbles: true }));
   await new Promise(r => setTimeout(r, 80));
 
-  d7.getElementById('templat').value = 'biru';
-  d7.getElementById('borang').dispatchEvent(new w7.Event('change', { bubbles: true }));
+  d7.getElementById('borang').dispatchEvent(new w7.Event('input', { bubbles: true }));
   const img = d7.querySelector('#resume .cvb-foto img');
   ok(img !== null, 'foto dirender dalam banner templat biru');
   ok(img && img.getAttribute('src') === 'data:image/jpeg;base64,FOTOUJIAN', 'foto dikecilkan melalui kanvas dahulu');
