@@ -2,6 +2,9 @@
 test/node_modules/
 test/package-lock.json
 
+# Dokumen komersial (jangan siar di repo awam)
+Pelan_Komersialisasi_*.xlsx
+
 # Fail sistem
 Thumbs.db
 desktop.ini
