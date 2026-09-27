@@ -5,56 +5,427 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Resume Builder MV</title>
 <style>
-  body { font-family: Arial, sans-serif; margin: 24px; max-width: 520px; }
-  label { display: block; margin-top: 12px; font-weight: bold; }
-  input { width: 100%; padding: 6px; box-sizing: border-box; }
-  button { margin-top: 16px; padding: 8px 16px; }
-  #log { margin-top: 12px; color: #b00; }
-  #output { border: 1px solid #999; padding: 12px; margin-top: 16px; }
+  :root {
+    --ink: #1c1c1e;
+    --muted: #6b7280;
+    --line: #d9dde3;
+    --brand: #12508c;
+    --bg: #eef1f5;
+    --danger: #b42318;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    font-size: 15px;
+    color: var(--ink);
+    background: var(--bg);
+  }
+  header.top {
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+    padding: 12px 20px;
+  }
+  header.top h1 { margin: 0; font-size: 17px; }
+  header.top p { margin: 3px 0 0; font-size: 13px; color: var(--muted); }
+
+  main {
+    display: grid;
+    grid-template-columns: minmax(300px, 440px) 1fr;
+    gap: 20px;
+    padding: 20px;
+    align-items: start;
+  }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; padding: 12px; } }
+
+  /* ---------- borang ---------- */
+  form { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  fieldset { border: 0; border-top: 1px solid var(--line); margin: 14px 0 0; padding: 12px 0 0; }
+  fieldset:first-of-type { border-top: 0; margin-top: 0; padding-top: 0; }
+  legend { font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--brand); padding: 0; }
+  label { display: block; margin: 10px 0 3px; font-size: 13px; font-weight: 600; }
+  input, textarea {
+    width: 100%; padding: 7px 9px; border: 1px solid var(--line);
+    border-radius: 5px; font: inherit; font-size: 14px; background: #fff;
+  }
+  input:focus, textarea:focus { outline: 2px solid #bcd4ee; border-color: var(--brand); }
+  textarea { resize: vertical; min-height: 62px; }
+  .baris {
+    border: 1px solid var(--line); border-radius: 6px;
+    padding: 4px 10px 10px; margin-top: 10px; background: #fafbfc;
+  }
+  .baris .kepala { display: flex; justify-content: space-between; align-items: center; margin: 8px 0 0; }
+  .baris .kepala strong { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+  .btn-hapus {
+    background: none; border: 0; color: var(--danger); font-size: 12px;
+    cursor: pointer; padding: 2px 4px; text-decoration: underline;
+  }
+  .btn-tambah {
+    margin-top: 10px; background: #fff; border: 1px dashed var(--brand);
+    color: var(--brand); border-radius: 5px; padding: 7px 12px; font: inherit;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .aksi { display: flex; gap: 10px; align-items: center; margin-top: 18px; flex-wrap: wrap; }
+  #jana {
+    flex: 1 1 auto; background: var(--brand); color: #fff; border: 0; border-radius: 6px;
+    padding: 11px 18px; font: inherit; font-size: 15px; font-weight: 700; cursor: pointer;
+  }
+  #kosongkan { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 11px 14px; font: inherit; cursor: pointer; }
+  #log { margin-top: 10px; font-size: 13px; }
+  #log .ralat { color: var(--danger); font-weight: 600; }
+  #log .info { color: #166534; }
+  #log .amaran { color: #92400e; }
+
+  /* ---------- pratonton A4 ---------- */
+  .panel-pratonton { position: sticky; top: 20px; }
+  .panel-pratonton > .tajuk { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 0 0 8px 2px; }
+  .kertas {
+    background: #fff; border: 1px solid var(--line); box-shadow: 0 2px 10px rgba(16, 24, 40, .08);
+    width: 100%; max-width: 794px; aspect-ratio: 210 / 297; margin: 0 auto;
+    padding: 40px 46px; overflow: auto;
+  }
+  @media (max-width: 900px) { .kertas { aspect-ratio: auto; padding: 22px; } .panel-pratonton { position: static; } }
+
+  #resume { font-family: "Segoe UI", Arial, sans-serif; font-size: 10.8pt; line-height: 1.42; color: #111; }
+  #resume .r-nama { font-size: 21pt; margin: 0; letter-spacing: -.01em; }
+  #resume .r-jawatan { margin: 3px 0 0; font-size: 11.5pt; color: var(--brand); font-weight: 600; }
+  #resume .r-kontak { margin: 7px 0 0; font-size: 9.8pt; color: #333; }
+  #resume .r-sek { margin-top: 15px; }
+  #resume .r-sek > h2 {
+    font-size: 10.2pt; text-transform: uppercase; letter-spacing: .09em;
+    margin: 0 0 5px; padding-bottom: 3px; border-bottom: 1px solid #c9ced6; color: #111;
+  }
+  #resume .r-ringkas { margin: 0; text-align: justify; }
+  #resume .item { margin-bottom: 10px; break-inside: avoid; page-break-inside: avoid; }
+  #resume .item-head { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+  #resume .item-head strong { font-size: 11pt; }
+  #resume .item-head span { font-size: 9.6pt; color: #555; white-space: nowrap; }
+  #resume .item-sub { font-size: 10.2pt; font-style: italic; color: #333; }
+  #resume ul { margin: 3px 0 0; padding-left: 17px; }
+  #resume ul li { margin-bottom: 1.5px; }
+  #resume .chip {
+    display: inline-block; border: 1px solid #c9ced6; border-radius: 10px;
+    padding: 1px 8px; margin: 0 5px 5px 0; font-size: 9.6pt;
+  }
+  #resume .kosong { color: #9aa1ab; font-style: italic; }
+
+  /* ---------- cetak ---------- */
+  @page { size: A4; margin: 12mm; }
   @media print {
-    h1, form, #log { display: none; }
-    #output { border: none; padding: 0; }
+    body { background: #fff; }
+    header.top, form, #log, .no-print, .panel-pratonton > .tajuk { display: none !important; }
+    main { display: block; padding: 0; gap: 0; }
+    .panel-pratonton { position: static; }
+    .kertas {
+      border: 0; box-shadow: none; padding: 0; margin: 0;
+      width: auto; max-width: none; aspect-ratio: auto; overflow: visible;
+    }
+    #resume { font-size: 10.5pt; }
   }
 </style>
 </head>
 <body>
 
-<h1>Resume Builder MV</h1>
+<header class="top">
+  <h1>Resume Builder MV</h1>
+  <p>Isi butiran di kiri — pratonton A4 dikemas kini serta-merta. Tekan <strong>Jana PDF</strong> bila puas hati.</p>
+</header>
 
-<form id="borang">
-  <label for="nama">Nama</label>
-  <input id="nama" type="text" placeholder="Nama penuh">
+<main>
+  <form id="borang">
+    <fieldset>
+      <legend>Butiran Peribadi</legend>
+      <label for="nama">Nama</label>
+      <input id="nama" type="text" placeholder="cth. Ahmad bin Ali" autocomplete="name">
 
-  <label for="telefon">Nombor Telefon</label>
-  <input id="telefon" type="tel" placeholder="cth. 012-3456789">
+      <label for="telefon">Nombor Telefon</label>
+      <input id="telefon" type="tel" placeholder="cth. 012-3456789" autocomplete="tel">
 
-  <button type="submit" id="jana">Jana PDF</button>
-</form>
+      <label for="emel">E-mel</label>
+      <input id="emel" type="email" placeholder="cth. ahmad@gmail.com" autocomplete="email">
 
-<div id="log"></div>
-<pre id="output"></pre>
+      <label for="lokasi">Lokasi</label>
+      <input id="lokasi" type="text" placeholder="cth. Kemaman, Terengganu">
+    </fieldset>
+
+    <fieldset>
+      <legend>Jawatan Disasarkan</legend>
+      <label for="jawatan">Jawatan / Posisi</label>
+      <input id="jawatan" type="text" placeholder="cth. Junior Quantity Surveyor">
+    </fieldset>
+
+    <fieldset>
+      <legend>Ringkasan Profil</legend>
+      <label for="ringkasan">Ringkasan (2–4 ayat)</label>
+      <textarea id="ringkasan" placeholder="cth. Graduan Sarjana Muda Ukur Bahan dengan 2 tahun pengalaman..."></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>Pengalaman Kerja</legend>
+      <div id="senarai-pengalaman"></div>
+      <button type="button" class="btn-tambah" id="tambah-pengalaman">+ Tambah Pengalaman</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>Pendidikan</legend>
+      <div id="senarai-pendidikan"></div>
+      <button type="button" class="btn-tambah" id="tambah-pendidikan">+ Tambah Pendidikan</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>Kemahiran</legend>
+      <label for="kemahiran">Pisahkan dengan koma</label>
+      <input id="kemahiran" type="text" placeholder="cth. AutoCAD, Pengukuran Kuantiti, MS Excel, BIM">
+    </fieldset>
+
+    <div class="aksi">
+      <button type="submit" id="jana">Jana PDF</button>
+      <button type="button" id="kosongkan">Kosongkan</button>
+    </div>
+    <div id="log"></div>
+  </form>
+
+  <section class="panel-pratonton">
+    <p class="tajuk">Pratonton (saiz A4)</p>
+    <div class="kertas"><article id="resume"></article></div>
+  </section>
+</main>
 
 <script>
-function el(id) { return document.getElementById(id); }
+(function () {
+  'use strict';
 
-el('borang').addEventListener('submit', function (e) {
-  e.preventDefault();
-  var log = el('log');
-  log.textContent = '';
+  var KUNCI = 'resume-mv-v1';
+  var bilPengalaman = 0, bilPendidikan = 0;
 
-  var nama = el('nama').value.trim();
-  var telefon = el('telefon').value.trim();
+  function el(id) { return document.getElementById(id); }
 
-  if (!nama || !telefon) {
-    log.textContent = 'Sila isi Nama dan Nombor Telefon.';
-    return;
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
   }
 
-  el('output').textContent =
-    'RESUME\n\nNama           : ' + nama + '\nNombor Telefon : ' + telefon;
+  function tulisLog(mesej, jenis) {
+    var log = el('log');
+    if (!log) return;
+    log.innerHTML = mesej ? '<span class="' + (jenis || 'info') + '">' + esc(mesej) + '</span>' : '';
+  }
 
-  window.print();
-});
+  /* ---------- baris berulang ---------- */
+  function barisPengalaman(data) {
+    data = data || {};
+    bilPengalaman++;
+    var n = bilPengalaman;
+    var b = document.createElement('div');
+    b.className = 'baris';
+    b.innerHTML =
+      '<div class="kepala"><strong>Pengalaman ' + n + '</strong>' +
+      '<button type="button" class="btn-hapus">Hapus</button></div>' +
+      '<label>Jawatan</label><input class="p-jawatan" type="text" placeholder="cth. Quantity Surveyor">' +
+      '<label>Syarikat</label><input class="p-syarikat" type="text" placeholder="cth. EPH Construction Sdn Bhd">' +
+      '<label>Tempoh</label><input class="p-tempoh" type="text" placeholder="cth. Mac 2024 - Kini">' +
+      '<label>Perkara utama (satu baris satu poin)</label>' +
+      '<textarea class="p-poin" placeholder="Sediakan BQ untuk 3 projek perumahan&#10;Semak tuntutan kontraktor setiap bulan"></textarea>';
+    b.querySelector('.p-jawatan').value = data.jawatan || '';
+    b.querySelector('.p-syarikat').value = data.syarikat || '';
+    b.querySelector('.p-tempoh').value = data.tempoh || '';
+    b.querySelector('.p-poin').value = (data.poin || []).join('\n');
+    b.querySelector('.btn-hapus').addEventListener('click', function () {
+      b.remove();
+      kemasSemula();
+    });
+    return b;
+  }
+
+  function barisPendidikan(data) {
+    data = data || {};
+    bilPendidikan++;
+    var n = bilPendidikan;
+    var b = document.createElement('div');
+    b.className = 'baris';
+    b.innerHTML =
+      '<div class="kepala"><strong>Pendidikan ' + n + '</strong>' +
+      '<button type="button" class="btn-hapus">Hapus</button></div>' +
+      '<label>Kelulusan</label><input class="d-kelulusan" type="text" placeholder="cth. Sarjana Muda Ukur Bahan">' +
+      '<label>Institusi</label><input class="d-institusi" type="text" placeholder="cth. UiTM Shah Alam">' +
+      '<label>Tahun</label><input class="d-tahun" type="text" placeholder="cth. 2021 - 2024">';
+    b.querySelector('.d-kelulusan').value = data.kelulusan || '';
+    b.querySelector('.d-institusi').value = data.institusi || '';
+    b.querySelector('.d-tahun').value = data.tahun || '';
+    b.querySelector('.btn-hapus').addEventListener('click', function () {
+      b.remove();
+      kemasSemula();
+    });
+    return b;
+  }
+
+  /* ---------- kumpul data ---------- */
+  function kumpul() {
+    var d = {
+      nama: el('nama').value.trim(),
+      telefon: el('telefon').value.trim(),
+      emel: el('emel').value.trim(),
+      lokasi: el('lokasi').value.trim(),
+      jawatan: el('jawatan').value.trim(),
+      ringkasan: el('ringkasan').value.trim(),
+      kemahiran: el('kemahiran').value.trim(),
+      pengalaman: [],
+      pendidikan: []
+    };
+    Array.prototype.forEach.call(document.querySelectorAll('#senarai-pengalaman .baris'), function (b) {
+      var o = {
+        jawatan: b.querySelector('.p-jawatan').value.trim(),
+        syarikat: b.querySelector('.p-syarikat').value.trim(),
+        tempoh: b.querySelector('.p-tempoh').value.trim(),
+        poin: b.querySelector('.p-poin').value.split('\n')
+              .map(function (s) { return s.trim(); }).filter(Boolean)
+      };
+      if (o.jawatan || o.syarikat || o.tempoh || o.poin.length) d.pengalaman.push(o);
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('#senarai-pendidikan .baris'), function (b) {
+      var o = {
+        kelulusan: b.querySelector('.d-kelulusan').value.trim(),
+        institusi: b.querySelector('.d-institusi').value.trim(),
+        tahun: b.querySelector('.d-tahun').value.trim()
+      };
+      if (o.kelulusan || o.institusi || o.tahun) d.pendidikan.push(o);
+    });
+    return d;
+  }
+
+  /* ---------- pratonton ---------- */
+  function seksyen(tajuk, isi) {
+    return isi ? '<section class="r-sek"><h2>' + esc(tajuk) + '</h2>' + isi + '</section>' : '';
+  }
+
+  function papar(d) {
+    var html = '<h1 class="r-nama">' + esc(d.nama || 'Nama Anda') + '</h1>';
+    if (d.jawatan) html += '<p class="r-jawatan">' + esc(d.jawatan) + '</p>';
+
+    var kontak = [d.telefon, d.emel, d.lokasi].filter(function (x) { return !!x; }).map(esc);
+    if (kontak.length) html += '<p class="r-kontak">' + kontak.join(' &nbsp;&middot;&nbsp; ') + '</p>';
+    if (!d.nama) html += '<p class="r-kontak kosong">(Isi borang di kiri - resume akan muncul di sini)</p>';
+
+    if (d.ringkasan) html += seksyen('Ringkasan Profil', '<p class="r-ringkas">' + esc(d.ringkasan) + '</p>');
+
+    if (d.pengalaman.length) {
+      var isi = d.pengalaman.map(function (o) {
+        var s = '<div class="item"><div class="item-head"><strong>' + esc(o.jawatan || '(Jawatan)') + '</strong>';
+        s += '<span>' + esc(o.tempoh) + '</span></div>';
+        if (o.syarikat) s += '<div class="item-sub">' + esc(o.syarikat) + '</div>';
+        if (o.poin.length) s += '<ul>' + o.poin.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul>';
+        return s + '</div>';
+      }).join('');
+      html += seksyen('Pengalaman Kerja', isi);
+    }
+
+    if (d.pendidikan.length) {
+      var isi2 = d.pendidikan.map(function (o) {
+        var s = '<div class="item"><div class="item-head"><strong>' + esc(o.kelulusan || '(Kelulusan)') + '</strong>';
+        s += '<span>' + esc(o.tahun) + '</span></div>';
+        if (o.institusi) s += '<div class="item-sub">' + esc(o.institusi) + '</div>';
+        return s + '</div>';
+      }).join('');
+      html += seksyen('Pendidikan', isi2);
+    }
+
+    if (d.kemahiran) {
+      var chips = d.kemahiran.split(',').map(function (s) { return s.trim(); }).filter(Boolean)
+        .map(function (s) { return '<span class="chip">' + esc(s) + '</span>'; }).join('');
+      html += seksyen('Kemahiran', chips);
+    }
+
+    el('resume').innerHTML = html;
+  }
+
+  /* ---------- kiraan hidup + simpan ---------- */
+  function status(d) {
+    var p = d.pengalaman.length, pd = d.pendidikan.length;
+    var bahagian = p + ' pengalaman, ' + pd + ' pendidikan';
+    if (!d.nama && !d.telefon) return { mesej: 'Belum ada apa-apa diisi. ' + bahagian + ' akan masuk ke resume.', jenis: '' };
+    if (p === 0) return { mesej: 'AMARAN: resume akan keluar tanpa bahagian Pengalaman. ' + bahagian + ' setakat ini.', jenis: 'amaran' };
+    return { mesej: 'OK - ' + bahagian + ' akan masuk ke resume.', jenis: 'info' };
+  }
+
+  function kemasSemula() {
+    var d;
+    try {
+      d = kumpul();
+    } catch (e) {
+      tulisLog('Ralat membaca borang: ' + e.message, 'ralat');
+      return null;
+    }
+    papar(d);
+    var st = status(d);
+    tulisLog(st.mesej, st.jenis);
+    try { localStorage.setItem(KUNCI, JSON.stringify(d)); } catch (e) { /* storan dihalang - bukan ralat maut */ }
+    return d;
+  }
+
+  /* ---------- muat data lama ---------- */
+  function muat() {
+    var mentah = null;
+    try { mentah = localStorage.getItem(KUNCI); } catch (e) { mentah = null; }
+    if (!mentah) return false;
+    var d;
+    try { d = JSON.parse(mentah); } catch (e) { return false; }
+    el('nama').value = d.nama || '';
+    el('telefon').value = d.telefon || '';
+    el('emel').value = d.emel || '';
+    el('lokasi').value = d.lokasi || '';
+    el('jawatan').value = d.jawatan || '';
+    el('ringkasan').value = d.ringkasan || '';
+    el('kemahiran').value = d.kemahiran || '';
+    (d.pengalaman || []).forEach(function (o) { el('senarai-pengalaman').appendChild(barisPengalaman(o)); });
+    (d.pendidikan || []).forEach(function (o) { el('senarai-pendidikan').appendChild(barisPendidikan(o)); });
+    return true;
+  }
+
+  /* ---------- ikatan peristiwa ---------- */
+  el('borang').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var d;
+    try {
+      d = kumpul();
+    } catch (err) {
+      tulisLog('Ralat membaca borang: ' + err.message, 'ralat');
+      return;
+    }
+    if (!d.nama || !d.telefon) {
+      tulisLog('Sila isi Nama dan Nombor Telefon untuk jana PDF.', 'ralat');
+      return;
+    }
+    papar(d);
+    window.print();
+  });
+
+  el('borang').addEventListener('input', kemasSemula);
+  el('borang').addEventListener('change', kemasSemula);
+  el('tambah-pengalaman').addEventListener('click', function () {
+    el('senarai-pengalaman').appendChild(barisPengalaman());
+    kemasSemula();
+  });
+  el('tambah-pendidikan').addEventListener('click', function () {
+    el('senarai-pendidikan').appendChild(barisPendidikan());
+    kemasSemula();
+  });
+  el('kosongkan').addEventListener('click', function () {
+    if (!window.confirm('Padam semua isi borang?')) return;
+    el('borang').reset();
+    el('senarai-pengalaman').innerHTML = '';
+    el('senarai-pendidikan').innerHTML = '';
+    bilPengalaman = 0; bilPendidikan = 0;
+    try { localStorage.removeItem(KUNCI); } catch (e) { /* abaikan */ }
+    kemasSemula();
+  });
+
+  if (!muat()) {
+    el('senarai-pengalaman').appendChild(barisPengalaman());
+    el('senarai-pendidikan').appendChild(barisPendidikan());
+  }
+  kemasSemula();
+})();
 </script>
 
 </body>
