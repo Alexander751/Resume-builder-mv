@@ -218,7 +218,10 @@
       width: auto; max-width: none; aspect-ratio: auto; overflow: visible;
     }
     #resume .cv-klasik { font-size: 10.5pt; padding: 12mm; }
-    #resume .cv-biru { min-height: 0; }
+    /* templat dua lajur mesti memenuhi penuh satu halaman A4 supaya rel kelabu
+       sampai ke bawah kertas; tolak 1px supaya tidak melimpah ke halaman kosong */
+    #resume .cv-biru { min-height: calc(297mm - 1px); }
+    #resume .cvb-kiri, #resume .cvb-kanan { break-inside: auto; }
   }
 </style>
 </head>

@@ -257,6 +257,8 @@ ok(/^60\d{9,10}$/.test(waNo), 'NOMBOR_WA format antarabangsa sah (60..., tiada +
 ok(waNo !== '60123456789', 'NOMBOR_WA bukan nombor contoh lagi');
 ok(html.includes('body.mod-penjual .cap-air'), 'CSS mematikan tanda air dalam mod penjual');
 ok(/@media print[\s\S]*form, #log[\s\S]*display: none/.test(html), 'borang disembunyikan semasa cetak');
+ok(/@media print[\s\S]*#resume \.cv-biru \{ min-height: calc\(297mm - 1px\)/.test(html),
+   'cetak: templat dua lajur dipaksa penuh satu halaman A4 (rel kelabu sampai bawah)');
 
 console.log('== 13. Muat naik foto (Image + kanvas dipalsukan) ==');
 (async () => {
