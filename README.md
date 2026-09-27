@@ -11,19 +11,21 @@ Semua berlaku dalam pelayar — **tiada data dihantar ke mana-mana pelayan**.
 | Fail | Peranan |
 |---|---|
 | `index.html` | Keseluruhan app (HTML + CSS + JS dalam satu fail, tiada binaan, tiada pelayan) |
-| `test/test_ui.js` | Ujian UI jsdom: elemen, pratonton hidup, baris berulang, jana PDF, simpan automatik |
+| `test/test_ui.js` | Ujian UI jsdom: elemen, pratonton hidup, baris berulang, kedua-dua templat, muat naik foto, jana PDF, simpan automatik |
 | `QR_Resume_Builder.png` | Kod QR ke laman awam |
 
 ## Cara guna
 
 Buka `index.html` (klik dua kali) atau laman awam di atas.
 
-1. Isi **Butiran Peribadi** — Nama dan Nombor Telefon wajib
-2. Isi **Jawatan Disasarkan**, **Ringkasan Profil**
-3. **+ Tambah Pengalaman** / **+ Tambah Pendidikan** untuk setiap rekod; **Hapus** untuk buang
-4. Kemahiran: pisahkan dengan koma (cth. `AutoCAD, BQ, MS Excel`)
-5. Pratonton di kanan dikemas kini serta-merta
-6. **Jana PDF** → dialog cetak → *Destination: Save as PDF*
+1. Pilih **Templat** — *Klasik* (satu lajur) atau *Biru & Kelabu* (dua lajur + foto)
+2. Isi **Butiran Peribadi** — Nama dan Nombor Telefon wajib; **Foto** hanya untuk templat Biru & Kelabu
+3. Isi **Jawatan Disasarkan**, **Ringkasan Profil**
+4. **+ Tambah Pengalaman** / **+ Tambah Pendidikan** untuk setiap rekod; **Hapus** untuk buang
+5. Kemahiran dan Bahasa: pisahkan dengan koma (cth. `AutoCAD, BQ, MS Excel`)
+6. Rujukan: satu baris satu orang
+7. Pratonton di kanan dikemas kini serta-merta
+8. **Jana PDF** → dialog cetak → *Destination: Save as PDF*
 
 Data disimpan automatik dalam pelayar (localStorage). **Kosongkan** memadam semuanya.
 
@@ -45,6 +47,14 @@ Data disimpan automatik dalam pelayar (localStorage). **Kosongkan** memadam semu
 - Kod resume Base64 untuk pesanan, dipulihkan semula di sisi penjual
 - Mod Penjual (`#penjual` atau `#kod=<kod>`): tanda air dimatikan, panel pesanan disembunyikan
 
+**Fasa 4** — dua templat reka bentuk:
+- Pemilih **`#templat`**: *Klasik* (putih, satu lajur) dan *Biru & Kelabu* (dua lajur dengan rel kelabu + foto)
+- Templat **Biru & Kelabu** dibina semula mengikut ukuran sebenar fail rujukan *Blue and Gray Simple Professional CV Resume* (A4, 596 × 842 pt): banner biru gelap `#323b4c` setinggi 50 mm, rel kiri kelabu `#e4e4e4` selebar 65 mm (Kontak / Kemahiran / Bahasa), lajur kanan dengan garisan bawah biru `#163853` (Profil / Pengalaman Kerja / Pendidikan / Rujukan), garis pemisah menegak pada 73 mm
+- Medan baharu: **`#bahasa`**, **`#rujukan`**, **`#foto`** (fail gambar dikecilkan ke 420 px dan disimpan sebagai JPEG dalam pelayar sahaja)
+- Foto hanya masuk ke templat Biru & Kelabu; bila tiada foto, nama digeser ke kiri supaya banner tidak berlubang
+- Templat + bahasa + rujukan **turut serta dalam kod pesanan WhatsApp** (maklumat kecil), tetapi **foto tidak** — supaya kod kekal pendek dan boleh disalin; minta pelanggan hantar gambar, kemudian muat naik di sisi penjual
+- Cetakan: `@page { margin: 0 }` supaya templat dua lajur boleh mencetak penuh ke tepi kertas; templat Klasik pula dapat padding 12 mm dari pembalutnya sendiri
+
 ## Ujian
 
 ```bash
@@ -52,7 +62,7 @@ cd test && npm install        # sekali sahaja (jsdom)
 "$LOCALAPPDATA/hermes/node/node.exe" test/test_ui.js
 ```
 
-Keputusan semasa: **69 lulus, 0 gagal**.
+Keputusan semasa: **103 lulus, 0 gagal**.
 
 ## Aliran jualan melalui WhatsApp (tanpa gerbang bayaran)
 
@@ -79,7 +89,7 @@ Kotak **Buka Kod** dalam panel Mod Penjual berfungsi dalam ketiga-tiga keadaan �
 **TETAPAN PENJUAL** — buka `index.html`, cari blok ini di awal `<script>` dan tukar dua baris:
 
 ```js
-var NOMBOR_WA = '60123456789';   // nombor WhatsApp bisnes, format 60xxxxxxxxx
+var NOMBOR_WA = '601159003242';  // nombor WhatsApp bisnes, format 60xxxxxxxxx
 var HARGA = 29.90;               // harga jualan PDF bersih (RM)
 ```
 
@@ -96,10 +106,13 @@ var HARGA = 29.90;               // harga jualan PDF bersih (RM)
 | Nombor WhatsApp salah orang | `NOMBOR_WA` masih nombor contoh | Tukar dalam blok TETAPAN PENJUAL di `index.html`, format `60xxxxxxxxx` |
 | Resume penjual masih ada tanda air | Mod penjual tidak dihidupkan | Ketuk tajuk 5 kali, atau buka URL dengan `#penjual` |
 | Kod resume ditolak | Kod dipotong semasa salin (WhatsApp kadang pecahkan baris) | Salin semula seluruh kod; pastikan tiada ruang dalam kod |
+| Banner biru / rel kelabu tiada dalam PDF | Templat Biru & Kelabu bergantung pada warna latar; sesetengah pelayar tidak mencetak latar secara lalai | Dalam dialog cetak, buka *More settings* → tandakan **Background graphics** |
+| Kotak URL dan tarikh muncul atas banner | `@page` dimulakan pada margin 0 supaya banner boleh penuh ke tepi | Dalam dialog cetak, buka *More settings* → **matikan** *Headers and footers* |
+| Foto tidak naik | Fail melebihi 6 MB atau bukan gambar | Kecilkan gambar (JPG/PNG), kemudian cuba lagi |
 
 ## Belum ada (fasa seterusnya)
 
 - Penjana PDF terus tanpa dialog cetak
-- Pilihan template/warna
+- Templat tambahan (kini ada 2: Klasik, Biru & Kelabu) dan pilihan warna
 - Rekod pesanan (siapa sudah bayar) — sekarang tiada langsung
 - Eksport .docx

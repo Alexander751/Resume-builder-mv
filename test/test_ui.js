@@ -196,6 +196,54 @@ ok(d4.querySelectorAll('#cap-air span').length === 0, 'ketukan ke-5 membuang tan
 ok(d4.getElementById('mod-penjual').hidden === false, 'ketukan ke-5 membuka panel mod penjual');
 ok(d4.getElementById('panel-pesanan').hidden === true, 'ketukan ke-5 menyembunyikan panel pesanan');
 
+console.log('== 12. Templat Biru & Kelabu ==');
+// pastikan data lengkap supaya semua bahagian templat benar-benar diuji
+el('emel').value = 'ahmad@gmail.com';
+el('lokasi').value = 'Kemaman, Terengganu';
+el('ringkasan').value = 'Graduan Ukur Bahan dengan 2 tahun pengalaman dalam projek perumahan.';
+isi('#senarai-pengalaman .baris:nth-child(1) .p-poin', 'Sediakan BQ 3 projek\nSemak tuntutan kontraktor');
+el('tambah-pendidikan').click();
+isi('#senarai-pendidikan .baris:nth-child(1) .d-kelulusan', 'Sarjana Muda Ukur Bahan');
+isi('#senarai-pendidikan .baris:nth-child(1) .d-institusi', 'UiTM Shah Alam');
+isi('#senarai-pendidikan .baris:nth-child(1) .d-tahun', '2021 - 2024');
+ok(!!el('templat'), 'pemilih #templat wujud');
+ok(!!d.querySelector('#resume .cv-klasik'), 'pembalut .cv-klasik dirender pada templat klasik');
+el('bahasa').value = 'Bahasa Melayu (Fasih), English (Fluent)';
+el('rujukan').value = 'En. Ahmad — Pengurus Projek, EPH Construction';
+el('templat').value = 'biru';
+el('borang').dispatchEvent(new w.Event('change', { bubbles: true }));
+const biru = d.querySelector('#resume .cv-biru');
+ok(!!biru, 'templat biru dirender');
+ok(d.querySelector('#resume .cv-klasik') === null, 'pembalut klasik tiada bila templat biru');
+ok(d.querySelector('#resume .cvb-nama h1').textContent.includes('Ahmad bin Ali'), 'nama di dalam banner biru');
+ok(biru.className.includes('tanpa-foto'), 'kelas tanpa-foto bila tiada foto');
+const kiriTeks = d.querySelector('#resume .cvb-kiri').textContent;
+const kananTeks = d.querySelector('#resume .cvb-kanan').textContent;
+ok(kiriTeks.includes('Kontak') && kiriTeks.includes('Kemahiran') && kiriTeks.includes('Bahasa'),
+   'rel kiri ada Kontak, Kemahiran, Bahasa');
+ok(kananTeks.includes('Profil') && kananTeks.includes('Pengalaman Kerja') &&
+   kananTeks.includes('Pendidikan') && kananTeks.includes('Rujukan'),
+   'lajur kanan ada Profil, Pengalaman, Pendidikan, Rujukan');
+ok(kiriTeks.includes('Bahasa Melayu (Fasih)'), 'bahasa masuk rel kiri');
+ok(kananTeks.includes('EPH Construction'), 'pengalaman + rujukan masuk lajur kanan');
+ok(d.querySelectorAll('#resume .cvb-ikon').length === 3, '3 ikon kontak dirender (telefon, emel, lokasi)');
+ok(d.querySelectorAll('#resume .cvb-kontak li').length === 3, '3 baris kontak (telefon, emel, lokasi)');
+ok(d.querySelectorAll('#resume .cvb-titik li').length === 4, 'kemahiran + bahasa jadi 4 titik rel');
+ok(d.querySelectorAll('#resume .cvb-bullet li').length === 2, '2 poin pengalaman jadi bullet di lajur kanan');
+
+// templat mesti ikut dalam kod pesanan
+el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+const kodBiru = decodeURIComponent(el('wa').href).split('Kod resume saya')[1].split('\n').pop().trim();
+const dom6 = new JSDOM(html, {
+  runScripts: 'dangerously',
+  url: 'https://alexander751.github.io/Resume-builder-mv/#kod=' + kodBiru,
+  beforeParse(w2) { w2.print = () => {}; w2.confirm = () => true; }
+});
+ok(dom6.window.document.getElementById('templat').value === 'biru', 'templat dipulihkan dari kod pesanan');
+ok(!!dom6.window.document.querySelector('#resume .cv-biru'), 'kod memulihkan paparan templat biru');
+ok(dom6.window.document.querySelector('#resume .cvb-kiri').textContent.includes('English (Fluent)'),
+   'bahasa dipulihkan dari kod');
+
 console.log('== 11. Semakan statik pada HTML ==');
 ok(html.includes('@page { size: A4'), 'ada tetapan cetak A4 (@page size A4)');
 ok(/@media print/.test(html), 'ada @media print');
@@ -210,5 +258,54 @@ ok(waNo !== '60123456789', 'NOMBOR_WA bukan nombor contoh lagi');
 ok(html.includes('body.mod-penjual .cap-air'), 'CSS mematikan tanda air dalam mod penjual');
 ok(/@media print[\s\S]*form, #log[\s\S]*display: none/.test(html), 'borang disembunyikan semasa cetak');
 
-console.log('\n' + pass + ' lulus, ' + fail + ' gagal, ' + skip + ' dilangkau');
-process.exit(fail ? 1 : 0);
+console.log('== 13. Muat naik foto (Image + kanvas dipalsukan) ==');
+(async () => {
+  class FakeImage {
+    constructor() { this.width = 600; this.height = 400; this.onload = null; this.onerror = null; }
+    set src(v) { const self = this; setTimeout(() => { if (self.onload) self.onload(); }, 0); }
+    get src() { return 'palsu'; }
+  }
+  const dom7 = new JSDOM(html, {
+    runScripts: 'dangerously',
+    url: 'https://alexander751.github.io/Resume-builder-mv/',
+    beforeParse(w7) {
+      w7.print = () => {};
+      w7.confirm = () => true;
+      try { w7.Image = FakeImage; } catch (e) { /* jatuh ke defineProperty */ }
+      if (w7.Image !== FakeImage) Object.defineProperty(w7, 'Image', { value: FakeImage, configurable: true });
+      w7.HTMLCanvasElement.prototype.getContext = function () { return { drawImage: function () {} }; };
+      w7.HTMLCanvasElement.prototype.toDataURL = function () { return 'data:image/jpeg;base64,FOTOUJIAN'; };
+    }
+  });
+  const w7 = dom7.window, d7 = w7.document;
+  ok(w7.Image === FakeImage, 'palsuan Image dipasang untuk ujian ini');
+  ok(d7.getElementById('foto').type === 'file', 'input #foto ialah type=file');
+
+  const input = d7.getElementById('foto');
+  const failFoto = new w7.File([new Uint8Array([1, 2, 3, 4])], 'foto.png', { type: 'image/png' });
+  Object.defineProperty(input, 'files', { value: [failFoto], configurable: true });
+  input.dispatchEvent(new w7.Event('change', { bubbles: true }));
+  await new Promise(r => setTimeout(r, 80));
+
+  d7.getElementById('templat').value = 'biru';
+  d7.getElementById('borang').dispatchEvent(new w7.Event('change', { bubbles: true }));
+  const img = d7.querySelector('#resume .cvb-foto img');
+  ok(img !== null, 'foto dirender dalam banner templat biru');
+  ok(img && img.getAttribute('src') === 'data:image/jpeg;base64,FOTOUJIAN', 'foto dikecilkan melalui kanvas dahulu');
+  ok(!d7.querySelector('#resume .cv-biru').className.includes('tanpa-foto'), 'kelas tanpa-foto dibuang bila ada foto');
+  ok(d7.getElementById('foto-info').textContent.indexOf('OK') === 0, 'status foto menunjukkan berjaya');
+
+  d7.getElementById('nama').value = 'Ujian Foto';
+  d7.getElementById('telefon').value = '0123456789';
+  d7.getElementById('borang').dispatchEvent(new w7.Event('input', { bubbles: true }));
+  const href7 = decodeURIComponent(d7.getElementById('wa').href);
+  ok(href7.indexOf('FOTOUJIAN') === -1, 'foto TIDAK dimasukkan ke dalam kod pesanan WhatsApp');
+  ok(d7.getElementById('wa').href.length < 3000, 'pautan WhatsApp kekal pendek (' + d7.getElementById('wa').href.length + ' aksara)');
+
+  d7.getElementById('buang-foto').click();
+  ok(d7.querySelector('#resume .cvb-foto') === null, 'butang Buang foto mengeluarkan foto dari pratonton');
+  ok(d7.querySelector('#resume .cv-biru').className.includes('tanpa-foto'), 'kelas tanpa-foto kembali selepas buang');
+
+  console.log('\n' + pass + ' lulus, ' + fail + ' gagal, ' + skip + ' dilangkau');
+  process.exit(fail ? 1 : 0);
+})();
