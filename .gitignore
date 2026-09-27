@@ -1,0 +1,8 @@
+# Ujian: dependensi jsdom tidak perlu masuk repo
+test/node_modules/
+test/package-lock.json
+
+# Fail sistem
+Thumbs.db
+desktop.ini
+.DS_Store

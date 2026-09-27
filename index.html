@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Resume Builder MV</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 24px; max-width: 520px; }
+  label { display: block; margin-top: 12px; font-weight: bold; }
+  input { width: 100%; padding: 6px; box-sizing: border-box; }
+  button { margin-top: 16px; padding: 8px 16px; }
+  #log { margin-top: 12px; color: #b00; }
+  #output { border: 1px solid #999; padding: 12px; margin-top: 16px; }
+  @media print {
+    h1, form, #log { display: none; }
+    #output { border: none; padding: 0; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Resume Builder MV</h1>
+
+<form id="borang">
+  <label for="nama">Nama</label>
+  <input id="nama" type="text" placeholder="Nama penuh">
+
+  <label for="telefon">Nombor Telefon</label>
+  <input id="telefon" type="tel" placeholder="cth. 012-3456789">
+
+  <button type="submit" id="jana">Jana PDF</button>
+</form>
+
+<div id="log"></div>
+<pre id="output"></pre>
+
+<script>
+function el(id) { return document.getElementById(id); }
+
+el('borang').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var log = el('log');
+  log.textContent = '';
+
+  var nama = el('nama').value.trim();
+  var telefon = el('telefon').value.trim();
+
+  if (!nama || !telefon) {
+    log.textContent = 'Sila isi Nama dan Nombor Telefon.';
+    return;
+  }
+
+  el('output').textContent =
+    'RESUME\n\nNama           : ' + nama + '\nNombor Telefon : ' + telefon;
+
+  window.print();
+});
+</script>
+
+</body>
+</html>
