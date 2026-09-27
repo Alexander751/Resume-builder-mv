@@ -109,6 +109,42 @@
   }
   #resume .kosong { color: #9aa1ab; font-style: italic; }
 
+  /* ---------- tanda air (watermark) + pesanan ---------- */
+  .kertas { position: relative; }
+  .cap-air {
+    position: absolute; inset: -8%; display: flex; flex-wrap: wrap; gap: 30px 38px;
+    align-content: center; justify-content: center; pointer-events: none; overflow: hidden;
+    transform: rotate(-24deg) scale(1.3);
+  }
+  .cap-air span {
+    font-size: 13pt; font-weight: 700; letter-spacing: .08em;
+    white-space: nowrap; color: rgba(18, 80, 140, .13);
+  }
+  body.mod-penjual .cap-air { display: none; }
+  .mod-penjual-pil {
+    display: none; background: #92400e; color: #fff; font-size: 11px; font-weight: 700;
+    border-radius: 10px; padding: 2px 10px; margin-left: 8px; vertical-align: middle;
+  }
+  body.mod-penjual .mod-penjual-pil { display: inline-block; }
+  .panel-pesanan {
+    background: #f7fbf8; border: 1px solid #bfe3ca; border-radius: 8px;
+    padding: 14px 16px; margin-top: 16px;
+  }
+  .panel-pesanan .harga { margin: 0 0 8px; font-size: 14px; }
+  .panel-pesanan .nota { margin: 8px 0 0; font-size: 12px; color: var(--muted); }
+  #wa {
+    display: inline-block; background: #25D366; color: #fff; text-decoration: none;
+    border-radius: 6px; padding: 10px 16px; font-weight: 700; font-size: 14px;
+  }
+  #wa:not(.sedia) { background: #b9c3ce; }
+  #mod-penjual {
+    background: #fff7ed; border: 1px solid #fdba74; border-radius: 8px;
+    padding: 14px 16px; margin-top: 16px;
+  }
+  #mod-penjual .harga { margin: 0 0 8px; font-size: 14px; }
+  #mod-penjual textarea { min-height: 78px; font-size: 12px; margin-bottom: 8px; }
+  #buka-kod { background: #92400e; color: #fff; border: 0; border-radius: 6px; padding: 9px 14px; font: inherit; font-weight: 700; cursor: pointer; }
+
   /* ---------- cetak ---------- */
   @page { size: A4; margin: 12mm; }
   @media print {
@@ -127,7 +163,7 @@
 <body>
 
 <header class="top">
-  <h1>Resume Builder MV</h1>
+  <h1>Resume Builder MV<span class="mod-penjual-pil" id="pil-mod">MOD PENJUAL</span></h1>
   <p>Isi butiran di kiri — pratonton A4 dikemas kini serta-merta. Tekan <strong>Jana PDF</strong> bila puas hati.</p>
 </header>
 
@@ -182,12 +218,25 @@
       <button type="submit" id="jana">Jana PDF</button>
       <button type="button" id="kosongkan">Kosongkan</button>
     </div>
+
+    <div class="panel-pesanan" id="panel-pesanan">
+      <p class="harga"><strong>Nak PDF bersih tanpa tanda air? Harga RM<span id="harga">29.90</span></strong></p>
+      <a id="wa" href="#" target="_blank" rel="noopener">Hantar Pesanan ke WhatsApp</a>
+      <p class="nota">Butiran resume anda dihantar sekali sahaja kepada penjual melalui WhatsApp untuk disediakan PDF bersih. Tiada data disimpan di mana-mana pelayan.</p>
+    </div>
+
+    <div id="mod-penjual" hidden>
+      <p class="harga"><strong>Mod Penjual</strong> &mdash; tiada tanda air. Tampal kod resume daripada pelanggan:</p>
+      <textarea id="kod-masuk" placeholder="Tampal kod resume di sini..."></textarea>
+      <button type="button" id="buka-kod">Buka Kod</button>
+    </div>
+
     <div id="log"></div>
   </form>
 
   <section class="panel-pratonton">
     <p class="tajuk">Pratonton (saiz A4)</p>
-    <div class="kertas"><article id="resume"></article></div>
+    <div class="kertas"><article id="resume"></article><div class="cap-air" id="cap-air" aria-hidden="true"></div></div>
   </section>
 </main>
 
@@ -197,6 +246,15 @@
 
   var KUNCI = 'resume-mv-v1';
   var bilPengalaman = 0, bilPendidikan = 0;
+
+  /* ============================================================
+     TETAPAN PENJUAL — tukar dua baris ini sahaja
+     ============================================================ */
+  var NOMBOR_WA = '60123456789';   // nombor WhatsApp bisnes, format 60xxxxxxxxx (tiada + atau -)
+  var HARGA = 29.90;               // harga jualan PDF bersih (RM)
+  var JENAMA = 'Resume Builder MV';
+
+  var penjual = false;             // true = mod anda sendiri (tiada tanda air)
 
   function el(id) { return document.getElementById(id); }
 
@@ -337,6 +395,63 @@
     }
 
     el('resume').innerHTML = html;
+    capAir(!penjual);
+  }
+
+  function capAir(aktif) {
+    var kotak = el('cap-air');
+    if (!kotak) return;
+    if (!aktif) { kotak.innerHTML = ''; return; }
+    var satu = '<span>PRATONTON &middot; ' + esc(JENAMA) + ' &middot; BELUM DIBAYAR</span>';
+    var keping = '';
+    for (var i = 0; i < 20; i++) keping += satu;
+    kotak.innerHTML = keping;
+  }
+
+  /* ---------- kod resume (untuk pesanan WhatsApp) ---------- */
+  function kodDari(d) {
+    var ringkas = {
+      n: d.nama, t: d.telefon, e: d.emel, l: d.lokasi, j: d.jawatan,
+      g: d.ringkasan, k: d.kemahiran, p: d.pengalaman, d: d.pendidikan
+    };
+    var b64 = window.btoa(unescape(encodeURIComponent(JSON.stringify(ringkas))));
+    return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  function borangDariKod(kod) {
+    if (!kod) return null;
+    try {
+      var b64 = String(kod).replace(/-/g, '+').replace(/_/g, '/');
+      while (b64.length % 4) b64 += '=';
+      var o = JSON.parse(decodeURIComponent(escape(window.atob(b64))));
+      return {
+        nama: o.n || '', telefon: o.t || '', emel: o.e || '', lokasi: o.l || '',
+        jawatan: o.j || '', ringkasan: o.g || '', kemahiran: o.k || '',
+        pengalaman: Array.isArray(o.p) ? o.p : [], pendidikan: Array.isArray(o.d) ? o.d : []
+      };
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /* ---------- pautan pesanan WhatsApp ---------- */
+  function sediakanWa(d) {
+    var pautan = el('wa');
+    if (!pautan) return;
+    var hrg = el('harga');
+    if (hrg) hrg.textContent = HARGA.toFixed(2);
+    if (!d.nama || !d.telefon) {
+      pautan.href = '#';
+      pautan.classList.remove('sedia');
+      return;
+    }
+    var mesej = 'Salam, saya nak RESUME BERSIH (tanpa tanda air) dari ' + JENAMA + '.'
+      + '\nHarga: RM' + HARGA.toFixed(2)
+      + '\nNama: ' + d.nama
+      + '\nTelefon: ' + d.telefon
+      + '\n\nKod resume saya (untuk penjual buka):\n' + kodDari(d);
+    pautan.href = 'https://wa.me/' + NOMBOR_WA + '?text=' + encodeURIComponent(mesej);
+    pautan.classList.add('sedia');
   }
 
   /* ---------- kiraan hidup + simpan ---------- */
@@ -359,8 +474,26 @@
     papar(d);
     var st = status(d);
     tulisLog(st.mesej, st.jenis);
+    sediakanWa(d);
     try { localStorage.setItem(KUNCI, JSON.stringify(d)); } catch (e) { /* storan dihalang - bukan ralat maut */ }
     return d;
+  }
+
+  /* ---------- isi borang dari data ---------- */
+  function isiBorang(d) {
+    el('nama').value = d.nama || '';
+    el('telefon').value = d.telefon || '';
+    el('emel').value = d.emel || '';
+    el('lokasi').value = d.lokasi || '';
+    el('jawatan').value = d.jawatan || '';
+    el('ringkasan').value = d.ringkasan || '';
+    el('kemahiran').value = d.kemahiran || '';
+    el('senarai-pengalaman').innerHTML = '';
+    el('senarai-pendidikan').innerHTML = '';
+    bilPengalaman = 0;
+    bilPendidikan = 0;
+    (d.pengalaman || []).forEach(function (o) { el('senarai-pengalaman').appendChild(barisPengalaman(o)); });
+    (d.pendidikan || []).forEach(function (o) { el('senarai-pendidikan').appendChild(barisPendidikan(o)); });
   }
 
   /* ---------- muat data lama ---------- */
@@ -370,15 +503,7 @@
     if (!mentah) return false;
     var d;
     try { d = JSON.parse(mentah); } catch (e) { return false; }
-    el('nama').value = d.nama || '';
-    el('telefon').value = d.telefon || '';
-    el('emel').value = d.emel || '';
-    el('lokasi').value = d.lokasi || '';
-    el('jawatan').value = d.jawatan || '';
-    el('ringkasan').value = d.ringkasan || '';
-    el('kemahiran').value = d.kemahiran || '';
-    (d.pengalaman || []).forEach(function (o) { el('senarai-pengalaman').appendChild(barisPengalaman(o)); });
-    (d.pendidikan || []).forEach(function (o) { el('senarai-pendidikan').appendChild(barisPendidikan(o)); });
+    isiBorang(d);
     return true;
   }
 
@@ -410,6 +535,21 @@
     el('senarai-pendidikan').appendChild(barisPendidikan());
     kemasSemula();
   });
+  el('wa').addEventListener('click', function (e) {
+    if (!el('nama').value.trim() || !el('telefon').value.trim()) {
+      e.preventDefault();
+      tulisLog('Isi Nama dan Nombor Telefon dahulu sebelum hantar pesanan.', 'ralat');
+    }
+  });
+  el('buka-kod').addEventListener('click', function () {
+    var d = borangDariKod(el('kod-masuk').value.trim());
+    if (!d) {
+      tulisLog('Kod resume tidak sah — pastikan ia disalin penuh.', 'ralat');
+      return;
+    }
+    isiBorang(d);
+    kemasSemula();
+  });
   el('kosongkan').addEventListener('click', function () {
     if (!window.confirm('Padam semua isi borang?')) return;
     el('borang').reset();
@@ -420,8 +560,35 @@
     kemasSemula();
   });
 
-  if (!muat()) {
+  /* ---------- mod penjual: #penjual atau #kod=<kod> ---------- */
+  function mulakanMod() {
+    var h = String(window.location.hash || '');
+    var m = h.match(/kod=([A-Za-z0-9_-]+)/);
+    if (m) {
+      var d2 = borangDariKod(m[1]);
+      if (d2) {
+        isiBorang(d2);
+        penjual = true;
+      } else {
+        tulisLog('Kod resume dalam pautan itu tidak sah.', 'ralat');
+      }
+    } else if (/penjual/.test(h)) {
+      penjual = true;
+    }
+    if (penjual) {
+      document.body.classList.add('mod-penjual');
+      el('mod-penjual').hidden = false;
+      el('panel-pesanan').hidden = true;
+      tulisLog('MOD PENJUAL: tanda air dimatikan — Jana PDF sekarang bersih.', 'info');
+    }
+  }
+
+  muat();
+  mulakanMod();
+  if (!document.querySelectorAll('#senarai-pengalaman .baris').length) {
     el('senarai-pengalaman').appendChild(barisPengalaman());
+  }
+  if (!document.querySelectorAll('#senarai-pendidikan .baris').length) {
     el('senarai-pendidikan').appendChild(barisPendidikan());
   }
   kemasSemula();

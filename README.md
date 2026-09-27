@@ -39,6 +39,12 @@ Data disimpan automatik dalam pelayar (localStorage). **Kosongkan** memadam semu
 - Cetak A4 (`@page size A4`), borang disembunyikan semasa cetak, item tidak dipotong merentas halaman
 - Data di-escape (tiada suntikan HTML), simpan automatik, butang Kosongkan
 
+**Fasa 3** — aliran jualan WhatsApp:
+- Tanda air (watermark) pada pratonton dan PDF pelanggan (`#cap-air`)
+- Panel pesanan `#panel-pesanan` + pautan `#wa` (`wa.me`) dengan mesej siap
+- Kod resume Base64 untuk pesanan, dipulihkan semula di sisi penjual
+- Mod Penjual (`#penjual` atau `#kod=<kod>`): tanda air dimatikan, panel pesanan disembunyikan
+
 ## Ujian
 
 ```bash
@@ -46,7 +52,28 @@ cd test && npm install        # sekali sahaja (jsdom)
 "$LOCALAPPDATA/hermes/node/node.exe" test/test_ui.js
 ```
 
-Keputusan semasa: **46 lulus, 0 gagal**.
+Keputusan semasa: **69 lulus, 0 gagal**.
+
+## Aliran jualan melalui WhatsApp (tanpa gerbang bayaran)
+
+Tiada gerbang bayaran, tiada pelayan — jadi tiada yuran transaksi dan tiada data pelanggan disimpan.
+
+| Pihak | Langkah |
+|---|---|
+| Pelanggan | Isi borang → pratonton ada **tanda air** ("PRATONTON · BELUM DIBAYAR") → tekan **Hantar Pesanan ke WhatsApp** |
+| Pelanggan | WhatsApp terbuka dengan mesej siap: nama, telefon, harga, dan **kod resume** (satu rentetan panjang) |
+| Anda | Terima pesanan, minta bayaran (DuitNow QR / pindahan bank) |
+| Anda | Buka laman dengan `#penjual` → tampal kod ke kotak **Mod Penjual** → **Buka Kod** → resume pelanggan muncul **tanpa tanda air** |
+| Anda | Tekan **Jana PDF** → hantar PDF bersih kepada pelanggan |
+
+**Kod resume** ialah ringkasan data pelanggan yang dikodkan Base64 (selamat untuk URL). Ia hanya mengandungi apa yang pelanggan taip — tiada apa-apa dihantar ke pelayar lain dan tiada apa-apa disimpan di pelayan.
+
+**TETAPAN PENJUAL** — buka `index.html`, cari blok ini di awal `<script>` dan tukar dua baris:
+
+```js
+var NOMBOR_WA = '60123456789';   // nombor WhatsApp bisnes, format 60xxxxxxxxx
+var HARGA = 29.90;               // harga jualan PDF bersih (RM)
+```
 
 ## Jadual gejala → penyelesaian
 
@@ -57,9 +84,14 @@ Keputusan semasa: **46 lulus, 0 gagal**.
 | PDF ada bahagian yang hilang | Medan dibiarkan kosong — kosong memang ditapis | Isi medan itu; semak kiraan hidup dalam `#log` |
 | Data hilang selepas tutup pelayar | Mod private/incognito menyekat localStorage | Guna tetingkap biasa, atau jana PDF sebelum tutup |
 | Laman awam masih tunjuk versi lama | GitHub Pages perlu ~1 minit selepas push | Tunggu, kemudian muat semula dengan Ctrl+F5 |
+| Pautan WhatsApp tidak buka WhatsApp | Nama atau Nombor Telefon kosong | Isi kedua-duanya; butang jadi kelabu bila belum lengkap |
+| Nombor WhatsApp salah orang | `NOMBOR_WA` masih nombor contoh | Tukar dalam blok TETAPAN PENJUAL di `index.html`, format `60xxxxxxxxx` |
+| Resume penjual masih ada tanda air | Laman dibuka tanpa `#penjual` | Guna `#penjual`, atau tampal kod pelanggan dalam kotak Mod Penjual |
+| Kod resume ditolak | Kod dipotong semasa salin (WhatsApp kadang pecahkan baris) | Salin semula seluruh kod; pastikan tiada ruang dalam kod |
 
 ## Belum ada (fasa seterusnya)
 
 - Penjana PDF terus tanpa dialog cetak
 - Pilihan template/warna
-- Eksport .docx dan simpan berbilang resume
+- Rekod pesanan (siapa sudah bayar) — sekarang tiada langsung
+- Eksport .docx

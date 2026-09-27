@@ -124,7 +124,57 @@ if (simpan) {
   ok(obj.kemahiran.includes('AutoCAD'), 'kemahiran tersimpan');
 } else { skip_('localStorage tidak tersedia dalam jsdom ini'); }
 
-console.log('== 9. Semakan statik pada HTML ==');
+console.log('== 10. Pesanan WhatsApp + Mod Penjual ==');
+// tetapkan data yang diketahui supaya ujian bulat (kod -> pulih) benar-benar berisi
+el('jawatan').value = 'Junior Quantity Surveyor';
+el('kemahiran').value = 'AutoCAD, BQ';
+isi('#senarai-pengalaman .baris:nth-child(1) .p-syarikat', 'EPH Construction Sdn Bhd');
+el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+ok(!!el('wa') && !!el('panel-pesanan'), 'panel pesanan + pautan #wa wujud');
+ok(el('wa').href.startsWith('https://wa.me/'), 'pautan guna wa.me');
+const hrefWa = decodeURIComponent(el('wa').href);
+ok(hrefWa.includes('RM29.90'), 'harga masuk mesej WhatsApp');
+ok(hrefWa.includes('Ahmad bin Ali'), 'nama pelanggan masuk mesej WhatsApp');
+const bahagian = hrefWa.split('Kod resume saya');
+const kod = bahagian.length > 1 ? bahagian[1].split('\n').pop().trim() : '';
+ok(kod.length > 20 && /^[A-Za-z0-9_-]+$/.test(kod), 'kod resume dihantar (selamat URL)');
+ok(d.querySelectorAll('#cap-air span').length > 0, 'tanda air dipaparkan kepada pelanggan');
+ok(d.body.classList.contains('mod-penjual') === false, 'pelanggan bukan dalam mod penjual');
+ok(el('panel-pesanan').hidden === false, 'panel pesanan kelihatan kepada pelanggan');
+ok(el('mod-penjual').hidden === true, 'panel mod penjual tersembunyi daripada pelanggan');
+ok(el('harga').textContent === '29.90', 'harga dipaparkan pada panel pesanan');
+
+// buka kod rosak
+el('kod-masuk').value = 'ini-bukan-kod-sah';
+el('buka-kod').click();
+ok(el('log').textContent.includes('tidak sah'), 'kod rosak ditolak dengan mesej jelas');
+
+// mod penjual melalui URL #kod=...
+const st = { print: 0 };
+const dom2 = new JSDOM(html, {
+  runScripts: 'dangerously',
+  url: 'https://alexander751.github.io/Resume-builder-mv/#kod=' + kod,
+  beforeParse(w) { w.print = () => { st.print++; }; w.confirm = () => true; }
+});
+const d2doc = dom2.window.document;
+ok(d2doc.getElementById('nama').value === 'Ahmad bin Ali', 'kod memulihkan nama pelanggan');
+ok(d2doc.querySelectorAll('#senarai-pengalaman .baris').length === 1, 'kod memulihkan 1 baris pengalaman');
+ok(d2doc.getElementById('resume').textContent.includes('EPH Construction Sdn Bhd'), 'resume penuh dipulihkan dari kod');
+ok(d2doc.querySelectorAll('#cap-air span').length === 0, 'mod penjual: TIADA tanda air');
+ok(dom2.window.document.body.classList.contains('mod-penjual'), 'badge MOD PENJUAL aktif');
+ok(d2doc.getElementById('mod-penjual').hidden === false, 'panel mod penjual dibuka untuk penjual');
+ok(d2doc.getElementById('panel-pesanan').hidden === true, 'panel pesanan disembunyikan untuk penjual');
+
+// mod penjual melalui #penjual
+const dom3 = new JSDOM(html, {
+  runScripts: 'dangerously',
+  url: 'https://alexander751.github.io/Resume-builder-mv/#penjual',
+  beforeParse(w) { w.print = () => {}; w.confirm = () => true; }
+});
+ok(dom3.window.document.getElementById('mod-penjual').hidden === false, '#penjual membuka panel mod penjual');
+ok(dom3.window.document.querySelectorAll('#cap-air span').length === 0, '#penjual mematikan tanda air');
+
+console.log('== 11. Semakan statik pada HTML ==');
 ok(html.includes('@page { size: A4'), 'ada tetapan cetak A4 (@page size A4)');
 ok(/@media print/.test(html), 'ada @media print');
 ok(html.includes('page-break-inside: avoid'), 'ada kawalan pecah halaman untuk item');
@@ -132,6 +182,9 @@ const dirujuk = [...html.matchAll(/el\('([^']+)'\)/g)].map(m => m[1]);
 const ditakrif = [...html.matchAll(/id="([^"]+)"/g)].map(m => m[1]);
 const hilang = [...new Set(dirujuk)].filter(id => !ditakrif.includes(id));
 ok(hilang.length === 0, 'setiap el(\'...\') ada padanan id= dalam HTML' + (hilang.length ? ' -> hilang: ' + hilang.join(', ') : ''));
+ok(/NOMBOR_WA\s*=\s*'6\d{8,}'/.test(html), 'NOMBOR_WA ditetapkan dalam format 60...');
+ok(html.includes('body.mod-penjual .cap-air'), 'CSS mematikan tanda air dalam mod penjual');
+ok(/@media print[\s\S]*form, #log[\s\S]*display: none/.test(html), 'borang disembunyikan semasa cetak');
 
 console.log('\n' + pass + ' lulus, ' + fail + ' gagal, ' + skip + ' dilangkau');
 process.exit(fail ? 1 : 0);
