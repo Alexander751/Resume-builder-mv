@@ -180,6 +180,22 @@ const dom3 = new JSDOM(html, {
 ok(dom3.window.document.getElementById('mod-penjual').hidden === false, '#penjual membuka panel mod penjual');
 ok(dom3.window.document.querySelectorAll('#cap-air span').length === 0, '#penjual mematikan tanda air');
 
+// mod penjual melalui ketukan pada tajuk (jalan telefon)
+const dom4 = new JSDOM(html, {
+  runScripts: 'dangerously',
+  url: 'https://alexander751.github.io/Resume-builder-mv/',
+  beforeParse(w) { w.print = () => {}; w.confirm = () => true; }
+});
+const d4 = dom4.window.document;
+for (let i = 0; i < 4; i++) d4.getElementById('tajuk').click();
+ok(d4.body.classList.contains('mod-penjual') === false, '4 ketukan belum cukup untuk hidupkan mod penjual');
+ok(d4.querySelectorAll('#cap-air span').length > 0, 'selepas 4 ketukan tanda air masih ada');
+for (let i = 0; i < 1; i++) d4.getElementById('tajuk').click();
+ok(d4.body.classList.contains('mod-penjual'), 'ketukan ke-5 menghidupkan mod penjual');
+ok(d4.querySelectorAll('#cap-air span').length === 0, 'ketukan ke-5 membuang tanda air');
+ok(d4.getElementById('mod-penjual').hidden === false, 'ketukan ke-5 membuka panel mod penjual');
+ok(d4.getElementById('panel-pesanan').hidden === true, 'ketukan ke-5 menyembunyikan panel pesanan');
+
 console.log('== 11. Semakan statik pada HTML ==');
 ok(html.includes('@page { size: A4'), 'ada tetapan cetak A4 (@page size A4)');
 ok(/@media print/.test(html), 'ada @media print');

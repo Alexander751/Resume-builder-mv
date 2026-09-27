@@ -163,7 +163,7 @@
 <body>
 
 <header class="top">
-  <h1>Resume Builder MV<span class="mod-penjual-pil" id="pil-mod">MOD PENJUAL</span></h1>
+  <h1 id="tajuk">Resume Builder MV<span class="mod-penjual-pil" id="pil-mod">MOD PENJUAL</span></h1>
   <p>Isi butiran di kiri — pratonton A4 dikemas kini serta-merta. Tekan <strong>Jana PDF</strong> bila puas hati.</p>
 </header>
 
@@ -560,7 +560,19 @@
     kemasSemula();
   });
 
-  /* ---------- mod penjual: #penjual atau #kod=<kod> ---------- */
+  /* ---------- mod penjual ---------- */
+  function hidupkanModPenjual(awal) {
+    penjual = true;
+    document.body.classList.add('mod-penjual');
+    el('mod-penjual').hidden = false;
+    el('panel-pesanan').hidden = true;
+    if (awal) tulisLog('MOD PENJUAL: tanda air dimatikan — Jana PDF sekarang bersih.', 'info');
+  }
+
+  /* Tiga jalan masuk:
+     a) URL   .../#penjual            (tampal di desktop)
+     b) URL   .../#kod=<kod-pelanggan> (buka terus resume pelanggan)
+     c) Ketuk tajuk "Resume Builder MV" 5 kali (paling mudah di telefon) */
   function mulakanMod() {
     var h = String(window.location.hash || '');
     var m = h.match(/kod=([A-Za-z0-9_-]+)/);
@@ -568,20 +580,31 @@
       var d2 = borangDariKod(m[1]);
       if (d2) {
         isiBorang(d2);
-        penjual = true;
+        hidupkanModPenjual(true);
       } else {
         tulisLog('Kod resume dalam pautan itu tidak sah.', 'ralat');
       }
     } else if (/penjual/.test(h)) {
-      penjual = true;
-    }
-    if (penjual) {
-      document.body.classList.add('mod-penjual');
-      el('mod-penjual').hidden = false;
-      el('panel-pesanan').hidden = true;
-      tulisLog('MOD PENJUAL: tanda air dimatikan — Jana PDF sekarang bersih.', 'info');
+      hidupkanModPenjual(true);
     }
   }
+
+  var ketuk = 0, ketukTerakhir = 0;
+  el('tajuk').addEventListener('click', function () {
+    var kini = Date.now();
+    if (kini - ketukTerakhir > 1500) ketuk = 0;
+    ketukTerakhir = kini;
+    ketuk++;
+    if (ketuk >= 5) {
+      ketuk = 0;
+      var sudah = penjual;
+      hidupkanModPenjual(false);
+      kemasSemula();
+      tulisLog(sudah
+        ? 'MOD PENJUAL sudah aktif. Muat semula halaman (F5) untuk kembali ke mod pelanggan.'
+        : 'MOD PENJUAL dihidupkan (ketuk 5 kali) — tanda air dimatikan. Muat semula halaman untuk kembali ke mod pelanggan.', 'amaran');
+    }
+  });
 
   muat();
   mulakanMod();
