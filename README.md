@@ -51,6 +51,7 @@ Data disimpan automatik dalam pelayar (localStorage). **Kosongkan** memadam semu
 - Pemilih **`#templat`**: *Klasik* (putih, satu lajur) dan *Biru & Kelabu* (dua lajur dengan rel kelabu + foto)
 - Templat **Biru & Kelabu** dibina semula mengikut ukuran sebenar fail rujukan *Blue and Gray Simple Professional CV Resume* (A4, 596 × 842 pt): banner biru gelap `#323b4c` setinggi 50 mm, rel kiri kelabu `#e4e4e4` selebar 65 mm (Kontak / Kemahiran / Bahasa), lajur kanan dengan garisan bawah biru `#163853` (Profil / Pengalaman Kerja / Pendidikan / Rujukan), garis pemisah menegak pada 73 mm
 - Medan baharu: **`#bahasa`**, **`#rujukan`**, **`#foto`** (fail gambar dikecilkan ke 420 px dan disimpan sebagai JPEG dalam pelayar sahaja)
+- Foto berbentuk **bulat** (`border-radius: 50%` pada bingkai dan imej) — PDF rujukan asal memakai bingkai putih petak; bulatan ini pilihan reka bentuk sendiri
 - Foto hanya masuk ke templat Biru & Kelabu; bila tiada foto, nama digeser ke kiri supaya banner tidak berlubang
 - Templat + bahasa + rujukan **turut serta dalam kod pesanan WhatsApp** (maklumat kecil), tetapi **foto tidak** — supaya kod kekal pendek dan boleh disalin; minta pelanggan hantar gambar, kemudian muat naik di sisi penjual
 - Cetakan: `@page { margin: 0 }` supaya templat dua lajur boleh mencetak penuh ke tepi kertas; templat Klasik pula dapat padding 12 mm dari pembalutnya sendiri
