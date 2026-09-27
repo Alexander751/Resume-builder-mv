@@ -20,7 +20,7 @@ Buka `index.html` (klik dua kali) atau laman awam di atas. Aliran **4 halaman**:
 
 1. **Pilih reka bentuk** — kad *Biru & Kelabu* dengan **pratonton mini sebenar** (bukan gambar) → **Mula Isi Butiran**
 2. **Isi butiran** — Nama + Nombor Telefon wajib; foto, jawatan, ringkasan, pengalaman, pendidikan, kemahiran, bahasa, rujukan → **Seterusnya: Pratonton**
-3. **Pratonton** — helaian A4 penuh (muat tanpa skrol) + butang **Skrin penuh** → **Seterusnya: Hantar ke WhatsApp**
+3. **Pratonton** — helaian A4 penuh (muat tanpa skrol) + butang **Skrin penuh** + senarai semak "Semak sebelum hantar" → **Seterusnya: Hantar**
 4. **Hantar** — tekan butang WhatsApp; mesej pesanan + kod resume sudah siap diisi, anda cuma tekan hantar
 
 Butang **Jana PDF** ada di halaman butiran; cetak tetap keluar resume penuh walaupun anda berada di halaman lain.
@@ -91,6 +91,20 @@ Data disimpan automatik dalam pelayar (localStorage). **Kosongkan** memadam semu
 - **Mod penjual**: `#penjual` membuka halaman butiran (panel penjual + Jana PDF ada di situ), `#kod=<kod>` terus ke halaman pratonton; butang "Hantar ke WhatsApp" disembunyikan (`body.mod-penjual #ke-4`). Cetakan penjual disemak: 811 aksara, tiada tanda air, 1 halaman A4
 - Ujian bertambah kepada **169 lulus, 0 gagal** (26 ujian baharu untuk aliran 4 halaman)
 
+**Fasa 9** — antara muka digilap (lebih bersih, lebih mesra pengguna):
+
+- Sistem gaya baharu: token warna (`--brand-soft`, `--ok`, `--sh1/--sh2`), kad putih bersudut bulat + bayang lembut, latar `#f5f8fc`, tajuk guna **Montserrat**, badan guna **Lato** (dua-dua sudah dimuat untuk resume — tiada permintaan rangkaian tambahan)
+- Bar atas: lencana jenama berikon SVG + tajuk dua baris (menyimpan ketukan-5-kali Mod Penjual)
+- **Penunjuk langkah jadi penunjuk kemajuan**: bulatan bernombor yang bertukar **tanda centang hijau** apabila langkah selesai, langkah semasa bercahaya biru, langkah yang belum sampai tidak boleh diklik. Pada skrin kecil label diganti dengan teks "Langkah 2 daripada 4 · Butiran" (`#langkah-teks`)
+- Halaman 1: kad pilihan dengan jalur navy, senarai ciri bercentang hijau, ikon perisai pada nota kepercayaan
+- Halaman 2: medan pendek **dua lajur** (`.grid-2`), tanda `*` pada Nama & Telefon (`.wajib`), medan 11px padding (sasaran jari), setiap fieldset jadi kad, baris pengalaman gaya kad, dan **bar tindakan melekat** (`#hal-2 .nav-bawah { position: sticky }`) supaya butang *Seterusnya* sentiasa kelihatan dalam borang yang panjang
+- Halaman 3: butang dipindah ke bar atas (`Kembali edit` / `Skrin penuh` / `Seterusnya: Hantar`) supaya helaian A4 dapat ruang penuh — hasilnya **skrol 0px**; ditambah kad sisi **"Semak sebelum hantar"** (4 soalan) yang hanya muncul ≥1080px; butang **Skrin penuh** kini berada di dalam panel dan bertukar `position: fixed` dalam mod skrin penuh, jadi ia tetap boleh diklik untuk keluar (sebelum ini labelnya bertukar tetapi butangnya tersembunyi)
+- Halaman 4: kad pengesahan dengan tanda centang hijau, harga dalam pil, butang WhatsApp penuh lebar berlogo SVG, 3 langkah bayaran sebagai garis masa bernombor
+- **Skrin kecil (≤760px)**: satu lajur, butang penuh lebar, `header.top p` disembunyikan ≤520px
+- **Pepijat cetak yang ditemui semasa penggilapan**: `animation: masuk .3s ease-out both` pada `.hal` menyebabkan `opacity: 0` terbeku semasa cetak — mencetak dari halaman pratonton keluar **PDF kosong**. Dibetulkan dengan `* { animation: none !important; transition: none !important; }` dalam `@media print`, dan `.papan { display: block !important }` supaya grid pratonton jadi blok biasa
+- Disahkan dalam Chrome: tiada limpahan mendatar pada mana-mana halaman, skrol pratonton 0px, helaian 361×511 pada 1424×749, butang WhatsApp 566×53, dan **cetakan dari keempat-empat halaman menghasilkan PDF yang identik** (1 halaman, 595×842 pt, 7/7 bahagian)
+- Ujian bertambah kepada **198 lulus, 0 gagal**
+
 ## Ujian
 
 ```bash
@@ -98,7 +112,7 @@ cd test && npm install        # sekali sahaja (jsdom)
 "$LOCALAPPDATA/hermes/node/node.exe" test/test_ui.js
 ```
 
-Keputusan semasa: **169 lulus, 0 gagal**.
+Keputusan semasa: **198 lulus, 0 gagal**.
 
 ## Aliran jualan melalui WhatsApp (tanpa gerbang bayaran)
 

@@ -8,153 +8,341 @@
 <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --ink: #1c1c1e;
-    --muted: #6b7280;
-    --line: #d9dde3;
+    --ink: #16202c;
+    --muted: #64748b;
+    --line: #e4e9f0;
     --brand: #12508c;
-    --bg: #eef1f5;
+    --brand-dark: #0e3f70;
+    --brand-soft: #eaf2fb;
+    --bg: #f5f8fc;
     --danger: #b42318;
+    --ok: #0f7a56;
+    --r: 14px;
+    --sh1: 0 1px 2px rgba(16, 24, 40, .05), 0 1px 3px rgba(16, 24, 40, .05);
+    --sh2: 0 2px 6px rgba(16, 24, 40, .06), 0 10px 28px rgba(16, 24, 40, .07);
   }
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-    font-size: 15px;
-    color: var(--ink);
-    background: var(--bg);
+    font-family: "Lato", -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    font-size: 15px; color: var(--ink); background: var(--bg);
+    -webkit-font-smoothing: antialiased;
   }
+  h1, h2, h3 { font-family: "Montserrat", "Lato", "Segoe UI", Arial, sans-serif; }
+
+  /* ---------- bar atas ---------- */
   header.top {
-    background: #fff;
-    border-bottom: 1px solid var(--line);
-    padding: 12px 20px;
+    background: #fff; border-bottom: 1px solid var(--line); padding: 13px 22px;
+    display: flex; align-items: center; gap: 13px; flex-wrap: wrap;
+    position: sticky; top: 0; z-index: 50;
   }
-  header.top h1 { margin: 0; font-size: 17px; }
-  header.top p { margin: 3px 0 0; font-size: 13px; color: var(--muted); }
+  .jenama {
+    width: 34px; height: 34px; border-radius: 9px; flex: 0 0 auto;
+    background: linear-gradient(150deg, #2f5f96, #123f70);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 3px 10px rgba(18, 63, 112, .28);
+  }
+  .jenama svg { width: 18px; height: 18px; color: #fff; }
+  .jenama-teks { flex: 1 1 auto; min-width: 0; }
+  header.top h1 { margin: 0; font-size: 17px; font-weight: 800; letter-spacing: -.01em; display: flex; align-items: center; }
+  header.top p { margin: 2px 0 0; font-size: 12.5px; color: var(--muted); }
+  .mod-penjual-pil {
+    display: none; background: #92400e; color: #fff; font-size: 11px; font-weight: 700;
+    border-radius: 10px; padding: 2px 10px; margin-left: 8px; vertical-align: middle;
+  }
+  body.mod-penjual .mod-penjual-pil { display: inline-block; }
+  body.mod-penjual #ke-4 { display: none; }   /* penjual tidak perlu halaman pesanan WhatsApp */
 
-  main { display: block; padding: 0; }
-
-  /* ---------- borang ---------- */
-  form { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
-  fieldset { border: 0; border-top: 1px solid var(--line); margin: 14px 0 0; padding: 12px 0 0; }
-  fieldset:first-of-type { border-top: 0; margin-top: 0; padding-top: 0; }
-  legend { font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--brand); padding: 0; }
-  label { display: block; margin: 10px 0 3px; font-size: 13px; font-weight: 600; }
-  input, textarea {
-    width: 100%; padding: 7px 9px; border: 1px solid var(--line);
-    border-radius: 5px; font: inherit; font-size: 14px; background: #fff;
-  }
-  input:focus, textarea:focus { outline: 2px solid #bcd4ee; border-color: var(--brand); }
-  textarea { resize: vertical; min-height: 62px; }
-  .baris {
-    border: 1px solid var(--line); border-radius: 6px;
-    padding: 4px 10px 10px; margin-top: 10px; background: #fafbfc;
-  }
-  .baris .kepala { display: flex; justify-content: space-between; align-items: center; margin: 8px 0 0; }
-  .baris .kepala strong { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
-  .btn-hapus {
-    background: none; border: 0; color: var(--danger); font-size: 12px;
-    cursor: pointer; padding: 2px 4px; text-decoration: underline;
-  }
-  .btn-tambah {
-    margin-top: 10px; background: #fff; border: 1px dashed var(--brand);
-    color: var(--brand); border-radius: 5px; padding: 7px 12px; font: inherit;
-    font-size: 13px; font-weight: 600; cursor: pointer;
-  }
-  .aksi { display: flex; gap: 10px; align-items: center; margin-top: 18px; flex-wrap: wrap; }
-  #jana {
-    flex: 1 1 auto; background: var(--brand); color: #fff; border: 0; border-radius: 6px;
-    padding: 11px 18px; font: inherit; font-size: 15px; font-weight: 700; cursor: pointer;
-  }
-  #kosongkan { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 11px 14px; font: inherit; cursor: pointer; }
-  #log { margin-top: 10px; font-size: 13px; }
-  #log .ralat { color: var(--danger); font-weight: 600; }
-  #log .info { color: #166534; }
-  #log .amaran { color: #92400e; }
-
-  /* ---------- aliran 4 halaman (wizard) ---------- */
+  /* ---------- penunjuk langkah ---------- */
   .langkah {
-    display: flex; gap: 6px; align-items: center; justify-content: center;
-    flex-wrap: wrap; padding: 12px 14px 0;
+    display: flex; align-items: center; justify-content: center; gap: 2px;
+    flex-wrap: wrap; padding: 14px 14px 4px;
   }
   .langkah .dot {
-    display: inline-flex; align-items: center; gap: 7px;
-    background: #fff; border: 1px solid var(--line); border-radius: 999px;
-    padding: 4px 13px 4px 5px; font: inherit; font-size: 13px; color: var(--muted); cursor: pointer;
+    display: inline-flex; align-items: center; gap: 9px; background: none; border: 0;
+    padding: 6px 12px; font: inherit; font-size: 13.5px; color: var(--muted);
+    cursor: pointer; border-radius: 999px;
   }
   .langkah .dot b {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 21px; height: 21px; border-radius: 50%; background: #e6ebf1;
-    color: var(--muted); font-size: 11.5px; font-weight: 700;
+    display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto;
+    width: 26px; height: 26px; border-radius: 50%; background: #fff;
+    border: 1.5px solid var(--line); color: var(--muted); font-size: 12.5px; font-weight: 700;
+    transition: background .18s ease, border-color .18s ease, color .18s ease, box-shadow .18s ease;
   }
-  .langkah .dot.aktif { border-color: var(--brand); color: var(--brand); font-weight: 700; }
-  .langkah .dot.aktif b { background: var(--brand); color: #fff; }
-  .langkah .dot.siap { border-color: #bfe3ca; color: #166534; }
-  .langkah .dot.siap b { background: #166534; color: #fff; }
-  .langkah .dot:disabled { opacity: .5; cursor: default; }
-  .langkah .dot:not(:disabled):hover { border-color: var(--brand); }
+  .langkah .dot.aktif { color: var(--brand); font-weight: 700; }
+  .langkah .dot.aktif b { background: var(--brand); border-color: var(--brand); color: #fff; box-shadow: 0 0 0 4px var(--brand-soft); }
+  .langkah .dot.siap { color: var(--ok); }
+  .langkah .dot.siap b { background: var(--ok); border-color: var(--ok); color: #fff; font-size: 0; }
+  .langkah .dot.siap b::after { content: '\2713'; font-size: 13px; }
+  .langkah .dot:disabled { opacity: .55; cursor: default; }
+  .langkah .dot:not(:disabled):hover b { border-color: var(--brand); color: var(--brand); }
+  .langkah .dot.siap:not(:disabled):hover b, .langkah .dot.aktif b { color: #fff; }
+  .langkah .dot:focus-visible { outline: 3px solid #bfd9f2; outline-offset: 2px; }
+  .langkah-teks { display: none; text-align: center; color: var(--muted); font-size: 12.5px; margin: 10px 0 0; }
+  @media (max-width: 640px) {
+    .langkah .dot span { display: none; }
+    .langkah .dot { padding: 5px 6px; }
+    .langkah-teks { display: block; }
+  }
 
-  .hal { max-width: 1080px; margin: 0 auto; padding: 20px 16px 44px; }
+  /* ---------- halaman ---------- */
+  .hal { max-width: 1000px; margin: 0 auto; padding: 22px 20px 60px; }
+  #hal-3 { padding-bottom: 10px; }
   .hal[hidden] { display: none !important; }
-  .hal-tajuk { font-size: 21px; margin: 0 0 4px; }
-  .hal-sub { color: var(--muted); font-size: 13.5px; margin: 0 0 18px; }
-  .nav-bawah {
-    display: flex; gap: 10px; justify-content: space-between; align-items: center;
-    flex-wrap: wrap; margin-top: 20px;
-  }
-  .btn-utama {
-    background: var(--brand); color: #fff; border: 0; border-radius: 8px;
-    padding: 13px 22px; font: inherit; font-size: 15px; font-weight: 700; cursor: pointer;
-  }
-  .btn-utama:hover { background: #0e4272; }
-  .btn-undur {
-    background: #fff; border: 1px solid var(--line); border-radius: 8px;
-    padding: 12px 18px; font: inherit; font-size: 14px; cursor: pointer;
-  }
-  .btn-undur:hover { border-color: var(--brand); color: var(--brand); }
+  .hal:not([hidden]) { animation: masuk .3s ease-out both; }
+  @keyframes masuk { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .hal-tajuk { font-size: 22px; margin: 0 0 6px; letter-spacing: -.02em; }
+  .hal-sub { color: var(--muted); font-size: 14px; margin: 0 0 20px; line-height: 1.55; }
+  @media (prefers-reduced-motion: reduce) { .hal:not([hidden]) { animation: none; } }
 
-  /* halaman 1: kad pilih reka bentuk */
+  /* ---------- butang ---------- */
+  .btn-utama {
+    display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+    background: var(--brand); color: #fff; border: 0; border-radius: 11px;
+    padding: 15px 26px; font: inherit; font-size: 15.5px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, .10), 0 6px 18px rgba(18, 80, 140, .22);
+    transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+  .btn-utama:hover { background: var(--brand-dark); transform: translateY(-1px); box-shadow: 0 10px 24px rgba(18, 80, 140, .26); }
+  .btn-utama:active { transform: translateY(0); }
+  .btn-utama:focus-visible { outline: 3px solid #bfd9f2; outline-offset: 2px; }
+  .btn-undur {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: #fff; border: 1px solid var(--line); border-radius: 11px;
+    padding: 14px 20px; font: inherit; font-size: 14.5px; font-weight: 600; color: var(--muted);
+    cursor: pointer; transition: background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .btn-undur:hover { border-color: #c7d4e2; color: var(--ink); background: #fbfcfe; }
+  .btn-undur:focus-visible { outline: 3px solid #bfd9f2; outline-offset: 2px; }
+  .nav-bawah {
+    display: flex; gap: 12px; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; margin-top: 24px;
+  }
+  /* bar tindakan melekat pada halaman borang (borang panjang) */
+  #hal-2 .nav-bawah {
+    position: sticky; bottom: 0; z-index: 30; padding: 10px 0 14px;
+    background: linear-gradient(to top, var(--bg) 72%, rgba(245, 248, 252, 0));
+  }
+
+  /* ---------- halaman 1: pilih reka bentuk ---------- */
   .kad-pilih {
-    display: grid; grid-template-columns: minmax(200px, 300px) 1fr; gap: 24px; align-items: center;
-    background: #fff; border: 2px solid var(--brand); border-radius: 14px;
-    padding: 20px; box-shadow: 0 4px 18px rgba(16, 24, 40, .10);
+    display: grid; grid-template-columns: minmax(200px, 290px) 1fr; gap: 28px; align-items: center;
+    position: relative; overflow: hidden; background: #fff;
+    border: 1px solid var(--line); border-radius: 18px; padding: 26px; box-shadow: var(--sh2);
+  }
+  .kad-pilih::before {
+    content: ''; position: absolute; inset: 0 0 auto 0; height: 5px;
+    background: linear-gradient(90deg, #323b4c 0%, #55698a 55%, #93a6bf 100%);
   }
   .mini {
     width: 100%; aspect-ratio: 210 / 297; overflow: hidden;
-    border: 1px solid var(--line); border-radius: 6px; background: #fff;
-    box-shadow: 0 2px 8px rgba(16, 24, 40, .12);
+    border: 1px solid var(--line); border-radius: 8px; background: #fff;
+    box-shadow: 0 6px 20px rgba(16, 24, 40, .14);
   }
-  .mini-kertas { width: 794px; height: 1123px; zoom: var(--skala-mini, .37); background: #fff; }
-  .kad-teks h3 { margin: 0 0 6px; font-size: 19px; }
+  .mini-kertas { zoom: var(--skala-mini, .37); width: 794px; height: 1123px; background: #fff; }
+  .kad-teks h3 { margin: 0 0 8px; font-size: 20px; letter-spacing: -.01em; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
   .pil-pilih {
-    display: inline-block; background: #166534; color: #fff; font-size: 11px; font-weight: 700;
-    border-radius: 999px; padding: 2px 9px; margin-left: 8px; vertical-align: middle;
-    text-transform: uppercase; letter-spacing: .04em;
+    display: inline-flex; align-items: center; gap: 5px; background: #e8f6ef; color: var(--ok);
+    font-size: 11px; font-weight: 700; border-radius: 999px; padding: 3px 10px;
+    text-transform: uppercase; letter-spacing: .05em;
   }
-  .kad-nota { margin: 0 0 12px; color: var(--muted); font-size: 13.5px; }
-  .kad-ciri { margin: 0 0 18px; padding-left: 20px; font-size: 13.5px; }
-  .kad-ciri li { margin-bottom: 5px; }
-  .nota-bawah { text-align: center; color: var(--muted); font-size: 12.5px; margin-top: 16px; }
-  .kepala-hal { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .kad-nota { margin: 0 0 14px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+  .kad-ciri { list-style: none; margin: 0 0 20px; padding: 0; font-size: 14px; }
+  .kad-ciri li { position: relative; padding-left: 26px; margin-bottom: 8px; line-height: 1.45; }
+  .kad-ciri li::before {
+    content: '\2713'; position: absolute; left: 0; top: 1px; width: 18px; height: 18px;
+    border-radius: 50%; background: #e8f6ef; color: var(--ok);
+    font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+  }
+  .nota-bawah {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    color: var(--muted); font-size: 12.5px; margin-top: 18px;
+  }
+  .nota-bawah svg { flex: 0 0 auto; width: 15px; height: 15px; color: var(--ok); }
 
-  /* halaman 4: langkah bayaran */
-  .langkah-bayar { margin: 14px 0 0; padding-left: 20px; font-size: 13.5px; }
-  .langkah-bayar li { margin-bottom: 6px; }
+  /* papan pratonton: helaian + senarai semak di sisi (skrin lebar) */
+  .papan { display: grid; grid-template-columns: 1fr; gap: 22px; align-items: start; }
+  .sisi { display: none; }
+  @media (min-width: 1080px) {
+    .papan { grid-template-columns: auto 286px; justify-content: center; }
+    .sisi {
+      display: block; background: #fff; border: 1px solid var(--line); border-radius: 16px;
+      padding: 20px 22px; box-shadow: var(--sh1);
+    }
+    .sisi h3 { margin: 0 0 12px; font-size: 14.5px; }
+    .sisi .senarai-semak { list-style: none; margin: 0; padding: 0; font-size: 13px; color: #3a4a5c; }
+    .sisi .senarai-semak li { position: relative; padding-left: 24px; margin-bottom: 10px; line-height: 1.5; }
+    .sisi .senarai-semak li::before {
+      content: '?'; position: absolute; left: 0; top: 0; width: 17px; height: 17px;
+      border-radius: 50%; background: var(--brand-soft); color: var(--brand);
+      font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+    }
+    .sisi .nota { margin: 14px 0 0; font-size: 12px; border-top: 1px solid var(--line); padding-top: 12px; }
+  }
 
-  @media (max-width: 720px) {
-    .kad-pilih { grid-template-columns: 1fr; gap: 16px; }
-    .mini { max-width: 300px; margin: 0 auto; }
+  /* skrin kecil: satu lajur, butang penuh lebar (senang tekan dengan ibu jari) */
+  @media (max-width: 760px) {
+    .hal { padding: 16px 14px 44px; }
+    .kad-pilih { grid-template-columns: 1fr; gap: 20px; padding: 20px 18px; }
+    .mini { max-width: 260px; margin: 0 auto; }
+    .hal-tajuk { font-size: 19.5px; }
+    .btn-utama, .btn-undur { width: 100%; }
     .nav-bawah { flex-direction: column-reverse; }
-    .nav-bawah .btn-utama, .nav-bawah .btn-undur { width: 100%; text-align: center; }
+    .bar-butang { width: 100%; }
+    .bar-butang .btn-undur, .bar-butang .btn-utama { width: 100%; }
+    .bar-pratonton { align-items: flex-start; }
+    header.top { padding: 11px 14px; gap: 10px; }
+    header.top p { font-size: 12px; }
   }
+  @media (max-width: 520px) { header.top p { display: none; } }
+
+  /* ---------- borang ---------- */
+  form { background: none; border: 0; padding: 0; }
+  fieldset {
+    background: #fff; border: 1px solid var(--line); border-radius: var(--r);
+    margin: 0 0 14px; padding: 16px 20px 22px; box-shadow: var(--sh1);
+  }
+  legend {
+    font-weight: 800; font-size: 11.5px; text-transform: uppercase;
+    letter-spacing: .09em; color: var(--brand); padding: 0 6px 0 0;
+  }
+  label { display: block; margin: 14px 0 6px; font-size: 13px; font-weight: 600; color: #3a4a5c; }
+  .wajib { color: var(--danger); }
+  input, textarea {
+    width: 100%; padding: 11px 13px; border: 1px solid var(--line); border-radius: 10px;
+    font: inherit; font-size: 14.5px; background: #fff; color: var(--ink);
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  input::placeholder, textarea::placeholder { color: #9aa6b6; }
+  input:focus, textarea:focus { outline: 0; border-color: var(--brand); box-shadow: 0 0 0 3.5px var(--brand-soft); }
+  textarea { resize: vertical; min-height: 68px; line-height: 1.5; }
+  input[type="file"] { padding: 9px 11px; background: #fbfcfe; border-style: dashed; cursor: pointer; }
+  #foto-info { margin-top: 7px; font-size: 12.5px; }
+  #buang-foto {
+    background: none; border: 1px solid var(--line); border-radius: 8px; color: var(--muted);
+    padding: 7px 12px; font: inherit; font-size: 12.5px; cursor: pointer; margin-top: 9px;
+  }
+  #buang-foto:hover { border-color: #c7d4e2; color: var(--danger); }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+  @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
+  .baris {
+    border: 1px solid var(--line); border-radius: 12px; background: #fbfcfe;
+    padding: 4px 14px 14px; margin-top: 12px;
+  }
+  .baris .kepala { display: flex; justify-content: space-between; align-items: center; margin: 10px 0 0; }
+  .baris .kepala strong { font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 700; }
+  .btn-hapus {
+    background: none; border: 0; color: var(--danger); font-size: 12.5px; font-weight: 600;
+    cursor: pointer; padding: 4px 7px; border-radius: 6px;
+  }
+  .btn-hapus:hover { background: #fdecea; }
+  .btn-tambah {
+    width: 100%; margin-top: 12px; background: var(--brand-soft); border: 1px dashed #a9c9e8;
+    color: var(--brand); border-radius: 10px; padding: 12px 14px; font: inherit;
+    font-size: 13.5px; font-weight: 700; cursor: pointer; transition: background .15s ease;
+  }
+  .btn-tambah:hover { background: #dbe9f8; }
+  .aksi {
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    padding: 14px 16px; background: #fff; border: 1px solid var(--line);
+    border-radius: var(--r); box-shadow: var(--sh1);
+  }
+  .aksi .kecil { font-size: 12.5px; color: var(--muted); flex: 1 1 180px; line-height: 1.45; }
+  #jana {
+    display: inline-flex; align-items: center; gap: 8px; background: #fff; color: var(--brand);
+    border: 1.5px solid var(--brand); border-radius: 10px; padding: 11px 18px;
+    font: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer;
+  }
+  #jana:hover { background: var(--brand-soft); }
+  #kosongkan {
+    background: none; border: 0; color: var(--muted); border-radius: 8px; padding: 11px 8px;
+    font: inherit; font-size: 13.5px; cursor: pointer; text-decoration: underline;
+  }
+  #kosongkan:hover { color: var(--danger); }
+  #log { margin-top: 12px; font-size: 13.5px; }
+  #log .ralat { color: var(--danger); font-weight: 600; }
+  #log .info { color: var(--ok); }
+  #log .amaran { color: #92400e; }
+
+  /* ---------- halaman 4: hantar pesanan ---------- */
+  .panel-pesanan {
+    background: #fff; border: 1px solid var(--line); border-radius: 18px;
+    padding: 26px 26px 24px; box-shadow: var(--sh2); max-width: 620px; margin: 0 auto;
+    text-align: center;
+  }
+  .tanda-ok {
+    width: 56px; height: 56px; margin: 0 auto 14px; border-radius: 50%; background: #e8f6ef;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .tanda-ok svg { width: 28px; height: 28px; color: var(--ok); }
+  .panel-pesanan .harga { margin: 0 0 18px; font-size: 14px; color: var(--muted); }
+  .panel-pesanan .harga strong { display: inline-flex; }
+  .harga-pil {
+    display: inline-flex; align-items: center; gap: 7px; background: var(--brand-soft);
+    color: var(--brand); font-weight: 700; font-size: 13.5px; border-radius: 999px;
+    padding: 8px 16px;
+  }
+  .harga-pil b { font-size: 18px; }
+  #wa {
+    display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;
+    background: #25D366; color: #fff; text-decoration: none; border-radius: 12px;
+    padding: 16px 20px; font-weight: 700; font-size: 16px;
+    box-shadow: 0 6px 18px rgba(37, 211, 102, .30);
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  #wa:hover { transform: translateY(-1px); box-shadow: 0 10px 26px rgba(37, 211, 102, .34); }
+  #wa svg { width: 21px; height: 21px; flex: 0 0 auto; }
+  #wa:not(.sedia) { background: #c3ccd6; box-shadow: none; pointer-events: none; }
+  .langkah-bayar {
+    list-style: none; margin: 24px 0 0; padding: 20px 0 0; text-align: left;
+    counter-reset: lb; border-top: 1px solid var(--line);
+  }
+  .langkah-bayar li { position: relative; padding: 0 0 16px 34px; font-size: 13.5px; line-height: 1.5; color: #3a4a5c; }
+  .langkah-bayar li::before {
+    counter-increment: lb; content: counter(lb); position: absolute; left: 0; top: 0;
+    width: 22px; height: 22px; border-radius: 50%; background: var(--brand-soft); color: var(--brand);
+    font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+  }
+  .langkah-bayar li::after {
+    content: ''; position: absolute; left: 10.5px; top: 25px; bottom: 3px; width: 1px; background: var(--line);
+  }
+  .langkah-bayar li:last-child { padding-bottom: 0; }
+  .langkah-bayar li:last-child::after { display: none; }
+  .nota { color: var(--muted); font-size: 12.5px; line-height: 1.6; margin: 18px 0 0; }
+
+  /* ---------- panel penjual ---------- */
+  #mod-penjual {
+    background: #fffbeb; border: 1px solid #fcd34d; border-radius: var(--r);
+    padding: 16px 18px; margin-top: 16px; box-shadow: var(--sh1);
+  }
+  #mod-penjual .harga { margin: 0 0 10px; font-size: 13.5px; }
+  #mod-penjual textarea { min-height: 78px; font-size: 12.5px; margin-bottom: 10px; }
+  #buka-kod {
+    background: #92400e; color: #fff; border: 0; border-radius: 9px;
+    padding: 11px 16px; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
+  }
+  #buka-kod:hover { background: #7c360c; }
 
   /* ---------- pratonton A4 ---------- */
   .panel-pratonton { position: sticky; top: 16px; }
-  .bar-pratonton { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 4px; }
-  .btn-skrin {
-    background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px;
-    font: inherit; font-size: 12px; color: var(--muted); cursor: pointer;
+  .bar-pratonton {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 10px 18px; flex-wrap: wrap; margin: 0 0 14px;
   }
-  .btn-skrin:hover { border-color: var(--brand); color: var(--brand); }
+  .bar-pratonton .hal-tajuk { margin: 0; font-size: 20px; }
+  .bar-pratonton .hal-sub { margin: 4px 0 0; font-size: 13px; }
+  .bar-teks { flex: 1 1 320px; }
+  .bar-butang { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .bar-butang .btn-undur, .bar-butang .btn-utama { padding: 11px 18px; font-size: 14px; }
+  .btn-skrin {
+    position: absolute; top: -15px; right: 0; z-index: 20;
+    background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 8px 14px;
+    font: inherit; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer;
+    box-shadow: 0 2px 8px rgba(16, 24, 40, .10);
+    transition: background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .btn-skrin:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-soft); }
+  body.skrin-penuh .btn-skrin { position: fixed; top: 12px; right: 12px; font-size: 13.5px; }
   body.skrin-penuh { overflow: hidden; }
   body.skrin-penuh .panel-pratonton {
     position: fixed; inset: 0; z-index: 60; background: #eef1f5; padding: 14px 18px 18px; overflow: auto;
@@ -256,39 +444,19 @@
     white-space: nowrap; color: rgba(18, 80, 140, .13);
   }
   body.mod-penjual .cap-air { display: none; }
-  .mod-penjual-pil {
-    display: none; background: #92400e; color: #fff; font-size: 11px; font-weight: 700;
-    border-radius: 10px; padding: 2px 10px; margin-left: 8px; vertical-align: middle;
-  }
-  body.mod-penjual .mod-penjual-pil { display: inline-block; }
-  body.mod-penjual #ke-4 { display: none; }   /* penjual tidak perlu halaman pesanan WhatsApp */
-  .panel-pesanan {
-    background: #f7fbf8; border: 1px solid #bfe3ca; border-radius: 8px;
-    padding: 14px 16px; margin-top: 16px;
-  }
-  .panel-pesanan .harga { margin: 0 0 8px; font-size: 14px; }
-  .panel-pesanan .nota { margin: 8px 0 0; font-size: 12px; color: var(--muted); }
-  #wa {
-    display: inline-block; background: #25D366; color: #fff; text-decoration: none;
-    border-radius: 6px; padding: 10px 16px; font-weight: 700; font-size: 14px;
-  }
-  #wa:not(.sedia) { background: #b9c3ce; }
-  #mod-penjual {
-    background: #fff7ed; border: 1px solid #fdba74; border-radius: 8px;
-    padding: 14px 16px; margin-top: 16px;
-  }
-  #mod-penjual .harga { margin: 0 0 8px; font-size: 14px; }
-  #mod-penjual textarea { min-height: 78px; font-size: 12px; margin-bottom: 8px; }
-  #buka-kod { background: #92400e; color: #fff; border: 0; border-radius: 6px; padding: 9px 14px; font: inherit; font-weight: 700; cursor: pointer; }
-
   /* ---------- cetak ---------- */
   @page { size: A4; margin: 0; }
   @media print {
+    /* penting: matikan animasi masuk halaman — 'animation-fill-mode: both' membekukan
+       opacity:0 semasa cetak, jadi mencetak dari halaman pratonton keluar kosong */
+    * { animation: none !important; transition: none !important; }
+    .hal { opacity: 1 !important; transform: none !important; }
     body { background: #fff; }
     header.top, form, #log, .no-print, .bar-pratonton, .langkah, .nav-bawah,
     .hal-tajuk, .hal-sub, #hal-1, #hal-2, #hal-4 { display: none !important; }
     /* hanya helaian resume yang dicetak, tak kira di halaman mana pengguna berada */
     #hal-3 { display: block !important; max-width: none; padding: 0; }
+    .papan { display: block !important; }   /* grid pratonton mesti jadi blok biasa semasa cetak */
     main { display: block; padding: 0; gap: 0; }
     .panel-pratonton { position: static; }
     .kertas {
@@ -306,16 +474,20 @@
 <body>
 
 <header class="top">
-  <h1 id="tajuk">Resume Builder MV<span class="mod-penjual-pil" id="pil-mod">MOD PENJUAL</span></h1>
-  <p>Pilih reka bentuk &rarr; isi butiran &rarr; pratonton &rarr; hantar melalui WhatsApp. Semua diproses dalam pelayar anda.</p>
+  <span class="jenama" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg></span>
+  <div class="jenama-teks">
+    <h1 id="tajuk">Resume Builder MV<span class="mod-penjual-pil" id="pil-mod">MOD PENJUAL</span></h1>
+    <p>Resume A4 profesional &mdash; pilih reka bentuk, isi butiran, hantar melalui WhatsApp.</p>
+  </div>
 </header>
 
 <nav class="langkah no-print" id="langkah" aria-label="Langkah">
-  <button type="button" class="dot aktif" data-hal="1"><b>1</b> Reka bentuk</button>
-  <button type="button" class="dot" data-hal="2"><b>2</b> Butiran</button>
-  <button type="button" class="dot" data-hal="3"><b>3</b> Pratonton</button>
-  <button type="button" class="dot" data-hal="4"><b>4</b> Hantar</button>
+  <button type="button" class="dot aktif" data-hal="1"><b>1</b><span>Reka bentuk</span></button>
+  <button type="button" class="dot" data-hal="2"><b>2</b><span>Butiran</span></button>
+  <button type="button" class="dot" data-hal="3"><b>3</b><span>Pratonton</span></button>
+  <button type="button" class="dot" data-hal="4"><b>4</b><span>Hantar</span></button>
 </nav>
+<p class="langkah-teks no-print" id="langkah-teks">Langkah 1 daripada 4 &middot; Pilih reka bentuk</p>
 
 <main>
   <section class="hal" id="hal-1">
@@ -335,7 +507,7 @@
         <button type="button" class="btn-utama" id="mula-isi">Mula Isi Butiran &rarr;</button>
       </div>
     </div>
-    <p class="nota-bawah">Percuma untuk cuba dan pratonton. Bayaran <strong>RM29.90</strong> hanya bila anda mahu PDF bersih tanpa tanda air.</p>
+    <p class="nota-bawah"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg> Percuma dicuba &mdash; bayaran <strong>RM29.90</strong> hanya bila anda mahu PDF bersih tanpa tanda air.</p>
   </section>
 
   <section class="hal" id="hal-2" hidden>
@@ -344,17 +516,24 @@
   <form id="borang">
     <fieldset>
       <legend>Butiran Peribadi</legend>
-      <label for="nama">Nama</label>
-      <input id="nama" type="text" placeholder="cth. Ahmad bin Ali" autocomplete="name">
-
-      <label for="telefon">Nombor Telefon</label>
-      <input id="telefon" type="tel" placeholder="cth. 012-3456789" autocomplete="tel">
-
-      <label for="emel">E-mel</label>
-      <input id="emel" type="email" placeholder="cth. ahmad@gmail.com" autocomplete="email">
-
-      <label for="lokasi">Lokasi</label>
-      <input id="lokasi" type="text" placeholder="cth. Kemaman, Terengganu">
+      <div class="grid-2">
+        <div>
+          <label for="nama">Nama <span class="wajib">*</span></label>
+          <input id="nama" type="text" placeholder="cth. Ahmad bin Ali" autocomplete="name">
+        </div>
+        <div>
+          <label for="telefon">Nombor Telefon <span class="wajib">*</span></label>
+          <input id="telefon" type="tel" placeholder="cth. 012-3456789" autocomplete="tel">
+        </div>
+        <div>
+          <label for="emel">E-mel</label>
+          <input id="emel" type="email" placeholder="cth. ahmad@gmail.com" autocomplete="email">
+        </div>
+        <div>
+          <label for="lokasi">Lokasi</label>
+          <input id="lokasi" type="text" placeholder="cth. Kemaman, Terengganu">
+        </div>
+      </div>
 
       <label for="foto">Foto (pilihan)</label>
       <input id="foto" type="file" accept="image/*">
@@ -402,6 +581,7 @@
     </fieldset>
 
     <div class="aksi">
+      <p class="kecil">Puas hati dengan isi ini? Jana PDF bersih sekarang, atau teruskan untuk semak pratonton dahulu.</p>
       <button type="submit" id="jana">Jana PDF</button>
       <button type="button" id="kosongkan">Kosongkan</button>
     </div>
@@ -424,16 +604,30 @@
 
   <section class="hal" id="hal-3" hidden>
     <div class="bar-pratonton">
-      <h2 class="hal-tajuk">Pratonton resume anda</h2>
-      <button type="button" class="btn-skrin no-print" id="btn-skrin">Skrin penuh</button>
+      <div class="bar-teks">
+        <h2 class="hal-tajuk">Pratonton resume anda</h2>
+        <p class="hal-sub">Beginilah rupa resume anda. Tanda air <strong>PRATONTON</strong> hilang dalam PDF bersih selepas pesanan disahkan.</p>
+      </div>
+      <div class="bar-butang">
+        <button type="button" class="btn-undur" id="balik-3">&larr; Kembali edit</button>
+        <button type="button" class="btn-utama" id="ke-4">Seterusnya: Hantar &rarr;</button>
+      </div>
     </div>
-    <p class="hal-sub">Beginilah rupa resume anda. Tanda air <strong>PRATONTON</strong> akan hilang dalam PDF bersih selepas pesanan disahkan.</p>
-    <section class="panel-pratonton">
-      <div class="kertas"><article id="resume" class="lembar"></article><div class="cap-air" id="cap-air" aria-hidden="true"></div></div>
-    </section>
-    <div class="nav-bawah">
-      <button type="button" class="btn-undur" id="balik-3">&larr; Kembali edit butiran</button>
-      <button type="button" class="btn-utama" id="ke-4">Seterusnya: Hantar ke WhatsApp &rarr;</button>
+    <div class="papan">
+      <section class="panel-pratonton">
+        <div class="kertas"><article id="resume" class="lembar"></article><div class="cap-air" id="cap-air" aria-hidden="true"></div></div>
+        <button type="button" class="btn-skrin no-print" id="btn-skrin">Skrin penuh</button>
+      </section>
+      <aside class="sisi no-print">
+        <h3>Semak sebelum hantar</h3>
+        <ul class="senarai-semak">
+          <li>Ejaan nama dan jawatan di bahagian atas resume betul?</li>
+          <li>Nombor telefon dan e-mel yang boleh dihubungi majikan?</li>
+          <li>Setiap pengalaman ada tempoh kerja dan 2&ndash;3 poin utama?</li>
+          <li>Rujukan sudah minta izin daripada orang itu?</li>
+        </ul>
+        <p class="nota">Tidak puas hati? Tekan <strong>Kembali edit</strong> &mdash; tiada data hilang.</p>
+      </aside>
     </div>
   </section>
 
@@ -441,8 +635,10 @@
     <h2 class="hal-tajuk">Hantar pesanan anda</h2>
     <p class="hal-sub">Tekan butang di bawah &mdash; WhatsApp terbuka dengan butiran resume anda sudah siap diisi. Anda cuma perlu tekan hantar.</p>
     <div class="panel-pesanan" id="panel-pesanan">
-      <p class="harga"><strong>PDF bersih tanpa tanda air &mdash; RM<span id="harga">29.90</span></strong></p>
-      <a id="wa" href="#" target="_blank" rel="noopener">Hantar Pesanan ke WhatsApp</a>
+      <div class="tanda-ok" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <h3>Sedia untuk dihantar</h3>
+      <p class="harga">PDF bersih tanpa tanda air <span class="harga-pil">RM<b id="harga">29.90</b></span></p>
+      <a id="wa" href="#" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 2a8 8 0 1 1-4.1 14.8l-.4-.2-2.6.7.7-2.4-.2-.5A8 8 0 0 1 12 4zm-1.9 4.3c-.2 0-.5.1-.7.3-.3.3-.7.9-.7 1.7 0 .9.5 1.7.7 2 .2.2 1.2 1.9 3 2.6 1.5.6 1.9.5 2.3.4.4-.1 1.2-.5 1.4-1.1.2-.5.2-.9.1-1-.1-.1-.4-.3-.9-.5l-.6-.3c-.2-.1-.4-.1-.5.1l-.5.6c-.1.2-.3.2-.5.1a4 4 0 0 1-1.2-.7 4.6 4.6 0 0 1-.8-1c-.1-.2 0-.3.1-.4l.4-.5c.1-.2.1-.3 0-.5l-.5-1.1c-.1-.2-.2-.2-.4-.2z"/></svg> Hantar Pesanan ke WhatsApp</a>
       <ol class="langkah-bayar">
         <li>Tekan butang WhatsApp di atas &mdash; butiran resume dihantar sekali sahaja kepada penjual.</li>
         <li>Kami sahkan pesanan dan hantar arahan bayaran (DuitNow QR / pindahan bank).</li>
@@ -978,6 +1174,7 @@
 
   /* ---------- aliran 4 halaman (wizard) ---------- */
   var HAL_SEMASA = 1, HAL_MAKS = 1;
+  var TAJUK_HAL = ['', 'Reka bentuk', 'Butiran', 'Pratonton', 'Hantar'];
 
   function pergiHal(n, senyap) {
     n = Math.min(4, Math.max(1, n));
@@ -996,6 +1193,8 @@
       titik[j].disabled = (s2 > HAL_MAKS);
     }
     document.body.setAttribute('data-hal', String(n));
+    var lt = el('langkah-teks');
+    if (lt) lt.textContent = 'Langkah ' + n + ' daripada 4 \u00b7 ' + TAJUK_HAL[n];
     if (!senyap) window.scrollTo(0, 0);
     if (n === 1) susunMini();
     if (n === 3) susunSkala();

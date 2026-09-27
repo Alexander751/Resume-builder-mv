@@ -32,8 +32,9 @@ ok(!!el('telefon'), 'input #telefon wujud');
 ok(!!el('jana'), 'butang #jana wujud');
 ok(el('jana').textContent.trim() === 'Jana PDF', 'teks butang = "Jana PDF"');
 const labels = [...d.querySelectorAll('label')].map(l => l.textContent.trim());
-ok(labels.includes('Nama'), 'label "Nama" ada');
-ok(labels.includes('Nombor Telefon'), 'label "Nombor Telefon" ada');
+ok(labels.some(l => /^Nama\b/.test(l)), 'label "Nama" ada');
+ok(labels.some(l => /^Nombor Telefon\b/.test(l)), 'label "Nombor Telefon" ada');
+ok(d.querySelectorAll('label .wajib').length === 2, 'dua medan wajib (Nama, Telefon) ditanda *');
 
 console.log('== 2. Fasa 2: medan baru wujud ==');
 ['emel', 'lokasi', 'jawatan', 'ringkasan', 'kemahiran'].forEach(id => ok(!!el(id), 'input #' + id + ' wujud'));
@@ -270,7 +271,7 @@ ok(dom9.window.document.querySelector('#resume .cvb-nama h1').textContent.includ
 
 console.log('== 15. Pratonton muat penuh pada skrin (tanpa skrol) ==');
 ok(/\.kertas \{[\s\S]{0,400}zoom: var\(--skala, 1\)/.test(html), 'kertas guna skala automatik (--skala)');
-ok(/@media print[\s\S]{0,900}zoom: 1 !important/.test(html), 'cetakan membatalkan skala pratonton');
+ok(/@media print[\s\S]{0,2000}zoom: 1 !important/.test(html), 'cetakan membatalkan skala pratonton');
 ok(/\.kertas \{[\s\S]{0,400}aspect-ratio: 210 \/ 297/.test(html), 'nisbah A4 dikekalkan dalam pratonton');
 ok(/\.panel-pratonton \{ position: sticky; top: 16px/.test(html), 'panel pratonton melekat 16px dari atas');
 ok(/@media \(max-width: 900px\) \{ \.panel-pratonton \{ position: static; \} \}/.test(html), 'telefon: panel tidak melekat');
@@ -344,8 +345,45 @@ ok(el('hal-1').hidden === false, 'Kembali dari butiran ke pemilihan reka bentuk'
 ok(d.body.getAttribute('data-hal') === '1', 'atribut data-hal dikemas kini');
 el('mula-isi').click();
 ok(!d.querySelectorAll('#langkah .dot')[3].disabled, 'langkah yang pernah dilawati kekal boleh diklik');
-ok(/@media print[\s\S]{0,400}#hal-3 \{ display: block !important/.test(html),
+ok(/@media print[\s\S]{0,900}#hal-3 \{ display: block !important/.test(html),
    'cetak: helaian resume dicetak dari mana-mana halaman');
+ok(/@media print[\s\S]{0,300}animation: none !important/.test(html),
+   'cetak: animasi dimatikan (animation-fill-mode:both boleh jadikan cetakan kosong)');
+ok(/@media print[\s\S]{0,2000}\.papan \{ display: block !important/.test(html),
+   'cetak: grid pratonton jadi blok biasa');
+
+console.log('== 18. Antara muka baharu (bersih & mesra pengguna) ==');
+ok(!!d.querySelector('header.top .jenama svg'), 'bar atas ada lencana jenama (SVG)');
+ok(d.querySelectorAll('#langkah .dot').length === 4 && d.querySelectorAll('#langkah .dot b').length === 4,
+   'penunjuk langkah: 4 bulatan bernombor');
+ok(d.querySelectorAll('#langkah .dot span').length === 4, 'setiap langkah ada label teks');
+ok(!!el('langkah-teks'), 'teks langkah untuk skrin kecil wujud');
+el('balik-2').click();
+ok(el('langkah-teks').textContent === 'Langkah 1 daripada 4 \u00b7 Reka bentuk', 'teks langkah betul di halaman 1');
+el('mula-isi').click();
+ok(el('langkah-teks').textContent === 'Langkah 2 daripada 4 \u00b7 Butiran', 'teks langkah dikemas kini di halaman 2');
+ok(!!d.querySelector('#kad-biru .kad-ciri li'), 'senarai ciri pada kad reka bentuk');
+ok(d.querySelector('#hal-1 .nota-bawah svg') !== null, 'nota halaman 1 ada ikon perisai (kepercayaan)');
+ok(d.querySelectorAll('#hal-2 .grid-2 input').length === 4, 'empat medan pendek disusun dua lajur');
+ok(!!d.querySelector('#hal-2 .aksi .kecil'), 'bar alat borang ada teks petunjuk');
+ok(!!d.querySelector('#hal-3 .bar-butang #balik-3') && !!d.querySelector('#hal-3 .bar-butang #ke-4'),
+   'butang Kembali & Seterusnya di bar atas halaman pratonton');
+ok(d.querySelector('.panel-pratonton #btn-skrin') !== null,
+   'butang Skrin penuh di dalam panel (boleh ditutup dalam mod skrin penuh)');
+ok(!!d.querySelector('#hal-4 .tanda-ok svg'), 'kad hantar ada tanda siap (centang hijau)');
+ok(!!d.querySelector('#hal-4 .harga-pil b'), 'harga dalam pil di kad hantar');
+ok(!!d.querySelector('#wa svg'), 'butang WhatsApp ada logo (SVG)');
+ok(d.querySelectorAll('#hal-2 .baris').length >= 1, 'baris pengalaman gaya kad');
+// semakan CSS: token warna + peraturan asas antara muka baharu
+['--brand-soft', '--ok', '--sh2'].forEach(tok => ok(html.includes(tok + ':'), 'token warna ' + tok + ' ada'));
+ok(/\.hal\[hidden\] \{ display: none !important; \}/.test(html), 'halaman tersembunyi benar-benar disembunyikan');
+ok(/@keyframes masuk/.test(html), 'halaman masuk dengan animasi lembut');
+ok(/#hal-2 \.nav-bawah \{[\s\S]{0,120}position: sticky/.test(html),
+   'bar tindakan melekat pada halaman borang (borang panjang)');
+ok(/\.kad-pilih \{[\s\S]{0,300}border-radius: 18px/.test(html), 'kad reka bentuk bersudut bulat + bayang');
+ok(/\.langkah \.dot\.siap b::after \{ content: /.test(html), 'langkah siap bertukar tanda centang');
+ok(/\.kad-ciri li::before \{[\s\S]{0,80}content: /.test(html), 'senarai ciri guna tanda centang hijau');
+ok(/#wa:not\(\.sedia\) \{ background: #c3ccd6/.test(html), 'butang WhatsApp kelabu sebelum nama/telefon diisi');
 
 console.log('== 11. Semakan statik pada HTML ==');
 ok(html.includes('@page { size: A4'), 'ada tetapan cetak A4 (@page size A4)');
