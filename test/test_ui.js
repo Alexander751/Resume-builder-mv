@@ -247,6 +247,40 @@ ok(!!dom6.window.document.querySelector('#resume .cv-biru'), 'kod memulihkan pap
 ok(dom6.window.document.querySelector('#resume .cvb-kiri').textContent.includes('English (Fluent)'),
    'bahasa dipulihkan dari kod');
 
+console.log('== 14. Tiga templat profesional baharu ==');
+ok(el('templat').options.length === 5, 'pemilih templat ada 5 pilihan');
+const templatBaharu = [
+  ['eksekutif', '.cv-eksekutif', ['Ringkasan Eksekutif', 'Pengalaman Kerja', 'Pendidikan', 'Kemahiran', 'Bahasa', 'Rujukan']],
+  ['minimalis', '.cv-minimalis', ['Profil', 'Pengalaman Kerja', 'Pendidikan', 'Kemahiran', 'Bahasa', 'Rujukan']],
+  ['kemahiran', '.cv-kemahiran', ['Kemahiran Utama', 'Ringkasan', 'Pengalaman Kerja', 'Pendidikan', 'Bahasa', 'Rujukan']]
+];
+templatBaharu.forEach(function (t) {
+  const id = t[0], sel = t[1], senaraiSeksyen = t[2];
+  el('templat').value = id;
+  el('borang').dispatchEvent(new w.Event('change', { bubbles: true }));
+  const akar = d.querySelector('#resume ' + sel);
+  ok(!!akar, 'templat ' + id + ' dirender (' + sel + ')');
+  ok(!!akar && akar.textContent.includes('Ahmad bin Ali'), 'nama muncul dalam templat ' + id);
+  ok(!!akar && senaraiSeksyen.every(function (s) { return akar.textContent.includes(s); }),
+     'semua bahagian ada dalam templat ' + id);
+  ok(d.querySelectorAll('#resume > div').length === 1, 'hanya satu pembalut templat dirender (' + id + ')');
+  ok(!!akar && akar.textContent.indexOf('<b>') === -1, 'tiada HTML mentah tercetus dalam templat ' + id);
+});
+el('templat').value = 'kemahiran';
+el('borang').dispatchEvent(new w.Event('change', { bubbles: true }));
+ok(d.querySelectorAll('#resume .cvk-chip').length === 4, 'cip kemahiran + bahasa dijadikan grid (4 cip)');
+el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+const kodKem = decodeURIComponent(el('wa').href).split('Kod resume saya')[1].split('\n').pop().trim();
+const dom8 = new JSDOM(html, {
+  runScripts: 'dangerously',
+  url: 'https://alexander751.github.io/Resume-builder-mv/#kod=' + kodKem,
+  beforeParse(w8) { w8.print = () => {}; w8.confirm = () => true; }
+});
+ok(dom8.window.document.getElementById('templat').value === 'kemahiran', 'templat baharu dipulihkan dari kod pesanan');
+ok(!!dom8.window.document.querySelector('#resume .cv-kemahiran'), 'paparan templat kemahiran dipulihkan dari kod');
+ok(dom8.window.document.querySelector('#resume .cvk-kepala h1').textContent.includes('Ahmad bin Ali'),
+   'nama dipulihkan dalam templat kemahiran');
+
 console.log('== 11. Semakan statik pada HTML ==');
 ok(html.includes('@page { size: A4'), 'ada tetapan cetak A4 (@page size A4)');
 ok(/@media print/.test(html), 'ada @media print');

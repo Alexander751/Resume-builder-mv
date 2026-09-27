@@ -18,7 +18,7 @@ Semua berlaku dalam pelayar — **tiada data dihantar ke mana-mana pelayan**.
 
 Buka `index.html` (klik dua kali) atau laman awam di atas.
 
-1. Pilih **Templat** — *Klasik* (satu lajur) atau *Biru & Kelabu* (dua lajur + foto)
+1. Pilih **Templat** — 5 pilihan: *Klasik*, *Biru & Kelabu*, *Eksekutif*, *Minimalis Teal*, *Kemahiran Dulu*
 2. Isi **Butiran Peribadi** — Nama dan Nombor Telefon wajib; **Foto** hanya untuk templat Biru & Kelabu
 3. Isi **Jawatan Disasarkan**, **Ringkasan Profil**
 4. **+ Tambah Pengalaman** / **+ Tambah Pendidikan** untuk setiap rekod; **Hapus** untuk buang
@@ -61,6 +61,22 @@ Data disimpan automatik dalam pelayar (localStorage). **Kosongkan** memadam semu
 - Titik kemahiran, bahasa dan pengalaman **bulat** 3 pt (`border-radius: 50%`), jarak titik ke teks 9 pt (rujukan: titik x20.5, teks x32.5)
 - Font **Lato** (badan, sama seperti rujukan) + **Montserrat** (nama & tajuk, hampir dengan Now-Black rujukan), dimuatkan dari Google Fonts. Ini **satu-satunya** permintaan luar app; buang dua baris `<link>` di `<head>` kalau mahu halaman 100% luar talian — ia akan jatuh semula ke Segoe UI/Arial tanpa merosakkan susun atur
 
+**Fasa 5** — tiga templat profesional tambahan (berasaskan kajian format 2026):
+
+Kajian yang dirujuk (StylingCV, Mac 2026 — 47 templat diuji pada 10 sistem ATS termasuk Workday, Greenhouse, Lever, Taleo) mendapati kadar lulus ATS: **Classic Chronological 98%**, **Hybrid Skills-Led 96%**, **Minimal Modern 95%**, Executive Brief 93%, Two-Column 72%, Infographic 41%. Kesimpulannya: satu lajur + tajuk bahagian standard + eksport PDF.
+
+
+| Templat | Asas kajian | Reka bentuk |
+|---|---|---|
+| **Eksekutif** | Executive Brief (93% ATS) | Satu lajur, nama serif Georgia, kepala berpusat, aksen gangsa `#a98547`, "Ringkasan Eksekutif" di depan, poin guna sengkang em |
+| **Minimalis Teal** | Minimal Modern (95% ATS) | Satu lajur, ruang putih luas (line-height 1.62), aksen teal `#14746f`, bar pendek di atas nama, tiada kotak |
+| **Kemahiran Dulu** | Hybrid Skills-Led (96% ATS) | Satu lajur, "Kemahiran Utama" sebagai grid cip di hadapan, aksen indigo `#4338ca`, kronologi padat |
+
+- Ketiga-tiganya satu lajur (mesra ATS — bukan dua lajur seperti templat Biru & Kelabu yang asalnya daripada fail rujukan Canva)
+- Cip kemahiran guna **border sahaja**, bukan warna latar, supaya selamat dicetak walaupun *Background graphics* tidak ditanda
+- Setiap templat diuji cetak: 1 halaman A4, padding 12 mm, item tidak dipotong merentas halaman
+- Kod pesanan WhatsApp menyimpan templat yang dipilih (`s`), jadi penjual boleh pulihkan mana-mana daripada 5 templat
+
 ## Ujian
 
 ```bash
@@ -68,7 +84,7 @@ cd test && npm install        # sekali sahaja (jsdom)
 "$LOCALAPPDATA/hermes/node/node.exe" test/test_ui.js
 ```
 
-Keputusan semasa: **113 lulus, 0 gagal**.
+Keputusan semasa: **133 lulus, 0 gagal**.
 
 ## Aliran jualan melalui WhatsApp (tanpa gerbang bayaran)
 
@@ -119,6 +135,6 @@ var HARGA = 29.90;               // harga jualan PDF bersih (RM)
 ## Belum ada (fasa seterusnya)
 
 - Penjana PDF terus tanpa dialog cetak
-- Templat tambahan (kini ada 2: Klasik, Biru & Kelabu) dan pilihan warna
+- Templat tambahan (kini ada **5**: Klasik, Biru & Kelabu, Eksekutif, Minimalis Teal, Kemahiran Dulu) dan pilihan warna
 - Rekod pesanan (siapa sudah bayar) — sekarang tiada langsung
 - Eksport .docx
