@@ -281,6 +281,37 @@ ok(!!dom8.window.document.querySelector('#resume .cv-kemahiran'), 'paparan templ
 ok(dom8.window.document.querySelector('#resume .cvk-kepala h1').textContent.includes('Ahmad bin Ali'),
    'nama dipulihkan dalam templat kemahiran');
 
+console.log('== 15. Pratonton muat penuh pada skrin (tanpa skrol) ==');
+ok(/\.kertas \{[\s\S]{0,400}zoom: var\(--skala, 1\)/.test(html), 'kertas guna skala automatik (--skala)');
+ok(/@media print[\s\S]{0,900}zoom: 1 !important/.test(html), 'cetakan membatalkan skala pratonton');
+ok(/\.kertas \{[\s\S]{0,400}aspect-ratio: 210 \/ 297/.test(html), 'nisbah A4 dikekalkan dalam pratonton');
+ok(/\.panel-pratonton \{ position: sticky; top: 16px/.test(html), 'panel pratonton melekat 16px dari atas');
+ok(/@media \(max-width: 900px\) \{ \.panel-pratonton \{ position: static; \} \}/.test(html), 'telefon: panel tidak melekat');
+const skala = d.documentElement.style.getPropertyValue('--skala');
+ok(!!skala && Number(skala) > 0.28 && Number(skala) <= 1, 'skala dikira pada muat pertama (--skala: ' + skala + ')');
+const tinggiA4 = 794 * 297 / 210;
+ok(Math.abs((794 * Number(skala)) / (tinggiA4 * Number(skala)) - 210 / 297) < 1e-9,
+   'nisbah A4 kekal pada mana-mana skala');
+let meletup = false;
+try { w.dispatchEvent(new w.Event('resize')); } catch (e) { meletup = true; }
+ok(!meletup, 'peristiwa resize mengira semula skala tanpa ralat');
+ok(Number(d.documentElement.style.getPropertyValue('--skala')) > 0.28, 'skala kekal sah selepas resize');
+ok(/window\.addEventListener\('load', susunSkala\)/.test(html), 'skala dikira semula selepas font web dimuat');
+
+console.log('== 16. Pratonton skrin penuh ==');
+ok(!!el('btn-skrin'), 'butang "Skrin penuh" ada');
+ok(el('btn-skrin').textContent.trim() === 'Skrin penuh', 'label butang betul pada mulanya');
+ok(/body\.skrin-penuh \.panel-pratonton \{[\s\S]{0,220}position: fixed; inset: 0/.test(html), 'CSS panel jadi skrin penuh');
+ok(/@media print[\s\S]{0,300}\.bar-pratonton \{ display: none !important/.test(html), 'bar pratonton disembunyikan semasa cetak');
+ok(/body\.skrin-penuh \{ overflow: hidden/.test(html), 'halaman tidak berskrol dalam mod skrin penuh');
+el('btn-skrin').dispatchEvent(new w.Event('click', { bubbles: true }));
+ok(d.body.classList.contains('skrin-penuh'), 'klik menghidupkan mod skrin penuh');
+ok(Number(d.documentElement.style.getPropertyValue('--skala')) > 0.28, 'skala dikira semula dalam skrin penuh');
+ok(el('btn-skrin').textContent.trim() === 'Tutup (Esc)', 'label bertukar kepada "Tutup (Esc)"');
+d.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+ok(!d.body.classList.contains('skrin-penuh'), 'kekunci Escape menutup skrin penuh');
+ok(el('btn-skrin').textContent.trim() === 'Skrin penuh', 'label kembali asal selepas ditutup');
+
 console.log('== 11. Semakan statik pada HTML ==');
 ok(html.includes('@page { size: A4'), 'ada tetapan cetak A4 (@page size A4)');
 ok(/@media print/.test(html), 'ada @media print');

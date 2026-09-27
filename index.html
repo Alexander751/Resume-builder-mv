@@ -79,14 +79,26 @@
   #log .amaran { color: #92400e; }
 
   /* ---------- pratonton A4 ---------- */
-  .panel-pratonton { position: sticky; top: 20px; }
-  .panel-pratonton > .tajuk { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 0 0 8px 2px; }
+  .panel-pratonton { position: sticky; top: 16px; }
+  .bar-pratonton { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 8px 2px; }
+  .bar-pratonton .tajuk { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 0; }
+  .btn-skrin {
+    background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px;
+    font: inherit; font-size: 12px; color: var(--muted); cursor: pointer;
+  }
+  .btn-skrin:hover { border-color: var(--brand); color: var(--brand); }
+  body.skrin-penuh { overflow: hidden; }
+  body.skrin-penuh .panel-pratonton {
+    position: fixed; inset: 0; z-index: 60; background: #eef1f5; padding: 14px 18px 18px; overflow: auto;
+  }
+  body.skrin-penuh .kertas { box-shadow: 0 6px 26px rgba(16, 24, 40, .18); }
   .kertas {
     background: #fff; border: 1px solid var(--line); box-shadow: 0 2px 10px rgba(16, 24, 40, .08);
-    width: 100%; max-width: 794px; aspect-ratio: 210 / 297; margin: 0 auto;
+    width: 794px; aspect-ratio: 210 / 297; margin: 0 auto;
     padding: 0; overflow: auto;
+    zoom: var(--skala, 1);   /* auto-saiz (JS susunSkala) supaya seluruh A4 muat tanpa skrol */
   }
-  @media (max-width: 900px) { .kertas { aspect-ratio: auto; } .panel-pratonton { position: static; } }
+  @media (max-width: 900px) { .panel-pratonton { position: static; } }
 
   #resume .cv-klasik, #resume .cv-eksekutif, #resume .cv-minimalis, #resume .cv-kemahiran { padding: 40px 46px; }
   @media (max-width: 900px) {
@@ -329,12 +341,13 @@
   @page { size: A4; margin: 0; }
   @media print {
     body { background: #fff; }
-    header.top, form, #log, .no-print, .panel-pratonton > .tajuk { display: none !important; }
+    header.top, form, #log, .no-print, .bar-pratonton { display: none !important; }
     main { display: block; padding: 0; gap: 0; }
     .panel-pratonton { position: static; }
     .kertas {
       border: 0; box-shadow: none; padding: 0; margin: 0;
       width: auto; max-width: none; aspect-ratio: auto; overflow: visible;
+      zoom: 1 !important;   /* batalkan skala pratonton semasa cetak */
     }
     #resume .cv-klasik, #resume .cv-eksekutif, #resume .cv-minimalis, #resume .cv-kemahiran { font-size: 10.5pt; padding: 12mm; }
     /* templat dua lajur mesti memenuhi penuh satu halaman A4 supaya rel kelabu
@@ -446,7 +459,10 @@
   </form>
 
   <section class="panel-pratonton">
-    <p class="tajuk">Pratonton (saiz A4)</p>
+    <div class="bar-pratonton">
+      <p class="tajuk">Pratonton (saiz A4)</p>
+      <button type="button" class="btn-skrin no-print" id="btn-skrin">Skrin penuh</button>
+    </div>
     <div class="kertas"><article id="resume"></article><div class="cap-air" id="cap-air" aria-hidden="true"></div></div>
   </section>
 </main>
@@ -1095,6 +1111,38 @@
     }
   });
 
+  /* ---------- skala pratonton: seluruh A4 muat pada skrin, tanpa skrol ---------- */
+  function susunSkala() {
+    var panel = document.querySelector('.panel-pratonton');
+    var kertas = document.querySelector('.kertas');
+    if (!panel || !kertas) return;
+    var akar = document.documentElement;
+    akar.style.setProperty('--skala', '1');          // ukur pada saiz sebenar dahulu
+    var kk = kertas.getBoundingClientRect();
+    var pk = panel.getBoundingClientRect();
+    var atas = Math.max(kk.top, 16 + (kk.top - pk.top));   // kedudukan melekat + tinggi tajuk
+    var tinggiTersedia = window.innerHeight - atas - 20;
+    var lebarTersedia = document.body.classList.contains('skrin-penuh')
+      ? window.innerWidth - 56 : (panel.clientWidth || 794);
+    var skala = Math.min(1, lebarTersedia / 794, tinggiTersedia / 1123);
+    akar.style.setProperty('--skala', Math.max(0.28, skala).toFixed(4));
+  }
+  window.addEventListener('resize', susunSkala);
+  window.addEventListener('orientationchange', susunSkala);
+  window.addEventListener('load', susunSkala);        // selepas font web selesai dimuat
+
+  /* ---------- pratonton skrin penuh ---------- */
+  function togolSkrinPenuh(paksa) {
+    var penuh = (typeof paksa === 'boolean') ? paksa : !document.body.classList.contains('skrin-penuh');
+    document.body.classList.toggle('skrin-penuh', penuh);
+    el('btn-skrin').textContent = penuh ? 'Tutup (Esc)' : 'Skrin penuh';
+    susunSkala();
+  }
+  el('btn-skrin').addEventListener('click', function () { togolSkrinPenuh(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && document.body.classList.contains('skrin-penuh')) togolSkrinPenuh(false);
+  });
+
   muat();
   mulakanMod();
   if (!document.querySelectorAll('#senarai-pengalaman .baris').length) {
@@ -1104,6 +1152,7 @@
     el('senarai-pendidikan').appendChild(barisPendidikan());
   }
   kemasSemula();
+  susunSkala();
 })();
 </script>
 

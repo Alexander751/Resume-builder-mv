@@ -77,6 +77,22 @@ Kajian yang dirujuk (StylingCV, Mac 2026 — 47 templat diuji pada 10 sistem ATS
 - Setiap templat diuji cetak: 1 halaman A4, padding 12 mm, item tidak dipotong merentas halaman
 - Kod pesanan WhatsApp menyimpan templat yang dipilih (`s`), jadi penjual boleh pulihkan mana-mana daripada 5 templat
 
+**Fasa 6** — pratonton muat penuh pada skrin (tanpa skrol):
+
+- Fungsi `susunSkala()` mengira `--skala = min(1, lebarPanel/794, tinggiTersedia/1123)`; CSS memakainya melalui `zoom: var(--skala, 1)` pada `.kertas`. Helaian A4 mengecil supaya **seluruh halaman kelihatan sekali pandang** — tiada skrol dalam pratonton, dan tiada skrol halaman di bahagian pratonton
+- Dikira semula pada `resize`, `orientationchange`, dan selepas `load` (bila font web selesai dimuat). Skala minimum 0.28 supaya teks tidak jadi terlalu kecil
+- Ukuran sebenar dalam Chrome (viewport 1424×749, 1350×617, 1904×929):
+
+| Skrin | Skala | Helaian | Baki bawah | Muat? |
+|---|---|---|---|---|
+| 1440×900 | 0.541 | 430×608 px | 20 px | ya |
+| 1366×768 | 0.424 | 337×476 px | 20 px | ya |
+| 1920×1080 | 0.702 | 557×788 px | 20 px | ya |
+
+- Butang **Skrin penuh** (kekunci **Esc** untuk keluar) — panel pratonton menutup seluruh tetingkap, helaian jadi lebih besar sedikit (0.592 pada 1440×900) kerana kekangan lebar ruang borang hilang
+- Cetakan **tidak** mengecil: `zoom: 1 !important` dalam `@media print`, jadi PDF kekal saiz A4 penuh (disemak: 595×842 pt, 1 halaman, bbox teks sama seperti sebelum perubahan)
+- Telefon: panel tidak melekat (`position: static`) dan skala dikira mengikut lebar skrin
+
 ## Ujian
 
 ```bash
@@ -84,7 +100,7 @@ cd test && npm install        # sekali sahaja (jsdom)
 "$LOCALAPPDATA/hermes/node/node.exe" test/test_ui.js
 ```
 
-Keputusan semasa: **133 lulus, 0 gagal**.
+Keputusan semasa: **153 lulus, 0 gagal**.
 
 ## Aliran jualan melalui WhatsApp (tanpa gerbang bayaran)
 
