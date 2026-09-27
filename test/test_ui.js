@@ -143,6 +143,12 @@ ok(d.body.classList.contains('mod-penjual') === false, 'pelanggan bukan dalam mo
 ok(el('panel-pesanan').hidden === false, 'panel pesanan kelihatan kepada pelanggan');
 ok(el('mod-penjual').hidden === true, 'panel mod penjual tersembunyi daripada pelanggan');
 ok(el('harga').textContent === '29.90', 'harga dipaparkan pada panel pesanan');
+console.log('  INFO  pautan yang dibuka bila pelanggan tekan butang:');
+console.log('        https://wa.me/' + (el('wa').href.split('wa.me/')[1] || '').split('?')[0]);
+console.log('  INFO  mesej yang anda akan terima:');
+el('wa').href.split('?text=')[1].replace(/^/, '').split('\n').forEach(function (l) {
+  console.log('        ' + decodeURIComponent(l).slice(0, 90));
+});
 
 // buka kod rosak
 el('kod-masuk').value = 'ini-bukan-kod-sah';
@@ -182,7 +188,9 @@ const dirujuk = [...html.matchAll(/el\('([^']+)'\)/g)].map(m => m[1]);
 const ditakrif = [...html.matchAll(/id="([^"]+)"/g)].map(m => m[1]);
 const hilang = [...new Set(dirujuk)].filter(id => !ditakrif.includes(id));
 ok(hilang.length === 0, 'setiap el(\'...\') ada padanan id= dalam HTML' + (hilang.length ? ' -> hilang: ' + hilang.join(', ') : ''));
-ok(/NOMBOR_WA\s*=\s*'6\d{8,}'/.test(html), 'NOMBOR_WA ditetapkan dalam format 60...');
+const waNo = (html.match(/NOMBOR_WA\s*=\s*'([^']+)'/) || [])[1] || '';
+ok(/^60\d{9,10}$/.test(waNo), 'NOMBOR_WA format antarabangsa sah (60..., tiada + atau -)');
+ok(waNo !== '60123456789', 'NOMBOR_WA bukan nombor contoh lagi');
 ok(html.includes('body.mod-penjual .cap-air'), 'CSS mematikan tanda air dalam mod penjual');
 ok(/@media print[\s\S]*form, #log[\s\S]*display: none/.test(html), 'borang disembunyikan semasa cetak');
 
