@@ -230,6 +230,9 @@ ok(d.querySelectorAll('#resume .cvb-ikon').length === 3, '3 ikon kontak dirender
 ok(d.querySelectorAll('#resume .cvb-kontak li').length === 3, '3 baris kontak (telefon, emel, lokasi)');
 ok(d.querySelectorAll('#resume .cvb-titik li').length === 4, 'kemahiran + bahasa jadi 4 titik rel');
 ok(d.querySelectorAll('#resume .cvb-bullet li').length === 2, '2 poin pengalaman jadi bullet di lajur kanan');
+ok(d.querySelectorAll('#resume .cvb-lencana').length === 4, '4 lencana bulat pada garisan pemisah');
+ok(d.querySelectorAll('#resume .cvb-lencana svg').length === 4, 'setiap lencana ada ikon SVG putih');
+ok(d.querySelector('#resume .cvb-kanan h2').textContent.trim() === 'Profil', 'teks tajuk betul walaupun ada lencana');
 
 // templat mesti ikut dalam kod pesanan
 el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
@@ -260,6 +263,11 @@ ok(/@media print[\s\S]*form, #log[\s\S]*display: none/.test(html), 'borang disem
 ok(/@media print[\s\S]*#resume \.cv-biru \{ min-height: calc\(297mm - 1px\)/.test(html),
    'cetak: templat dua lajur dipaksa penuh satu halaman A4 (rel kelabu sampai bawah)');
 ok(/\.cvb-foto \{[\s\S]{0,220}border-radius: 50%/.test(html), 'foto templat biru berbentuk bulat');
+ok(/\.cvb-titik li::before \{[\s\S]{0,130}border-radius: 50%/.test(html), 'titik kemahiran/bahasa bulat (ikut rujukan)');
+ok(/\.cvb-bullet li::before \{[\s\S]{0,130}border-radius: 50%/.test(html), 'titik pengalaman bulat (ikut rujukan)');
+ok(/#resume \.cvb-kiri h2 \{ border-bottom: 2pt/.test(html), 'garis bawah tajuk rel kiri nipis (bukan bar tebal 7pt)');
+ok(/#resume \.cvb-kanan h2 \{[\s\S]{0,160}border-bottom: 2pt/.test(html), 'garis bawah tajuk lajur kanan nipis (bukan bar tebal 7pt)');
+ok(html.includes('fonts.googleapis.com/css2?family=Lato'), 'font Lato + Montserrat dimuatkan (rujukan guna Lato)');
 
 console.log('== 13. Muat naik foto (Image + kanvas dipalsukan) ==');
 (async () => {
