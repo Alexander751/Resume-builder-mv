@@ -187,6 +187,7 @@
     .mini { max-width: 260px; margin: 0 auto; }
     .hal-tajuk { font-size: 19.5px; }
     .btn-utama, .btn-undur { width: 100%; }
+    #cetak-pdf { width: 100%; justify-content: center; }
     .nav-bawah { flex-direction: column-reverse; }
     header.top { padding: 11px 14px; gap: 10px; }
     header.top p { font-size: 12px; }
@@ -276,12 +277,14 @@
     border-radius: var(--r); box-shadow: var(--sh1);
   }
   .aksi .kecil { font-size: 12.5px; color: var(--muted); flex: 1 1 180px; line-height: 1.45; }
-  #jana {
-    display: inline-flex; align-items: center; gap: 8px; background: #fff; color: var(--brand);
+  #cetak-pdf {
+    display: none;                       /* pelanggan tidak perlu cetak — pratonton + WhatsApp sudah cukup */
+    align-items: center; gap: 8px; background: #fff; color: var(--brand);
     border: 1.5px solid var(--brand); border-radius: 10px; padding: 11px 18px;
     font: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer;
   }
-  #jana:hover { background: var(--brand-soft); }
+  body.mod-penjual #cetak-pdf { display: inline-flex; }
+  #cetak-pdf:hover { background: var(--brand-soft); }
   #kosongkan {
     background: none; border: 0; color: var(--muted); border-radius: 8px; padding: 11px 8px;
     font: inherit; font-size: 13.5px; cursor: pointer; text-decoration: underline;
@@ -611,8 +614,8 @@
     </fieldset>
 
     <div class="aksi">
-      <p class="kecil">Puas hati dengan isi ini? Jana PDF bersih sekarang, atau teruskan untuk semak pratonton dahulu.</p>
-      <button type="submit" id="jana">Jana PDF</button>
+      <p class="kecil">Puas hati dengan isi ini? Tekan <strong>Seterusnya</strong> untuk semak pratonton penuh, kemudian hantar melalui WhatsApp.</p>
+      <button type="button" class="penjual-sahaja" id="cetak-pdf">Cetak PDF</button>
       <button type="button" id="kosongkan">Kosongkan</button>
     </div>
 
@@ -620,7 +623,7 @@
       <p class="harga"><strong>Mod Penjual</strong> &mdash; tiada tanda air. Tampal kod resume daripada pelanggan:</p>
       <textarea id="kod-masuk" placeholder="Tampal kod resume di sini..."></textarea>
       <button type="button" id="buka-kod">Buka Kod</button>
-      <p class="nota">Kod tidak mengandungi foto. Kalau pelanggan ada foto, minta dia hantar gambar dalam WhatsApp, kemudian muat naik di ruang <strong>Foto</strong> sebelum jana PDF.</p>
+      <p class="nota">Kod tidak mengandungi foto. Kalau pelanggan ada foto, minta dia hantar gambar dalam WhatsApp, kemudian muat naik di ruang <strong>Foto</strong> sebelum cetak PDF.</p>
     </div>
 
     <div id="log"></div>
@@ -1044,8 +1047,15 @@
   }
 
   /* ---------- ikatan peristiwa ---------- */
+  /* tiada butang Jana PDF untuk pelanggan: hantar borang (Ctrl+Enter / Enter) = terus ke pratonton */
   el('borang').addEventListener('submit', function (e) {
     e.preventDefault();
+    if (!bolehKePratonton()) return;
+    pergiHal(3);
+  });
+
+  /* cetak PDF hanya dalam Mod Penjual (pelanggan dapat PDF bersih melalui WhatsApp) */
+  el('cetak-pdf').addEventListener('click', function () {
     var d;
     try {
       d = kumpul();
@@ -1054,7 +1064,7 @@
       return;
     }
     if (!d.nama || !d.telefon) {
-      tulisLog('Sila isi Nama dan Nombor Telefon untuk jana PDF.', 'ralat');
+      tulisLog('Sila isi Nama dan Nombor Telefon untuk cetak PDF.', 'ralat');
       return;
     }
     papar(d);
@@ -1127,7 +1137,7 @@
     document.body.classList.add('mod-penjual');
     el('mod-penjual').hidden = false;
     el('panel-pesanan').hidden = true;
-    if (awal) tulisLog('MOD PENJUAL: tanda air dimatikan — Jana PDF sekarang bersih.', 'info');
+    if (awal) tulisLog('MOD PENJUAL: tanda air dimatikan — tekan Cetak PDF atau Ctrl+P untuk simpan PDF bersih.', 'info');
   }
 
   /* Tiga jalan masuk:

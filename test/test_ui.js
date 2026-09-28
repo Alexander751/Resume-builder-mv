@@ -29,8 +29,9 @@ const resume = () => el('resume').textContent;
 console.log('== 1. Fasa 1: elemen asas masih wujud ==');
 ok(!!el('nama'), 'input #nama wujud');
 ok(!!el('telefon'), 'input #telefon wujud');
-ok(!!el('jana'), 'butang #jana wujud');
-ok(el('jana').textContent.trim() === 'Jana PDF', 'teks butang = "Jana PDF"');
+ok(!el('jana'), 'butang "Jana PDF" dibuang (pratonton + WhatsApp sudah cukup)');
+ok(d.querySelectorAll('#hal-2 button[type="submit"]').length === 0, 'tiada butang submit untuk pelanggan');
+ok(!!el('cetak-pdf'), 'butang #cetak-pdf wujud (khas Mod Penjual)');
 const labels = [...d.querySelectorAll('label')].map(l => l.textContent.trim());
 ok(labels.some(l => /^Nama\b/.test(l)), 'label "Nama" ada');
 ok(labels.some(l => /^Nombor Telefon\b/.test(l)), 'label "Nombor Telefon" ada');
@@ -45,11 +46,12 @@ ok(!!el('resume'), 'bekas pratonton #resume wujud');
 ok(d.querySelectorAll('#senarai-pengalaman .baris').length === 1, 'bermula dengan 1 baris pengalaman');
 ok(d.querySelectorAll('#senarai-pendidikan .baris').length === 1, 'bermula dengan 1 baris pendidikan');
 
-console.log('== 3. Ralat bila Nama/Telefon kosong ==');
+console.log('== 3. Ralat bila Nama/Telefon kosong (tanpa Jana PDF) ==');
 printCalls = 0;
-el('jana').click();
-ok(el('log').textContent.includes('Sila isi Nama dan Nombor Telefon'), 'mesej ralat dipaparkan');
-ok(printCalls === 0, 'PDF tidak dijana bila data wajib kosong');
+el('borang').dispatchEvent(new w.Event('submit', { bubbles: true, cancelable: true }));
+ok(el('log').textContent.includes('sebelum lihat pratonton'), 'mesej ralat dipaparkan');
+ok(el('hal-3').hidden === true, 'tidak dibawa ke pratonton bila data wajib kosong');
+ok(printCalls === 0, 'tiada cetakan berlaku bila data wajib kosong');
 
 console.log('== 4. Isi borang -> pratonton hidup ==');
 el('nama').value = 'Ahmad bin Ali';
@@ -106,14 +108,17 @@ el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
 ok(el('resume').querySelector('b') === null, 'input HTML di-escape (tiada <b> dijana)');
 ok(resume().includes('<b>Ali</b>'), 'teks HTML dipaparkan sebagai teks biasa');
 
-console.log('== 7. Jana PDF dengan data lengkap ==');
+console.log('== 7. Cetak PDF (Mod Penjual) dan hantar borang ke pratonton ==');
 el('nama').value = 'Ahmad bin Ali';
 el('telefon').value = '012-3456789';
 el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
 printCalls = 0;
-el('jana').click();
-ok(printCalls === 1, 'window.print() dipanggil sekali');
+el('cetak-pdf').click();
+ok(printCalls === 1, 'window.print() dipanggil sekali selepas tekan Cetak PDF');
 ok(resume().includes('Ahmad bin Ali') && resume().includes('AutoCAD'), 'kandungan resume lengkap ketika cetak');
+printCalls = 0;
+el('cetak-pdf').click();
+ok(printCalls === 1, 'Cetak PDF boleh ditekan berulang kali (penjual)');
 
 console.log('== 8. Simpan automatik (localStorage) ==');
 let simpan = null;
@@ -384,6 +389,11 @@ ok(/\.kad-pilih \{[\s\S]{0,300}border-radius: 18px/.test(html), 'kad reka bentuk
 ok(/\.langkah \.dot\.siap b::after \{ content: /.test(html), 'langkah siap bertukar tanda centang');
 ok(/\.kad-ciri li::before \{[\s\S]{0,80}content: /.test(html), 'senarai ciri guna tanda centang hijau');
 ok(/#wa:not\(\.sedia\) \{ background: #c3ccd6/.test(html), 'butang WhatsApp kelabu sebelum nama/telefon diisi');
+// hantar borang (tekan Enter) = terus ke pratonton, bukan cetak
+printCalls = 0;
+el('borang').dispatchEvent(new w.Event('submit', { bubbles: true, cancelable: true }));
+ok(printCalls === 0, 'hantar borang tidak mencetak apa-apa');
+ok(el('hal-3').hidden === false, 'hantar borang terus membawa ke halaman pratonton');
 
 console.log('== 19. Telefon: pratonton skrin penuh tanpa skrol ==');
 ok(/@media screen and \(max-width: 760px\)[\s\S]{0,2600}#hal-3 \{[\s\S]{0,200}position: fixed; inset: 0/.test(html),

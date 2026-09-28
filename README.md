@@ -23,7 +23,7 @@ Buka `index.html` (klik dua kali) atau laman awam di atas. Aliran **4 halaman**:
 3. **Pratonton** — desktop: helaian A4 penuh + butang **Skrin penuh** + senarai semak "Semak sebelum hantar"; telefon: pratonton **sepenuh skrin** tanpa skrol → **Seterusnya: Hantar**
 4. **Hantar** — tekan butang WhatsApp; mesej pesanan + kod resume sudah siap diisi, anda cuma tekan hantar
 
-Butang **Jana PDF** ada di halaman butiran; cetak tetap keluar resume penuh walaupun anda berada di halaman lain.
+Pelanggan **tidak** perlu butang cetak — pratonton + hantar melalui WhatsApp sudah cukup. Cetak hanya perlu oleh penjual (lihat bahagian Mod Penjual).
 
 Data disimpan automatik dalam pelayar (localStorage). **Kosongkan** memadam semuanya.
 
@@ -88,7 +88,7 @@ Data disimpan automatik dalam pelayar (localStorage). **Kosongkan** memadam semu
 - **Validasi**: tekan "Seterusnya: Pratonton" tanpa Nama/Telefon → mesej ralat muncul dan medan yang tertinggal terus difokus
 - Skop CSS ditukar daripada `#resume` kepada kelas **`.lembar`** supaya helaian utama *dan* pratonton mini boleh berkongsi gaya resume yang sama
 - **Cetakan dari mana-mana halaman tetap betul**: `@media print` menyembunyikan `.langkah`, `.nav-bawah`, tajuk halaman dan `#hal-1/2/4`, lalu memaksa `#hal-3 { display: block !important }`. Disemak: cetak dari halaman 2 dan halaman 3 menghasilkan PDF yang **sama** (1 halaman, 595×842 pt)
-- **Mod penjual**: `#penjual` membuka halaman butiran (panel penjual + Jana PDF ada di situ), `#kod=<kod>` terus ke halaman pratonton; butang "Hantar ke WhatsApp" disembunyikan (`body.mod-penjual #ke-4`). Cetakan penjual disemak: 811 aksara, tiada tanda air, 1 halaman A4
+- **Mod penjual**: `#penjual` membuka halaman butiran (panel penjual + butang Cetak PDF ada di situ), `#kod=<kod>` terus ke halaman pratonton; butang "Hantar ke WhatsApp" disembunyikan (`body.mod-penjual #ke-4`). Cetakan penjual disemak: 811 aksara, tiada tanda air, 1 halaman A4
 - Ujian bertambah kepada **169 lulus, 0 gagal** (26 ujian baharu untuk aliran 4 halaman)
 
 **Fasa 9** — antara muka digilap (lebih bersih, lebih mesra pengguna):
@@ -117,6 +117,15 @@ Data disimpan automatik dalam pelayar (localStorage). **Kosongkan** memadam semu
 - Cetakan disemak semula: dari keempat-empat halaman, dari telefon, dan dari mod penjual — **semuanya identik dengan sebelum perubahan** (1 halaman A4, 595×842pt, 7/7 bahagian)
 - Ujian bertambah kepada **214 lulus, 0 gagal**
 
+**Fasa 11** — buang butang "Jana PDF" untuk pelanggan:
+
+- Butang **Jana PDF** dibuang daripada halaman butiran; pelanggan hanya perlu **pratonton** kemudian **hantar melalui WhatsApp**. Kurang satu jalan yang mengelirukan (dan tiada PDF bertanda air yang tersebar secara tak sengaja)
+- Cetak dipindahkan ke butang **Cetak PDF** (`#cetak-pdf`) yang **hanya muncul dalam Mod Penjual** (`#cetak-pdf { display: none }` + `body.mod-penjual #cetak-pdf { display: inline-flex }`) — penjual masih boleh hasilkan PDF bersih
+- Hantar borang (tekan Enter dalam medan) kini membawa terus ke **halaman pratonton**, bukan mencetak
+- Disemak dalam Chrome: pelanggan → `#cetak-pdf` `display: none` (0×0), penjual → `display: flex` (108×44); tiada `#jana` di mana-mana
+- Cetakan penjual dari halaman pratonton masih **1 halaman A4, 595×842 pt, tanpa tanda air** (bbox sama seperti sebelum ini)
+- Ujian bertambah kepada **219 lulus, 0 gagal**
+
 ## Ujian
 
 ```bash
@@ -124,7 +133,7 @@ cd test && npm install        # sekali sahaja (jsdom)
 "$LOCALAPPDATA/hermes/node/node.exe" test/test_ui.js
 ```
 
-Keputusan semasa: **214 lulus, 0 gagal**.
+Keputusan semasa: **219 lulus, 0 gagal**.
 
 ## Aliran jualan melalui WhatsApp (tanpa gerbang bayaran)
 
@@ -136,7 +145,7 @@ Tiada gerbang bayaran, tiada pelayan — jadi tiada yuran transaksi dan tiada da
 | Pelanggan | WhatsApp terbuka dengan mesej siap: nama, telefon, harga, dan **kod resume** (satu rentetan panjang) |
 | Anda | Terima pesanan, minta bayaran (DuitNow QR / pindahan bank) |
 | Anda | Buka laman dengan `#penjual` → tampal kod ke kotak **Mod Penjual** → **Buka Kod** → resume pelanggan muncul **tanpa tanda air** |
-| Anda | Tekan **Jana PDF** → hantar PDF bersih kepada pelanggan |
+| Anda | Buka kod pelanggan dalam Mod Penjual → tekan **Cetak PDF** (atau Ctrl+P) → hantar PDF bersih kepada pelanggan |
 
 ### Tiga cara buka Mod Penjual
 
@@ -159,7 +168,7 @@ var HARGA = 29.90;               // harga jualan PDF bersih (RM)
 
 | Gejala | Sebab | Penyelesaian |
 |---|---|---|
-| Butang Jana PDF tiada tindak balas | Nama atau Nombor Telefon kosong | Isi kedua-duanya; mesej ralat keluar di bawah butang |
+| Butang Cetak PDF tidak kelihatan | Ia hanya muncul dalam **Mod Penjual** (pelanggan tidak perlu cetak) | Buka `/#penjual` atau ketuk tajuk 5 kali |
 | PDF keluar kosong / tiada borang | Dialog cetak dipilih "Print" biasa, bukan "Save as PDF" | Pilih *Destination: Save as PDF* dalam dialog |
 | PDF ada bahagian yang hilang | Medan dibiarkan kosong — kosong memang ditapis | Isi medan itu; semak kiraan hidup dalam `#log` |
 | Data hilang selepas tutup pelayar | Mod private/incognito menyekat localStorage | Guna tetingkap biasa, atau jana PDF sebelum tutup |
