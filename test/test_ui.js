@@ -259,7 +259,8 @@ ok(!/cv-klasik|cv-eksekutif|cv-minimalis|cv-kemahiran/.test(html), 'tiada sisa k
 ok(!/htmlKlasik|htmlEksekutif|htmlMinimalis|htmlKemahiran|PELUKIS/.test(html), 'tiada sisa fungsi templat lama');
 ok(!/var TEMPLAT = \[/.test(html), 'senarai TEMPLAT sudah dibuang');
 ok(!/<select id="templat"/.test(html), 'borang tiada pemilih templat');
-ok(/el\('resume'\)\.innerHTML = htmlBiru\(d\)/.test(html), 'papar() sentiasa memanggil htmlBiru()');
+ok(/var isi = htmlBiru\(d\);/.test(html) && /el\('resume'\)\.innerHTML = isi;/.test(html) && /sisi\.innerHTML = isi;/.test(html),
+   'papar() menulis resume yang sama ke kertas utama dan kertas pratonton di sisi');
 ok(!/r-sek|r-nama|\.chip/.test(html), 'tiada sisa gaya templat Klasik');
 ok(html.includes('function htmlBiru') && html.includes('.cv-biru'), 'reka bentuk Biru & Kelabu kekal utuh');
 ok(html.includes('.cvb-lencana') && html.includes('.cvb-titik') && html.includes('ikonLencana'),
@@ -411,8 +412,8 @@ ok(/var bekas = panel\.parentElement \|\| document\.body;/.test(html),
    'skala: lebar diambil dari bekas panel (bukan helaian sendiri)');
 ok(/lebarDalam\(bekas\)/.test(html), 'skala: padding/border bekas ditolak');
 ok(/sisi\.getBoundingClientRect\(\)\.width \+ 22/.test(html), 'skala: kad semak di sisi ditolak dari lebar');
-ok(d.querySelector('.kertas').getAttribute('data-skala') !== null,
-   'skala semasa ditulis pada .kertas (data-skala)');
+ok(d.querySelector('#hal-3 .kertas').getAttribute('data-skala') !== null,
+   'skala semasa ditulis pada kertas pratonton (data-skala)');
 
 ok(/\.kertas \{[\s\S]{0,300}overflow: hidden;/.test(html),
    'helaian tiada skrol dalam (elak bar skrol dalam pratonton)');
@@ -610,6 +611,86 @@ ok(resume().includes('Rujukan'), 'Rujukan boleh dikembalikan selepas kod dibuka'
 el('kosongkan').click();
 ok(d.querySelectorAll('#senarai-tambahan .baris').length === 0, '"Kosongkan" membuang bahagian tambahan');
 ok(d.querySelectorAll('fieldset.sek.dibuang').length === 0, '"Kosongkan" memulihkan semua bahagian');
+
+console.log('== 22. Pratonton di sisi + alih blok dalam pratonton ==');
+el('mula-isi').click();
+isi('#nama', 'Ahmad bin Ali'); isi('#telefon', '012-3456789'); isi('#emel', 'ahmad@mail.com');
+isi('#lokasi', 'Kemaman'); isi('#jawatan', 'Juruteknik Tapak');
+isi('#ringkasan', 'Juruteknik awam dengan 4 tahun pengalaman.');
+isi('#kemahiran', 'AutoCAD, MS Excel'); isi('#bahasa', 'Bahasa Melayu, English');
+isi('#rujukan', 'En. Samad - 019-1112222');
+isi('#senarai-pengalaman .p-jawatan', 'Juruteknik Tapak');
+isi('#senarai-pengalaman .p-syarikat', 'EPH Construction');
+isi('#senarai-pendidikan .d-kelulusan', 'Diploma Kejuruteraan Awam');
+isi('#senarai-pendidikan .d-institusi', 'Politeknik Kuantan');
+el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+el('tambah-bahagian').click();
+isi('#senarai-tambahan .t-tajuk', 'Projek');
+isi('#senarai-tambahan .t-isi', 'Projek Perumahan Kemaman (2024)');
+el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+ok(!!el('sisi') && !!el('sisi-kertas') && !!el('kertas-sisi'), 'kertas pratonton di sisi borang wujud');
+ok(!!el('togol-susun') && !!el('susun-reset') && !!el('nota-susun'), 'kawalan mod susun wujud (Susun blok / Tetapkan semula)');
+ok(!!el('buka-sisi') && !!el('tutup-sisi'), 'butang buka/tutup pratonton sisi wujud (skrin kecil)');
+ok(el('sisi-kertas').innerHTML === el('resume').innerHTML, 'kertas sisi dan kertas utama memaparkan resume yang sama');
+ok(d.querySelectorAll('#sisi-kertas [data-blok]').length === d.querySelectorAll('#resume [data-blok]').length,
+   'setiap blok ada penanda data-blok dalam kedua-dua pratonton');
+ok(d.querySelectorAll('#sisi-kertas [data-blok]').length >= 4, 'blok resume ditanda (Kontak/Kemahiran/Profil/...)');
+
+// susunan asas
+const urutAsas = w.ResumeMV.urutan(w.ResumeMV.kumpul());
+ok(urutAsas.kiri.join(',') === 'kontak,kemahiran,bahasa', 'lajur kiri asas: kontak, kemahiran, bahasa');
+ok(urutAsas.kanan.join(',') === 'profil,pengalaman,pendidikan,rujukan,t0',
+   'lajur kanan asas: profil, pengalaman, pendidikan, rujukan, bahagian tambahan (t0) — dapat ' + urutAsas.kanan.join(','));
+
+// mod susun hidup/mati
+ok(el('togol-susun').getAttribute('aria-pressed') === 'false', 'mod susun mula dalam keadaan mati');
+ok(d.querySelectorAll('#sisi-kertas .blok-alat').length === 0, 'tiada alat gerak bila mod susun mati');
+el('togol-susun').click();
+ok(el('togol-susun').getAttribute('aria-pressed') === 'true' && el('togol-susun').textContent.indexOf('Selesai') === 0,
+   'mod susun hidup (teks butang bertukar)');
+ok(d.body.classList.contains('mod-susun'), 'badan dokumen ditanda mod-susun');
+ok(d.querySelectorAll('#sisi-kertas .blok-alat').length >= 4, 'setiap blok dapat alat gerak');
+ok(el('susun-reset').hidden === false && el('nota-susun').hidden === false, 'butang Tetapkan semula + nota muncul');
+
+// gerak blok: naik
+const sebelum = [...d.querySelectorAll('#sisi-kertas [data-blok]')].map(b => b.getAttribute('data-blok'));
+d.querySelector('#sisi-kertas [data-blok="bahasa"] [data-gerak="naik"]').click();
+const selepas = [...d.querySelectorAll('#sisi-kertas [data-blok]')].map(b => b.getAttribute('data-blok'));
+ok(selepas.indexOf('bahasa') < selepas.indexOf('kemahiran'),
+   'blok Bahasa dinaikkan melebihi Kemahiran (' + sebelum.join(',') + ' -> ' + selepas.join(',') + ')');
+ok(w.ResumeMV.kumpul().susun && w.ResumeMV.kumpul().susun.kiri.indexOf('bahasa') === 1,
+   'susunan baru disimpan dalam data borang');
+
+// pindah lajur: blok Rujukan ke lajur kiri
+d.querySelector('#sisi-kertas [data-blok="rujukan"] [data-gerak="kiri"]').click();
+const urut2 = w.ResumeMV.urutan(w.ResumeMV.kumpul());
+ok(urut2.kiri.indexOf('rujukan') >= 0, 'Rujukan berpindah ke lajur kiri');
+ok(urut2.kanan.indexOf('rujukan') < 0, 'Rujukan tidak lagi di lajur kanan');
+ok(d.querySelector('#sisi-kertas .cvb-kiri [data-blok="rujukan"]') !== null, 'pratonton menunjukkan Rujukan di lajur kiri');
+ok(d.querySelector('#resume .cvb-kiri [data-blok="rujukan"]') !== null, 'pratonton utama juga ikut susunan sama');
+
+// susunan disimpan dalam kod pesanan
+const kodS = w.ResumeMV.kod(w.ResumeMV.kumpul());
+const balikS = w.ResumeMV.dariKod(kodS);
+ok(balikS.susun && balikS.susun.kiri.indexOf('rujukan') >= 0, 'susunan blok disimpan dalam kod pesanan WhatsApp');
+
+// tetapkan semula
+el('susun-reset').click();
+const urut3 = w.ResumeMV.urutan(w.ResumeMV.kumpul());
+ok(urut3.kiri.join(',') === 'kontak,kemahiran,bahasa' && urut3.kanan.indexOf('rujukan') >= 0,
+   '"Tetapkan semula" memulangkan susunan asal');
+el('togol-susun').click();
+ok(el('togol-susun').getAttribute('aria-pressed') === 'false', 'mod susun boleh dimatikan');
+ok(d.querySelectorAll('#sisi-kertas .blok-alat').length === 0, 'alat gerak hilang bila mod susun mati');
+
+// butang Susun blok di halaman pratonton juga berfungsi
+el('ke-3').click();
+el('togol-susun-3').click();
+ok(w.document.body.classList.contains('mod-susun') && d.querySelectorAll('#resume .blok-alat').length >= 4,
+   'butang Susun blok di halaman pratonton menghidupkan mod yang sama');
+el('togol-susun-3').click();
+ok(d.body.classList.contains('mod-susun') === false, 'mod susun dimatikan semula dari halaman pratonton');
+el('balik-3').click();
 
   Promise.resolve().then(function () {
     console.log('\n' + pass + ' lulus, ' + fail + ' gagal, ' + skip + ' dilangkau');

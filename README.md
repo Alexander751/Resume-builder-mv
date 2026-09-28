@@ -19,7 +19,7 @@ Semua berlaku dalam pelayar — **tiada data dihantar ke mana-mana pelayan**.
 Buka `index.html` (klik dua kali) atau laman awam di atas. Aliran **4 halaman**:
 
 1. **Pilih reka bentuk** — kad *Biru & Kelabu* dengan **pratonton mini sebenar** (bukan gambar) → **Mula Isi Butiran**
-2. **Isi butiran** — pelanggan boleh **tambah bahagian sendiri** (cth. Projek, Sijil, Aktiviti) dan **buang mana-mana bahagian** yang tidak mahu dimasukkan (boleh tambah balik bila-bila)
+2. **Isi butiran** — **pratonton langsung di tepi** (skrin lebar) menunjukkan resume sambil menaip; pelanggan boleh **tambah bahagian sendiri** (cth. Projek, Sijil, Aktiviti), **buang mana-mana bahagian** yang tidak mahu, dan **alih blok** dalam pratonton (seret atau anak panah)
 2. **Isi butiran** — Nama + Nombor Telefon wajib; foto, jawatan, ringkasan, pengalaman, pendidikan, kemahiran, bahasa, rujukan → **Seterusnya: Pratonton**
 3. **Pratonton** — desktop: helaian A4 penuh + butang **Skrin penuh** + senarai semak "Semak sebelum hantar"; telefon: pratonton **sepenuh skrin** tanpa skrol → **Seterusnya: Hantar**
 4. **Hantar** — tekan butang WhatsApp; mesej pesanan + kod resume sudah siap diisi, anda cuma tekan hantar
@@ -127,6 +127,20 @@ Data disimpan automatik dalam pelayar (localStorage) — pelanggan ulangan akan 
 - Cetakan penjual dari halaman pratonton masih **1 halaman A4, 595×842 pt, tanpa tanda air** (bbox sama seperti sebelum ini)
 - Ujian bertambah kepada **219 lulus, 0 gagal**
 
+**Fasa 15** — pratonton di sisi + alih blok (drag) dalam pratonton:
+
+- **Pratonton langsung di sisi borang** (skrin ≥1180px): kad *Pratonton langsung* melekat (sticky) di kanan borang, helaian A4 diskalakan automatik (`data-skala`) dan **dikemas kini setiap kali menaip** — tiada lagi keperluan menekan *Seterusnya* hanya untuk melihat hasil
+- Pada skrin kecil: butang terapung **Pratonton resume** membuka pratonton sebagai lapisan penuh (butang **Tutup** untuk kembali) — telefon kekal cepat tanpa mengecilkan borang
+- **Mod susun blok**: butang **Susun blok** (ada di sisi borang dan di halaman pratonton) menghidupkan mod alih — setiap blok resume bertanda `data-blok` (Kontak, Kemahiran, Bahasa, Profil, Pengalaman, Pendidikan, Rujukan, bahagian tambahan `t0`, `t1`, …)
+  - **Seret** blok: naik/turun dalam lajur sama, atau **lintas lajur** (rel kelabu ↔ lajur kanan); garis biru menunjukkan tempat jatuh
+  - **Butang anak panah** pada setiap blok (↑ ↓ ⇄) untuk gerakan tepat — juga jalan mudah pada telefon
+  - **Tetapkan semula** memulangkan susunan asal (satu klik)
+- Susunan disimpan **dalam data borang + kod pesanan WhatsApp** (kunci ringkas `y`) — Mod Penjual boleh buka semula resume pelanggan dengan susunan yang sama
+- Blok dibalut `<div class="blok" data-blok="…">` yang **telus kepada cetakan** (tiada kesan pada susun atur A4) dan alat susun bertanda `.no-print`
+- **Disahkan dalam Chrome sebenar** (bukan hanya JSDOM): pratonton sisi 470px dengan helaian 445×629 (skala 0.56); seret **Rujukan** dari lajur kanan ke rel kiri berjaya, dan **cetakan kekal 1 halaman A4** — Rujukan dicetak di rel kiri (x=19.8), Projek di lajur kanan mengikut susunan baru
+- **Nota ujian**: drag diuji dalam Chrome dengan `MouseEvent('pointerdown'/'pointermove'/'pointerup')` + koordinat sebenar (JSDOM tiada geometri — `getBoundingClientRect()` memulangkan 0, jadi drag tidak boleh diuji dalam JSDOM); logik gerakan diuji melalui butang anak panah
+- Ujian bertambah kepada **288 lulus, 0 gagal**
+
 **Fasa 14** — builder: tambah bahagian sendiri + buang bahagian yang tak mahu:
 
 - **Tambah bahagian sendiri** — butang **+ Tambah bahagian sendiri** di hujung borang: setiap bahagian ada **tajuk** (cth. Projek, Sijil, Aktiviti, Latihan) + **isi satu baris satu item**. Ia muncul dalam resume sebagai bahagian baharu di hujung lajur kanan — satu item jadi perenggan, dua item ke atas jadi senarai bulet (gaya sama seperti Pengalaman Kerja)
@@ -195,7 +209,7 @@ cd test && npm install        # sekali sahaja (jsdom)
 "$LOCALAPPDATA/hermes/node/node.exe" test/test_ui.js
 ```
 
-Keputusan semasa: **262 lulus, 0 gagal**.
+Keputusan semasa: **288 lulus, 0 gagal**.
 
 ## Aliran jualan melalui WhatsApp (tanpa gerbang bayaran)
 
