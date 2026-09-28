@@ -483,6 +483,7 @@
   /* ---------- elemen berulang ketika cetak (halaman 2+ berdesign sama) ---------- */
   .cetak-berulang { display: none; }
   .cb-rel { display: none; }
+
   body[data-templat="bersih"] { --jalur: #00366d; }
   body[data-templat="biru"] { --jalur: #323b4c; }
   .nota-tambah { margin: 0 0 8px; font-size: 12.3px; line-height: 1.5; color: var(--muted); }
@@ -698,6 +699,46 @@
     padding: 0; overflow: hidden;   /* helaian sentiasa diskalakan supaya muat: tiada skrol dalam */
     zoom: var(--skala, 1);   /* auto-saiz (JS susunSkala) supaya seluruh A4 muat tanpa skrol */
   }
+  /* ---------- pratonton 2 halaman (dan lebih) ----------
+     Setiap helaian tambahan ialah "tingkap" ke bahagian kandungan yang berkenaan:
+     kandungan yang sama, digeser ke atas sebanyak (n-1) x 297mm lalu dipotong.
+     Inilah cara Chrome mencetak (aliran kandungan dipotong setiap 297mm), jadi
+     apa yang pelanggan lihat di sini sama dengan apa yang tercetak. */
+  .papan-kertas { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; align-items: flex-start; }
+  .papan-kertas .kertas { margin: 0; }
+  .kertas-tambahan { position: relative; }
+  .kertas-tambahan .sambungan { position: absolute; inset: 0; overflow: hidden; }
+  .kertas-tambahan .sambungan > .lembar { margin-top: var(--potong, -297mm); }
+  .pil-hal {
+    position: absolute; z-index: 4; left: 8px; top: 8px;
+    font-size: 10.4px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
+    color: #fff; background: rgba(18, 80, 140, .88); border-radius: 999px; padding: 3px 9px;
+    pointer-events: none;
+  }
+  .kertas-tambahan .pil-hal { left: auto; right: 8px; }
+  /* hiasan berulang halaman 2 (sama nilai seperti cetakan, cuma mutlak bukan tetap) */
+  .pr-berulang { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 1; }
+  .pr-berulang .cb-jalur { position: absolute; left: 0; right: 0; top: 0; height: 5mm; background: var(--jalur, #00366d); }
+  .pr-berulang .cb-kaki {
+    position: absolute; left: 0; right: 0; bottom: 0; min-height: 9mm;
+    display: flex; align-items: center; justify-content: space-between; padding: 0 12.5mm;
+    border-top: .6pt solid rgba(50, 59, 76, .28);
+    font-family: "Inter", "Segoe UI", Arial, sans-serif; font-size: 8pt; font-weight: 600;
+    color: var(--jalur, #00366d);
+  }
+  body[data-templat="biru"] .pr-berulang .cb-rel {
+    display: block; position: absolute; left: 0; top: 50mm; bottom: 0; width: 65mm;
+    background: #e4e4e4; z-index: 0;
+  }
+  /* bila resume 2 halaman: benarkan skrol (halaman pratonton penuh) dan panel sisi */
+  body.dua-halaman[data-hal="3"] { overflow: auto; }
+  body.dua-halaman #hal-3 { overflow-y: auto; }
+  @media screen and (max-width: 900px) {
+    body.dua-halaman .sisi-live.buka { overflow-y: auto; }
+  }
+  @media screen and (min-width: 901px) {
+    body.dua-halaman .sisi-live { max-height: calc(100vh - 96px); overflow-y: auto; }
+  }
   @media screen and (max-width: 900px) { .panel-pratonton { position: static; } }
 
   .lembar { font-family: "Segoe UI", Arial, sans-serif; font-size: 10.8pt; line-height: 1.42; color: #111; }
@@ -881,6 +922,10 @@
        tetapi tajuk tidak boleh terpisah daripada isinya dan item tidak dipotong */
     html, body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .cetak-berulang { display: block; }
+    /* helaian pratonton tambahan hanya untuk skrin: cetakan sudah mengalir sendiri,
+       jadi helaian ini WAJIB keluar dari PDF (kalau tidak resume jadi 4 halaman) */
+    .kertas-tambahan { display: none !important; }
+    .pil-hal { display: none !important; }
     .cb-jalur {
       position: fixed; left: 0; right: 0; top: 0; height: 5mm; background: var(--jalur, #00366d);
     }
@@ -1126,9 +1171,11 @@
           <button type="button" class="btn-alat" id="tutup-sisi">Tutup</button>
         </span>
       </div>
-      <div class="kertas" id="kertas-sisi">
-        <article class="lembar" id="sisi-kertas"></article>
-        <div class="cap-air" id="cap-air-sisi" aria-hidden="true"></div>
+      <div class="papan-kertas" id="papan-sisi">
+        <div class="kertas" id="kertas-sisi">
+          <article class="lembar" id="sisi-kertas"></article>
+          <div class="cap-air" id="cap-air-sisi" aria-hidden="true"></div>
+        </div>
       </div>
       <p class="nota-susun" id="nota-susun" hidden>Seret blok untuk pindah tempat (atau tekan anak panah pada setiap blok). Susunan ini yang akan dicetak.</p>
     </aside>
@@ -1160,7 +1207,12 @@
     </div>
     <div class="papan">
       <section class="panel-pratonton">
-        <div class="kertas"><article id="resume" class="lembar"></article><div class="cap-air" id="cap-air" aria-hidden="true"></div></div>
+        <div class="papan-kertas" id="papan-kertas">
+          <div class="kertas" id="kertas-1">
+            <article id="resume" class="lembar"></article>
+            <div class="cap-air" id="cap-air" aria-hidden="true"></div>
+          </div>
+        </div>
         <button type="button" class="btn-skrin no-print" id="btn-skrin">Skrin penuh</button>
       </section>
       <aside class="sisi no-print">
@@ -1489,10 +1541,93 @@
   var TEKS = 1;                  // skala fon templat satu lajur (0.93-1)
   var LEBIH = false;             // isi melebihi satu halaman (akan dicetak 2 halaman)
   var TINGGI_KERTAS = 1123;      // px: tinggi A4 pada 96dpi (794 x 1123)
+  var TINGGI_ISI = 0;            // px: tinggi kandungan resume yang akan dicetak
+  var HALAMAN = 1;               // berapa halaman resume ini (1-4)
+  var ISI_TERKINI = '';          // HTML resume semasa (untuk salinan halaman 2+)
 
   /* Templat satu lajur: kalau isi pendek, renggangkan jarak supaya halaman tidak lopong.
      Nilai disimpan dalam --renggang pada helaian, jadi cetakan pun sama. */
+  /* berapa halaman kandungan setinggi ini? Toleransi 10px sama seperti siling auto-fit,
+     supaya resume yang berjaya dipadatkan ke satu halaman tidak dilaporkan 2 halaman. */
+  function kiraHalaman(t) {
+    if (!t || t <= TINGGI_KERTAS - 10) return 1;
+    return Math.max(2, Math.min(4, Math.ceil(t / TINGGI_KERTAS)));
+  }
+
+  /* ---------- pratonton berbilang halaman ----------
+     Setiap helaian tambahan ialah "tingkap" ke bahagian kandungan seterusnya: kandungan
+     yang sama digeser ke atas (n-1) x 297mm lalu dipotong pada tinggi A4. Chrome mencetak
+     dengan cara yang sama (aliran kandungan dipotong setiap 297mm), jadi pratonton ini
+     sama dengan cetakan sebenar - bukan anggaran. */
+  function helaianHalaman(n) {
+    var kartu = document.createElement('div');
+    kartu.className = 'kertas kertas-tambahan';
+    kartu.setAttribute('data-hal', n);
+    kartu.setAttribute('aria-label', 'Halaman ' + n);
+    kartu.innerHTML = '<div class="pr-berulang" aria-hidden="true">'
+      + '<div class="cb-jalur"></div><div class="cb-rel"></div>'
+      + '<div class="cb-kaki"><span class="pr-kaki-nama"></span>'
+      + '<span class="cb-sambung">sambungan halaman ' + n + '</span></div></div>'
+      + '<div class="sambungan" style="--potong: ' + (-((n - 1) * 297)) + 'mm">'
+      + '<article class="lembar"></article></div>'
+      + '<div class="cap-air" aria-hidden="true"></div>'
+      + '<span class="pil-hal">Halaman ' + n + '</span>';
+    kartu.querySelector('.lembar').innerHTML = ISI_TERKINI;
+    var cap = kartu.querySelector('.cap-air');
+    if (cap && el('cap-air')) cap.innerHTML = el('cap-air').innerHTML;
+    var nm = kartu.querySelector('.pr-kaki-nama');
+    if (nm) nm.textContent = el('cb-nama') ? el('cb-nama').textContent : '';
+    return kartu;
+  }
+
+  var ISI_DIBINA = null, HALAMAN_DIBINA = 0;
+  function susunHalaman() {
+    var n = Math.max(1, Math.min(4, HALAMAN || 1));
+    if (ISI_DIBINA === ISI_TERKINI && HALAMAN_DIBINA === n) return;   // tiada perubahan
+    ISI_DIBINA = ISI_TERKINI; HALAMAN_DIBINA = n;
+    [el('papan-kertas'), el('papan-sisi')].forEach(function (pk) {
+      if (!pk) return;
+      Array.prototype.forEach.call(pk.querySelectorAll('.kertas-tambahan'), function (x) { pk.removeChild(x); });
+      for (var h = 2; h <= n; h++) {
+        var kartu = helaianHalaman(h);
+        if (pk.id === 'papan-sisi') kartu.classList.add('kertas-sisi-tambahan');
+        pk.appendChild(kartu);
+      }
+      var pertama = pk.firstElementChild;
+      if (!pertama) return;
+      var pil = pertama.querySelector('.pil-hal');
+      if (n > 1 && !pil) {
+        pil = document.createElement('span');
+        pil.className = 'pil-hal';
+        pil.textContent = 'Halaman 1';
+        pil.setAttribute('aria-hidden', 'true');
+        pertama.appendChild(pil);
+      } else if (n === 1 && pil) {
+        pil.parentNode.removeChild(pil);
+      }
+    });
+    document.body.classList.toggle('dua-halaman', n > 1);
+  }
+
+  /* pemboleh ubah auto-fit (--renggang / --teks) diset pada helaian halaman 1;
+     salin ke semua helaian tambahan supaya jarak dan saiz fon sama. */
+  function salinLaras() {
+    var asal = el('resume') ? el('resume').firstElementChild : null;
+    if (!asal) return;
+    var senarai = document.querySelectorAll('.kertas-tambahan .sambungan > .lembar > *');
+    Array.prototype.forEach.call(senarai, function (a) { a.style.cssText = asal.style.cssText; });
+  }
+
+  /* Pembalut: selepas mengukur ruang, pastikan helaian halaman 2+ sepadan dengan
+     bilangan halaman yang baru dikira. Setiap laluan yang mengukur semula (masuk
+     pratonton, tukar langkah, muat data) akan menyegerakkan helaian sekali gus. */
   function larasRuang() {
+    var r = larasRuangDalam();
+    susunHalaman();
+    return r;
+  }
+
+  function larasRuangDalam() {
     var kertas = [el('sisi-kertas'), el('resume')];
     var lembar = null;
     RENGGANG = 1;
@@ -1513,15 +1648,17 @@
         var hd = (ban ? ban.offsetHeight : 0) + Math.max(ki ? ki.offsetHeight : 0, ka ? ka.offsetHeight : 0) + 20;
         PENUH = hd / TINGGI_KERTAS;
         LEBIH = hd > TINGGI_KERTAS - 10;
+        TINGGI_ISI = hd;
+        HALAMAN = kiraHalaman(hd);
       } else {
-        PENUH = 1; LEBIH = false;
+        PENUH = 1; LEBIH = false; TINGGI_ISI = 0; HALAMAN = 1;
       }
       TEKS = 1; RENGGANG = 1;
       tandaLapang();
       return RENGGANG;
     }
     if (!lembar) {
-      PENUH = 1; TEKS = 1; LEBIH = false;
+      PENUH = 1; TEKS = 1; LEBIH = false; TINGGI_ISI = 0; HALAMAN = 1;
       tandaLapang();
       return RENGGANG;
     }
@@ -1575,6 +1712,8 @@
     });
     PENUH = tinggi / TINGGI_KERTAS;
     LEBIH = tinggi > siling;
+    TINGGI_ISI = tinggi;
+    HALAMAN = kiraHalaman(tinggi);
     tandaLapang();
     return RENGGANG;
   }
@@ -1585,7 +1724,8 @@
     if (!nota) return;
     if (LEBIH) {
       nota.hidden = false;
-      nota.innerHTML = '<strong>Resume melebihi satu halaman.</strong> Ia akan dicetak sebagai 2 halaman '
+      var bil = HALAMAN > 1 ? HALAMAN : 2;
+      nota.innerHTML = '<strong>Resume melebihi satu halaman.</strong> Ia akan dicetak sebagai ' + bil + ' halaman '
         + '(tidak salah untuk jawatan berpengalaman, tetapi penjual boleh bantu rapatkan). Kalau anda mahu '
         + '<strong>1 halaman</strong>: padam poin yang kurang penting (butang <strong>&times;</strong> pada baris poin), '
         + 'pendekkan <strong>Ringkasan</strong>, atau buang bahagian yang tidak perlu.';
@@ -1606,14 +1746,17 @@
 
   function papar(d) {
     var isi = htmlTemplat(d);
+    ISI_TERKINI = isi;
     el('resume').innerHTML = isi;
     var sisi = el('sisi-kertas');
     if (sisi) sisi.innerHTML = isi;
     document.body.setAttribute('data-templat', KUNCI_TEMPLAT);
     var kakiNama = el('cb-nama');
     if (kakiNama) kakiNama.textContent = (d.nama || 'Resume') + (d.jawatan ? ' \u00b7 ' + d.jawatan : '');
-    larasRuang();
-    capAir(!penjual);
+    capAir(!penjual);      // cop air dahulu: kedudukan mutlak, tidak menjejaskan ukuran
+    larasRuang();          // ukur tinggi + kira PENUH/LEBIH/HALAMAN + bina helaian halaman 2+
+    salinLaras();          // jarak & saiz fon sama pada semua helaian
+    susunSkala();
     susunSkalaSisi();
   }
 
@@ -2556,8 +2699,17 @@
     }
     if (!lebarTersedia) return;
     var skala = Math.min(1, lebarTersedia / 794, tinggiTersedia / 1123);
-    kotak.style.setProperty('--skala', Math.max(0.2, skala).toFixed(4));
-    kotak.setAttribute('data-skala', Math.max(0.2, skala).toFixed(4));
+    var nilai = Math.max(0.2, skala).toFixed(4);
+    var papan = el('papan-sisi') || kotak.parentElement;
+    if (papan && papan.querySelectorAll) {
+      Array.prototype.forEach.call(papan.querySelectorAll('.kertas'), function (k) {
+        k.style.setProperty('--skala', nilai);
+        k.setAttribute('data-skala', nilai);
+      });
+    } else {
+      kotak.style.setProperty('--skala', nilai);
+      kotak.setAttribute('data-skala', nilai);
+    }
     if (ada) { /* tiada apa-apa: hanya untuk elak amaran pemboleh tak digunakan */ }
   }
   window.addEventListener('resize', susunSkalaSisi);
@@ -2587,7 +2739,12 @@
         lebarTersedia -= sisi.getBoundingClientRect().width + 22;   // tolok kad semak di sisi
       }
     }
-    var skala = Math.min(1, lebarTersedia / 794, tinggiTersedia / 1123);
+    /* bila resume 2 halaman: di skrin lebar dua helaian duduk sebaris, jadi setiap
+       helaian hanya dapat separuh lebar. Di skrin sempit helaian ditindan ke bawah
+       (boleh skrol), jadi skala kekal seperti satu helaian. */
+    var dua = document.body.classList.contains('dua-halaman');
+    var lebarHelaian = (dua && lebarTersedia >= 820) ? (lebarTersedia - 20) / 2 : lebarTersedia;
+    var skala = Math.min(1, lebarHelaian / 794, tinggiTersedia / 1123);
     akar.style.setProperty('--skala', Math.max(0.28, skala).toFixed(4));
     kertas.setAttribute('data-skala', Math.max(0.28, skala).toFixed(4));   // untuk ujian/ukur
   }
@@ -2849,6 +3006,7 @@
     templat: function () { return KUNCI_TEMPLAT; }, renggang: function () { return RENGGANG; },
     penuh: function () { return PENUH; }, teks: function () { return TEKS; },
     lebih: function () { return LEBIH; },
+    halaman: function () { return HALAMAN; }, kiraHalaman: kiraHalaman,
     tempat: function () { return Object.keys(TEMPLAT); }, urutan: urutan, pindah: pindahBlok };
   kemasSemula();
   kemasSek();

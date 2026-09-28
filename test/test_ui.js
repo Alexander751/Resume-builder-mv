@@ -1319,6 +1319,41 @@ ok(/@media screen and \(max-width: 620px\) \{[\s\S]{0,1600}#ringkasan \{ min-hei
    'telefon: ringkasan lagi tinggi (menaip di telefon lebih sempit)');
 ok(!/width: [0-9]/.test(el('ringkasan').getAttribute('style') || ''), 'ringkasan tidak dikunci lebar (kekal lebar penuh kad)');
 
+console.log('== 36. Pratonton 2 halaman (pratonton + pratonton langsung) ==');
+ok(typeof w.ResumeMV.kiraHalaman === 'function', 'kiraHalaman didedahkan untuk ujian');
+ok(w.ResumeMV.kiraHalaman(800) === 1, 'kandungan 800px = 1 halaman');
+ok(w.ResumeMV.kiraHalaman(1123) === 2, 'kandungan melebihi A4 (1123px) = 2 halaman');
+ok(w.ResumeMV.kiraHalaman(1123 * 2 + 200) === 3, 'kandungan ~2.2 halaman = 3 halaman');
+ok(w.ResumeMV.kiraHalaman(1123 * 9) === 4, 'kiraan halaman dihadkan kepada 4 (kes ekstrem)');
+ok(w.ResumeMV.kiraHalaman(0) === 1 && w.ResumeMV.kiraHalaman(undefined) === 1, 'kandungan kosong = 1 halaman');
+// CSS: helaian tambahan + tingkap sambungan
+ok(/\.papan-kertas \{ display: flex; flex-wrap: wrap/.test(html), 'papan kertas boleh bungkus (2 helaian sebaris, tindan bila sempit)');
+ok(/\.kertas-tambahan \{ position: relative; \}/.test(html), 'helaian tambahan jadi rujukan kedudukan');
+ok(/\.kertas-tambahan \.sambungan \{ position: absolute; inset: 0; overflow: hidden; \}/.test(html),
+   'tingkap sambungan dipotong pada saiz A4');
+ok(/\.kertas-tambahan \.sambungan > \.lembar \{ margin-top: var\(--potong, -297mm\); \}/.test(html),
+   'kandungan digeser ke atas 297mm untuk halaman 2');
+ok(/\.pil-hal \{/.test(html), 'ada label "Halaman N" pada setiap helaian');
+ok(/body\[data-templat="biru"\] \.pr-berulang \.cb-rel \{[\s\S]{0,180}display: block/.test(html),
+   'rel kelabu diteruskan pada helaian halaman 2 (templat dua lajur sahaja)');
+ok(/body\.dua-halaman\[data-hal="3"\] \{ overflow: auto; \}/.test(html), 'halaman pratonton boleh skrol bila 2 halaman');
+ok(/body\.dua-halaman #hal-3 \{ overflow-y: auto; \}/.test(html), 'bekas pratonton skrin penuh boleh skrol bila 2 halaman');
+ok(/body\.dua-halaman \.sisi-live \{ max-height: calc\(100vh - 96px\); overflow-y: auto; \}/.test(html),
+   'panel pratonton langsung boleh skrol bila 2 halaman');
+// CETAK: helaian pratonton tambahan WAJIB keluar dari PDF (kalau tidak resume jadi 4 halaman)
+var cetakBlok = html.slice(html.indexOf('@media print {'));
+ok(/\.kertas-tambahan \{ display: none !important; \}/.test(cetakBlok), 'helaian pratonton tambahan tidak dicetak');
+ok(/\.pil-hal \{ display: none !important; \}/.test(cetakBlok), 'label halaman tidak dicetak');
+ok(html.indexOf('.kertas-tambahan { display: none !important; }') > html.indexOf('@media print {'),
+   'peraturan "jangan cetak" berada dalam blok cetak (bukan blok skrin)');
+// JS: fungsi penjana helaian wujud
+ok(/function helaianHalaman\(n\)/.test(html) && /function susunHalaman\(\)/.test(html) && /function salinLaras\(\)/.test(html),
+   'fungsi bina helaian, susun halaman dan salin laras wujud');
+ok(/kartu\.querySelector\('\.lembar'\)\.innerHTML = ISI_TERKINI;/.test(html), 'helaian halaman 2 mendapat resume yang sama');
+ok(/document\.body\.classList\.toggle\('dua-halaman', n > 1\)/.test(html), 'kelas dua-halaman ditetapkan bila lebih 1 halaman');
+ok(/n === 1 && pil\) \{[\s\S]{0,80}removeChild\(pil\)/.test(html), 'label halaman dibuang semula bila kembali 1 halaman');
+ok(w.ResumeMV.halaman() >= 1, 'bilangan halaman dilaporkan kepada API');
+
   Promise.resolve().then(function () {
     console.log('\n' + pass + ' lulus, ' + fail + ' gagal, ' + skip + ' dilangkau');
     process.exit(fail ? 1 : 0);

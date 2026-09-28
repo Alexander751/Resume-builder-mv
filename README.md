@@ -298,6 +298,32 @@ ditengahkan menegak), (3) kalau isi terlalu banyak, halaman kedua mesti berdesig
   dikira betul. Cetakan PDF kekal 1 halaman (borang tidak dicetak).
 - **Ujian** - blok 35. Jumlah **583 lulus, 0 gagal**.
 
+**Fasa 28 - Pratonton 2 halaman (pratonton halaman + pratonton langsung)**
+
+- **Permintaan**: apabila resume banyak maklumat (2 halaman), pratonton mesti **menunjukkan 2 halaman** -
+  sebelum ini pratonton hanya menunjukkan satu helaian dan nota "melebihi satu halaman" memberitahu
+  selebihnya tanpa dapat dilihat.
+- **Cara**: setiap helaian tambahan ialah **"tingkap"** ke bahagian kandungan seterusnya - kandungan yang
+  sama digeser ke atas `-297mm` (pemboleh ubah `--potong`) lalu dipotong pada tinggi A4 (`overflow: hidden`).
+  Inilah cara Chrome mencetak (aliran kandungan dipotong setiap 297mm), jadi pratonton = cetakan, bukan anggaran.
+  Helaian tambahan dibina oleh `helaianHalaman(n)` untuk **kedua-dua** papan: `#papan-kertas` (halaman pratonton)
+  dan `#papan-sisi` (pratonton langsung), lengkap dengan jalur atas, kaki nama + "sambungan halaman", rel kelabu
+  (templat dua lajur) dan label "Halaman N".
+- **Bilangan halaman** (`kiraHalaman`, 1-4) dikira daripada tinggi kandungan sebenar yang sama digunakan untuk
+  nota "melebihi satu halaman", jadi pratonton dan nota sentiasa sependapat.
+- **Susun atur**: `#papan-kertas` guna `flex-wrap` - di skrin >= 820px dua helaian duduk **sebaris** (kalau tidak
+  helaian jadi terlalu kecil), di skrin sempit helaian **bertindan** dan boleh diskrol.
+- **PENTING (cetakan)**: helaian pratonton tambahan mesti keluar dari PDF
+  (`.kertas-tambahan { display: none !important }` **di dalam** `@media print`) - kalau tidak resume 2 halaman
+  tercetak sebagai 4 halaman. Peraturan ini pernah tersalah letak dalam blok skrin dan mematikan pratonton
+  2 halaman sepenuhnya.
+- **Pengesahan Chrome**: resume banyak maklumat -> `HALAMAN=2`, helaian pratonton 2, helaian sisi 2, helaian
+  sebaris pada 1440px (`[275,125]` dan `[722,125]`), bertindan pada 520px dan 390px. Geometri disemak:
+  tajuk yang jatuh melepasi 1123px (cth. "Sijil & Latihan" pada offset 1226px) muncul **103px dari atas
+  helaian halaman 2** = tepat 1226 - 1123. Cetakan PDF untuk data yang sama = **2 halaman** (bukan 4).
+- **Ujian** - blok 36 (kiraHalaman, CSS helaian/tingkap, label halaman, peraturan cetak, fungsi penjana).
+  Jumlah **606 lulus, 0 gagal**.
+
 **Fasa 26 - Butang dalaman "Kembali/Pratonton" yang masih muncul di penjuru bawah**
 
 - **Bug**: butang pratonton/kembali lama disimpan sebagai butang dalaman dengan atribut `hidden`, tetapi
@@ -452,7 +478,7 @@ cd test && npm install        # sekali sahaja (jsdom)
 "$LOCALAPPDATA/hermes/node/node.exe" test/test_ui.js
 ```
 
-Keputusan semasa: **583 lulus, 0 gagal**.
+Keputusan semasa: **606 lulus, 0 gagal**.
 
 ## Aliran jualan melalui WhatsApp (tanpa gerbang bayaran)
 
