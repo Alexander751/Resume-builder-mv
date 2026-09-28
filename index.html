@@ -483,6 +483,7 @@
   /* ---------- elemen berulang ketika cetak (halaman 2+ berdesign sama) ---------- */
   .cetak-berulang { display: none; }
   .cb-rel { display: none; }
+  .cb-garis { display: none; }
 
   body[data-templat="bersih"] { --jalur: #00366d; }
   body[data-templat="biru"] { --jalur: #323b4c; }
@@ -707,8 +708,13 @@
   .papan-kertas { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; align-items: flex-start; }
   .papan-kertas .kertas { margin: 0; }
   .kertas-tambahan { position: relative; }
-  .kertas-tambahan .sambungan { position: absolute; inset: 0; overflow: hidden; }
-  .kertas-tambahan .sambungan > .lembar { margin-top: var(--potong, -297mm); }
+  /* "Tingkap" kandungan: tinggi ditetapkan oleh JS pada titik cetakan sebenarnya memotong
+     (bukan sekadar 297mm), supaya ayat/bulet yang tidak boleh dipecah berlaku sama seperti cetakan. */
+  .kertas .sambungan {
+    position: absolute; left: 0; top: 0; right: 0;
+    height: var(--tinggi-hal, 100%); overflow: hidden;
+  }
+  .kertas .sambungan > .lembar { margin-top: var(--potong, 0); }
   .pil-hal {
     position: absolute; z-index: 4; left: 8px; top: 8px;
     font-size: 10.4px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
@@ -729,6 +735,11 @@
   body[data-templat="biru"] .pr-berulang .cb-rel {
     display: block; position: absolute; left: 0; top: 50mm; bottom: 0; width: 65mm;
     background: #e4e4e4; z-index: 0;
+  }
+  /* garis pemisah kolum: diteruskan penuh sampai hujung halaman pada setiap helaian */
+  body[data-templat="biru"] .pr-berulang .cb-garis {
+    display: block; position: absolute; left: 73.3mm; top: 50mm; bottom: 0; width: 0;
+    border-left: .6pt solid #323b4c; z-index: 1;
   }
   /* bila resume 2 halaman: benarkan skrol (halaman pratonton penuh) dan panel sisi */
   body.dua-halaman[data-hal="3"] { overflow: auto; }
@@ -770,7 +781,7 @@
     padding: 32.2mm 7mm 15mm 7mm;
   }
   .cvb-kanan {
-    flex: 1 1 auto; min-width: 0; margin-left: 8.3mm; padding: 12.8mm 12.5mm 15mm 9.5mm;
+    flex: 1 1 auto; min-width: 0; margin-left: 8.3mm; padding: 8.6mm 12.5mm 15mm 9.5mm;
     border-left: .6pt solid #323b4c;
   }
   .lembar .cv-biru h2 {
@@ -914,6 +925,11 @@
       width: auto; max-width: none; aspect-ratio: auto; overflow: visible;
       zoom: 1 !important;   /* batalkan skala pratonton semasa cetak */
     }
+    /* Tingkap pratonton (dipotong pada titik potong) hanya untuk SKRIN: semasa cetak
+       kandungan mesti mengalir bebas dan pelayar memotong sendiri. Kalau tidak, cetakan
+       terpotong pada tinggi tingkap dan halaman 2 hilang sepenuhnya. */
+    .kertas .sambungan { position: static; height: auto !important; overflow: visible; }
+    .kertas .sambungan > .lembar { margin-top: 0 !important; }
     /* templat dua lajur mesti memenuhi penuh satu halaman A4 supaya rel kelabu
        sampai ke bawah kertas; tolak 1px supaya tidak melimpah ke halaman kosong */
     .lembar .cv-biru { min-height: calc(297mm - 1px); }
@@ -922,6 +938,19 @@
        tetapi tajuk tidak boleh terpisah daripada isinya dan item tidak dipotong */
     html, body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .cetak-berulang { display: block; }
+    /* PENTING: satu bulet/poin tidak boleh dipecah dua halaman - ayat terpisah sukar dibaca.
+       Item pengalaman sendiri DIBENARKAN mengalir (kalau tidak, satu jawatan panjang berpindah
+       bulat-bulat ke halaman 2 dan halaman 1 jadi berlubang), tetapi tajuk item mesti kekal
+       bersama kandungannya. */
+    .lembar li { break-inside: avoid; page-break-inside: avoid; }
+    .lembar .cvb-item-kepala, .lembar .cvb-item-sub,
+    .lembar .cvs-item-kepala, .lembar .cvs-item-sub { break-after: avoid; page-break-after: avoid; }
+    /* tajuk bahagian tidak boleh tinggal keseorangan di hujung halaman */
+    .lembar h2 { break-after: avoid; page-break-after: avoid; }
+    body[data-templat="biru"] .cb-garis {
+      display: block; position: fixed; left: 73.3mm; top: 50mm; bottom: 0; width: 0;
+      border-left: .6pt solid #323b4c; z-index: 1;
+    }
     /* helaian pratonton tambahan hanya untuk skrin: cetakan sudah mengalir sendiri,
        jadi helaian ini WAJIB keluar dari PDF (kalau tidak resume jadi 4 halaman) */
     .kertas-tambahan { display: none !important; }
@@ -945,7 +974,7 @@
     .lembar .cvb-kiri, .lembar .cvb-kanan { position: relative; z-index: 1; }
     .lembar .cv-bersih { min-height: auto; }
     .lembar .cv-bersih h2 { break-after: avoid; page-break-after: avoid; }
-    .lembar .cv-bersih .cvs-item { break-inside: avoid; page-break-inside: avoid; }
+    /* item biru bersih juga dibenarkan mengalir (bulet sahaja yang tidak boleh dipecah) */
   }
 </style>
 </head>
@@ -1173,7 +1202,9 @@
       </div>
       <div class="papan-kertas" id="papan-sisi">
         <div class="kertas" id="kertas-sisi">
-          <article class="lembar" id="sisi-kertas"></article>
+          <div class="sambungan" id="sambung-sisi">
+            <article class="lembar" id="sisi-kertas"></article>
+          </div>
           <div class="cap-air" id="cap-air-sisi" aria-hidden="true"></div>
         </div>
       </div>
@@ -1209,7 +1240,9 @@
       <section class="panel-pratonton">
         <div class="papan-kertas" id="papan-kertas">
           <div class="kertas" id="kertas-1">
-            <article id="resume" class="lembar"></article>
+            <div class="sambungan" id="sambung-1">
+              <article id="resume" class="lembar"></article>
+            </div>
             <div class="cap-air" id="cap-air" aria-hidden="true"></div>
           </div>
         </div>
@@ -1559,16 +1592,74 @@
      yang sama digeser ke atas (n-1) x 297mm lalu dipotong pada tinggi A4. Chrome mencetak
      dengan cara yang sama (aliran kandungan dipotong setiap 297mm), jadi pratonton ini
      sama dengan cetakan sebenar - bukan anggaran. */
+  var POTONG = [0];              // POTONG[h-1] = kedudukan (px) mula halaman h (halaman 1 = 0)
+
+  function skalaSemasa() {
+    var v = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--skala'));
+    return v > 0 ? v : 1;
+  }
+
+  /* Cari tempat cetakan SEBENARNYA memotong untuk sempadan pada 'had' px.
+     Elemen yang tidak boleh dipecah (satu bulet/poin, satu item pengalaman, atau tajuk
+     bahagian) yang merentasi sempadan akan dihantar bulat-bulat ke halaman berikutnya.
+     Elemen yang lebih tinggi daripada satu halaman diabaikan (pelayar pun akan memecahnya). */
+  function titikPotong(lembar, had) {
+    var sk = skalaSemasa();
+    var lr = lembar.getBoundingClientRect();
+    function atas(e) { return (e.getBoundingClientRect().top - lr.top) / sk; }
+    function bawah(e) { return (e.getBoundingClientRect().bottom - lr.top) / sk; }
+    var potong = had;
+    var calon = lembar.querySelectorAll('li, .cvb-item, .cvs-item, h2');
+    Array.prototype.forEach.call(calon, function (e) {
+      var a = atas(e), b = bawah(e);
+      if (b - a > TINGGI_KERTAS) return;              // terlalu tinggi: mesti dipecah
+      if (a < had && b > had + 0.5) {
+        if (a < potong) potong = a;
+        return;
+      }
+      // tajuk bahagian: jangan tinggal keseorangan - kalau kandungan selepasnya jatuh ke
+      // halaman berikutnya, tajuk itu dibawa sekali (break-after: avoid)
+      if (e.tagName === 'H2') {
+        var nxt = e.nextElementSibling;
+        if (nxt && a < had && atas(nxt) < had && bawah(nxt) > had && a < potong) potong = a;
+      }
+    });
+    return Math.max(0, Math.round(potong));
+  }
+
+  function kiraPotong() {
+    POTONG = [0];
+    var n = Math.max(1, Math.min(4, HALAMAN || 1));
+    var lembar = el('resume') ? el('resume').firstElementChild : null;
+    if (!lembar || n < 2) return;
+    for (var h = 2; h <= n; h++) POTONG.push(titikPotong(lembar, POTONG[h - 2] + TINGGI_KERTAS));
+  }
+
+  /* Tinggi tingkap helaian h: sampai titik potong seterusnya (jadi ada ruang kosong di
+     bawah seperti cetakan sebenar), atau penuh A4 untuk halaman terakhir. */
+  function tinggiHal(h) {
+    if (h < POTONG.length) return Math.max(40, POTONG[h] - POTONG[h - 1]);
+    return TINGGI_KERTAS;
+  }
+
+  function setTingkap(kertas, h) {
+    var w = kertas ? kertas.querySelector('.sambungan') : null;
+    if (!w) return;
+    w.style.setProperty('--tinggi-hal', Math.round(tinggiHal(h)) + 'px');
+    w.style.setProperty('--potong', (-Math.round(POTONG[h - 1] || 0)) + 'px');
+  }
+
   function helaianHalaman(n) {
     var kartu = document.createElement('div');
     kartu.className = 'kertas kertas-tambahan';
     kartu.setAttribute('data-hal', n);
     kartu.setAttribute('aria-label', 'Halaman ' + n);
     kartu.innerHTML = '<div class="pr-berulang" aria-hidden="true">'
-      + '<div class="cb-jalur"></div><div class="cb-rel"></div>'
+      + '<div class="cb-jalur"></div><div class="cb-rel"></div><div class="cb-garis"></div>'
       + '<div class="cb-kaki"><span class="pr-kaki-nama"></span>'
       + '<span class="cb-sambung">sambungan halaman ' + n + '</span></div></div>'
-      + '<div class="sambungan" style="--potong: ' + (-((n - 1) * 297)) + 'mm">'
+      + '<div class="sambungan" style="--potong: ' + (-Math.round(POTONG[n - 1] || 0)) + 'px; '
+      + '--tinggi-hal: ' + Math.round(tinggiHal(n)) + 'px">'
       + '<article class="lembar"></article></div>'
       + '<div class="cap-air" aria-hidden="true"></div>'
       + '<span class="pil-hal">Halaman ' + n + '</span>';
@@ -1583,8 +1674,13 @@
   var ISI_DIBINA = null, HALAMAN_DIBINA = 0;
   function susunHalaman() {
     var n = Math.max(1, Math.min(4, HALAMAN || 1));
-    if (ISI_DIBINA === ISI_TERKINI && HALAMAN_DIBINA === n) return;   // tiada perubahan
-    ISI_DIBINA = ISI_TERKINI; HALAMAN_DIBINA = n;
+    kiraPotong();
+    var tanda = ISI_TERKINI + '|' + POTONG.join(',');
+    if (ISI_DIBINA === tanda && HALAMAN_DIBINA === n) return;   // tiada perubahan
+    ISI_DIBINA = tanda; HALAMAN_DIBINA = n;
+    // halaman 1 juga dipotong pada titik cetakan (bukan penuh 297mm kalau ada elemen terdorong)
+    setTingkap(el('kertas-1'), 1);
+    setTingkap(el('kertas-sisi'), 1);
     [el('papan-kertas'), el('papan-sisi')].forEach(function (pk) {
       if (!pk) return;
       Array.prototype.forEach.call(pk.querySelectorAll('.kertas-tambahan'), function (x) { pk.removeChild(x); });
@@ -3023,6 +3119,7 @@
 <div class="cetak-berulang" id="cetak-berulang" aria-hidden="true">
   <div class="cb-jalur"></div>
   <div class="cb-rel"></div>
+  <div class="cb-garis"></div>
   <div class="cb-kaki"><span id="cb-nama">Resume</span><span class="cb-sambung">sambungan halaman</span></div>
 </div>
 </body>

@@ -1329,10 +1329,15 @@ ok(w.ResumeMV.kiraHalaman(0) === 1 && w.ResumeMV.kiraHalaman(undefined) === 1, '
 // CSS: helaian tambahan + tingkap sambungan
 ok(/\.papan-kertas \{ display: flex; flex-wrap: wrap/.test(html), 'papan kertas boleh bungkus (2 helaian sebaris, tindan bila sempit)');
 ok(/\.kertas-tambahan \{ position: relative; \}/.test(html), 'helaian tambahan jadi rujukan kedudukan');
-ok(/\.kertas-tambahan \.sambungan \{ position: absolute; inset: 0; overflow: hidden; \}/.test(html),
-   'tingkap sambungan dipotong pada saiz A4');
-ok(/\.kertas-tambahan \.sambungan > \.lembar \{ margin-top: var\(--potong, -297mm\); \}/.test(html),
-   'kandungan digeser ke atas 297mm untuk halaman 2');
+ok(/\.kertas \.sambungan \{[\s\S]{0,200}height: var\(--tinggi-hal, 100%\); overflow: hidden;[\s\S]{0,20}\}/.test(html),
+   'tingkap sambungan dipotong pada tinggi yang ditetapkan JS');
+ok(/\.kertas \.sambungan > \.lembar \{ margin-top: var\(--potong, 0\); \}/.test(html),
+   'kandungan digeser ke atas mengikut titik potong cetakan');
+ok(/function titikPotong\(lembar, had\)/.test(html) && /function kiraPotong\(\)/.test(html),
+   'titik potong cetakan dikira (bukan sekadar 297mm) supaya bulet tidak terpecah');
+ok(/\.lembar li \{ break-inside: avoid; page-break-inside: avoid; \}/.test(html) &&
+   /\.lembar \.cvb-item-kepala, \.lembar \.cvb-item-sub,[\s\S]{0,20}\.lembar \.cvs-item-kepala, \.lembar \.cvs-item-sub \{ break-after: avoid/.test(html),
+   'cetakan: satu bulet tidak dipecah dua halaman, tajuk item kekal bersama kandungan');
 ok(/\.pil-hal \{/.test(html), 'ada label "Halaman N" pada setiap helaian');
 ok(/body\[data-templat="biru"\] \.pr-berulang \.cb-rel \{[\s\S]{0,180}display: block/.test(html),
    'rel kelabu diteruskan pada helaian halaman 2 (templat dua lajur sahaja)');

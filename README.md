@@ -298,6 +298,29 @@ ditengahkan menegak), (3) kalau isi terlalu banyak, halaman kedua mesti berdesig
   dikira betul. Cetakan PDF kekal 1 halaman (borang tidak dicetak).
 - **Ujian** - blok 35. Jumlah **583 lulus, 0 gagal**.
 
+**Fasa 29 - Ayat tidak lagi terpecah antara halaman + garis pemisah penuh + jidar atas dibetulkan**
+
+- **Ayat/bulet terpecah dua halaman** (masalah utama): cetakan kini menetapkan `break-inside: avoid` pada
+  **setiap bulet** (`li`), jadi satu poin tidak pernah dipecah separuh. Item pengalaman sendiri **dibenarkan
+  mengalir** - kalau tidak, satu jawatan panjang berpindah bulat-bulat ke halaman 2 dan halaman 1 jadi
+  berlubang. Tajuk item pula `break-after: avoid` supaya tajuk tidak tinggal keseorangan di hujung halaman.
+- **Pratonton mesti memotong di titik yang SAMA seperti cetakan** - bukan sekadar pada 297mm. Fungsi baharu
+  `titikPotong()` mengukur elemen yang tidak boleh dipecah dan menggeser titik potong ke atas elemen itu,
+  `kiraPotong()` mengiranya untuk setiap halaman (1-4), dan setiap helaian pratonton menjadi tingkap dengan
+  tinggi sebenar (`--tinggi-hal` + `--potong`) - jadi pratonton menunjukkan ruang kosong di hujung halaman
+  sama seperti cetakan. Disahkan: 0 bulet terpecah pada 3 variasi panjang resume, dan 0 daripada 10-12 bulet
+  terpecah dalam PDF sebenar.
+- **PENTING (cetakan)**: tingkap pratonton hanya untuk skrin. Semasa cetak,
+  `.kertas .sambungan { position: static; height: auto !important; overflow: visible }` dan
+  `margin-top: 0 !important` pada `.lembar`. Tanpa ini, cetakan terpotong pada tinggi tingkap dan resume
+  2 halaman tercetak sebagai 1 muka surat dengan separuh kandungan hilang (kesan yang ditangkap oleh ujian
+  PDF, bukan oleh ujian unit).
+- **Garis pemisah kolum dipanjangkan penuh ke bawah**: ditambah `.cb-garis` pada elemen berulang cetakan
+  (`left: 73.3mm; top: 50mm; bottom: 0; .6pt #323b4c`) dan pada elemen berulang pratonton, jadi halaman 2
+  templat dua lajur tidak lagi nampak garis yang berhenti separuh jalan.
+- **Ruang kosong di atas PROFIL** (templat dua lajur): padding atas kolum kanan 12.8mm -> **8.6mm**.
+- **Ujian** - blok 36 dikemas kini. Jumlah **608 lulus, 0 gagal**.
+
 **Fasa 28 - Pratonton 2 halaman (pratonton halaman + pratonton langsung)**
 
 - **Permintaan**: apabila resume banyak maklumat (2 halaman), pratonton mesti **menunjukkan 2 halaman** -
@@ -478,7 +501,7 @@ cd test && npm install        # sekali sahaja (jsdom)
 "$LOCALAPPDATA/hermes/node/node.exe" test/test_ui.js
 ```
 
-Keputusan semasa: **606 lulus, 0 gagal**.
+Keputusan semasa: **608 lulus, 0 gagal**.
 
 ## Aliran jualan melalui WhatsApp (tanpa gerbang bayaran)
 
