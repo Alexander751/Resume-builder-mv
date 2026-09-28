@@ -298,6 +298,24 @@ ditengahkan menegak), (3) kalau isi terlalu banyak, halaman kedua mesti berdesig
   dikira betul. Cetakan PDF kekal 1 halaman (borang tidak dicetak).
 - **Ujian** - blok 35. Jumlah **583 lulus, 0 gagal**.
 
+**Fasa 32 - Foto pelanggan tidak lagi hilang apabila kod pesanan dibuka**
+
+- **Soalan pengguna**: "kenapa gambar customer hilang bila saya masukkan kod?"
+- **Sebab (memang sengaja pada asalnya)**: kod pesanan tidak mengandungi foto. Foto disimpan sebagai
+  data URL (imej dikecilkan ke maksimum 420px, JPEG 0.82 - biasanya 30-60 ribu huruf). Kalau dimasukkan ke
+  dalam kod, kod itu akan jadi **puluhan ribu huruf** dan tidak lagi munasabah untuk dihantar melalui
+  WhatsApp. Kod resume biasa hanya ~560-900 huruf.
+- **Pepijat sebenar**: `isiBorang()` menetapkan `foto = d.foto || ''`. Kerana kod tidak membawa foto,
+  membuka kod **memadam** foto yang sudah ada - walaupun pelanggan membukanya di peranti sendiri.
+- **Pembetulan**: kalau kod tidak membawa foto, foto sedia ada **dikekalkan** - tetapi hanya jika nama pada
+  kod itu sama dengan nama yang sedang diisi. Syarat nama itu penting untuk mod penjual: tanpa dia, foto
+  pelanggan yang dimuatkan sebelum ini akan tersalah masuk ke dalam resume pelanggan baru.
+- **Nota mod penjual dikemas kini**: terangkan bahawa foto kekal bila pelanggan membuka kod di peranti
+  sendiri, dan hanya perlu diminta melalui WhatsApp bila penjual mencetak di peranti lain.
+- **Ujian** - blok 37 baharu (6 semakan): kod tidak mengandungi `data:image`, kod < 4000 huruf, foto
+  kelihatan selepas diisi, foto kekal selepas membuka kod sendiri, foto lama tidak terbawa masuk apabila
+  kod pelanggan lain dibuka, dan syarat nama hadir dalam kod. Jumlah **614 lulus, 0 gagal**.
+
 **Fasa 31 - Pengalaman kerja boleh dipecah antara halaman (sebahagian halaman 1, sebahagian halaman 2)**
 
 - **Maklum balas pengguna**: jangan kunci satu pengalaman kerja supaya berpindah bulat-bulat ke halaman 2.

@@ -1191,7 +1191,10 @@
       <p class="harga"><strong>Mod Penjual</strong> &mdash; tiada tanda air. Tampal kod resume daripada pelanggan:</p>
       <textarea id="kod-masuk" placeholder="Tampal kod resume di sini..."></textarea>
       <button type="button" id="buka-kod">Buka Kod</button>
-      <p class="nota">Kod tidak mengandungi foto. Kalau pelanggan ada foto, minta dia hantar gambar dalam WhatsApp, kemudian muat naik di ruang <strong>Foto</strong> sebelum cetak PDF.</p>
+      <p class="nota">Kod tidak mengandungi foto (kod akan jadi puluhan ribu huruf kalau foto dimasukkan).
+      Kalau pelanggan ada foto, minta dia hantar gambar dalam WhatsApp, kemudian muat naik di ruang
+      <strong>Foto</strong> sebelum cetak PDF. Kalau pelanggan membuka kod ini <strong>di peranti dia sendiri</strong>,
+      fotonya kekal &mdash; tidak perlu muat naik semula.</p>
     </div>
 
     <div id="log"></div>
@@ -2470,6 +2473,15 @@
   }
 
   function isiBorang(d) {
+    /* Foto sengaja TIDAK dimuatkan dalam kod pesanan - data URL foto boleh mencecah puluhan
+       ribu huruf dan kod itu dihantar melalui WhatsApp. Jadi kalau kod ini tidak membawa foto,
+       kekalkan foto yang sudah ada DI PERANTI INI, tetapi hanya jika nama pada kod itu sama
+       dengan nama yang sedang diisi. Ini penting untuk mod penjual: tanpa syarat nama itu,
+       foto pelanggan yang dimuatkan sebelum ini akan tersalah masuk ke resume pelanggan baru. */
+    var fotoLama = foto;
+    var namaLama = el('nama') ? String(el('nama').value || '').trim().toLowerCase() : '';
+    var namaBaru = String(d.nama || '').trim().toLowerCase();
+    var fotoKekal = !!fotoLama && !!namaLama && namaLama === namaBaru;
     pilihTemplat(d.templat || 'biru', true);
     el('nama').value = d.nama || '';
     el('telefon').value = d.telefon || '';
@@ -2488,7 +2500,7 @@
     bilRujukan = 0;
     senaraiRujukan(d).forEach(function (o) { el('senarai-rujukan').appendChild(barisRujukan(o)); });
     if (!el('senarai-rujukan').children.length) el('senarai-rujukan').appendChild(barisRujukan());
-    foto = d.foto || '';
+    foto = d.foto || (fotoKekal ? fotoLama : '');
     tulisLogFoto();
     el('senarai-pengalaman').innerHTML = '';
     el('senarai-pendidikan').innerHTML = '';

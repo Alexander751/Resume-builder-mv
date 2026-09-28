@@ -1359,6 +1359,37 @@ ok(/document\.body\.classList\.toggle\('dua-halaman', n > 1\)/.test(html), 'kela
 ok(/n === 1 && pil\) \{[\s\S]{0,80}removeChild\(pil\)/.test(html), 'label halaman dibuang semula bila kembali 1 halaman');
 ok(w.ResumeMV.halaman() >= 1, 'bilangan halaman dilaporkan kepada API');
 
+console.log('== 37. Foto pelanggan: kod tidak membawa foto, tetapi foto sendiri tidak hilang ==');
+var DFOTO = { nama: 'Che Ku Ahmad Ridzuan', jawatan: 'Quantity Surveyor', templat: 'biru',
+  telefon: '011-111 1111', emel: 'a@b.com', lokasi: 'Kuala Terengganu',
+  ringkasan: 'Ukur bahan berpengalaman.', foto: 'data:image/jpeg;base64,QQQQ',
+  pengalaman: [{ syarikat: 'EPH', jawatan: 'QS', tempoh: '2024', poin: ['Sedia BQ.'] }],
+  pendidikan: [{ kelulusan: 'BSc QS', institusi: 'UTM', tahun: '2018' }],
+  kemahiran: [{ nama: 'Excel', tahap: 4 }], bahasa: [{ nama: 'Malay', tahap: 5 }],
+  rujukan: [{ nama: 'Safwan', jawatan: 'Coordinator', telefon: '012-3456789' }] };
+w.ResumeMV.isi(DFOTO);
+el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+el('ke-3').click();
+function fotoPratonton() {
+  var im = d.querySelector('#kertas-1 .cvb-foto img, #kertas-1 .cvs-foto img');
+  return im ? (im.getAttribute('src') || '') : '';
+}
+ok(fotoPratonton().indexOf('data:image') === 0, 'foto kelihatan dalam pratonton selepas diisi');
+var kodFoto = w.ResumeMV.kod(w.ResumeMV.kumpul());
+ok(kodFoto.indexOf('data:image') < 0, 'kod pesanan TIDAK mengandungi foto (kod kekal pendek)');
+ok(kodFoto.length < 4000, 'panjang kod masih munasabah untuk WhatsApp (' + kodFoto.length + ' huruf)');
+el('kod-masuk').value = kodFoto;
+el('buka-kod').click();
+el('ke-3').click();
+ok(fotoPratonton().indexOf('data:image') === 0, 'buka kod SENDIRI (nama sama): foto kekal, tidak perlu muat naik semula');
+el('nama').value = 'Pelanggan Lain Sdn Bhd';
+el('kod-masuk').value = kodFoto;
+el('buka-kod').click();
+el('ke-3').click();
+ok(fotoPratonton() === '', 'kod pelanggan LAIN pada peranti penjual: foto pelanggan lama tidak terbawa masuk');
+ok(/var fotoKekal = !!fotoLama && !!namaLama && namaLama === namaBaru;/.test(html),
+   'syarat nama jelas dalam kod (elak foto salah masuk ke resume pelanggan lain)');
+
   Promise.resolve().then(function () {
     console.log('\n' + pass + ' lulus, ' + fail + ' gagal, ' + skip + ' dilangkau');
     process.exit(fail ? 1 : 0);
