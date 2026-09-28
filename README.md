@@ -286,6 +286,19 @@ ditengahkan menegak), (3) kalau isi terlalu banyak, halaman kedua mesti berdesig
   wizard ini kekal **1 halaman A4** dan tiada teks borang masuk ke dalam PDF.
 - **Ujian** - blok 29 (59 ujian baharu, termasuk muatan segar). Jumlah **480 lulus, 0 gagal**.
 
+**Fasa 26 - Butang dalaman "Kembali/Pratonton" yang masih muncul di penjuru bawah**
+
+- **Bug**: butang pratonton/kembali lama disimpan sebagai butang dalaman dengan atribut `hidden`, tetapi
+  peraturan `.nav-bawah { display: flex; ... }` **mengalahkan** atribut `hidden` (atribut hanya bergantung
+  pada gaya lalai pelayar). Kesannya dua butang muncul semula di penjuru bawah skrin - betul-betul seperti
+  yang pelanggan tunjukkan - walaupun butang itu sepatutnya tidak kelihatan.
+- **Pembetulan**: (1) tambah peraturan global `[hidden] { display: none !important; }` supaya atribut hidden
+  sentiasa menang atas apa-apa `display` dalam CSS; (2) bekas butang dalaman tidak lagi memakai kelas
+  `.nav-bawah` (jadi tiada `display: flex` dikenakan padanya). Gaya `.nav-bawah` kekal untuk bar halaman hantar.
+- **Pengesahan Chrome**: bekas dalaman `display: none` (0x0), `#ke-3` dan `#balik-2` tiada kotak, dan
+  imbasan semua butang di penjuru bawah skrin (1656x854) mendapati **tiada butang tersasar**.
+- **Ujian** - blok 34. Jumlah **574 lulus, 0 gagal**.
+
 **Fasa 25 - Pratonton hanya selepas langkah 8 + galeri reka bentuk beranimasi**
 
 - **Satu sahaja jalan ke pratonton**: sebelum ini ada DUA butang pratonton yang sentiasa kelihatan -
@@ -427,7 +440,7 @@ cd test && npm install        # sekali sahaja (jsdom)
 "$LOCALAPPDATA/hermes/node/node.exe" test/test_ui.js
 ```
 
-Keputusan semasa: **568 lulus, 0 gagal**.
+Keputusan semasa: **574 lulus, 0 gagal**.
 
 ## Aliran jualan melalui WhatsApp (tanpa gerbang bayaran)
 

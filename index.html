@@ -118,6 +118,10 @@
   /* ---------- halaman ---------- */
   .hal { max-width: 1000px; margin: 0 auto; padding: 16px 18px 40px; }
   #hal-3 { padding: 10px 14px 8px; }
+  /* PENTING: atribut hidden mesti menang atas apa-apa display dalam CSS.
+     Punca bug: .nav-bawah { display: flex } menjadikan butang dalaman "Kembali/Pratonton"
+     (yang ditanda hidden) tetap kelihatan di penjuru bawah skrin. */
+  [hidden] { display: none !important; }
   .hal[hidden] { display: none !important; }
   .hal:not([hidden]) { animation: masuk .3s ease-out both; }
   @keyframes masuk { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
@@ -1129,7 +1133,7 @@
     <!-- Butang DALAMAN (tidak kelihatan): halaman pratonton hanya boleh dibuka melalui
          butang "Seterusnya: Pratonton" pada langkah 8, supaya tiada butang pratonton yang
          sentiasa kelihatan mengejutkan pelanggan yang belum habis mengisi. -->
-    <div class="nav-bawah no-print" id="nav-dalaman" hidden>
+    <div class="no-print" id="nav-dalaman" hidden>
       <button type="button" id="balik-2">Kembali</button>
       <button type="button" id="ke-3">Pratonton</button>
     </div>

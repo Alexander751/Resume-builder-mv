@@ -1296,6 +1296,16 @@ ok(w.ResumeMV.templat() === 'bersih', 'pilihan reka bentuk disimpan dalam app');
 d.querySelector('#galeri .kad-pilih[data-templat="biru"]').click();
 ok(w.ResumeMV.templat() === 'biru', 'boleh tukar balik ke reka bentuk pertama');
 
+console.log('== 34. Butang dalaman tidak muncul walau ada display dalam CSS ==');
+ok(/\[hidden\] \{ display: none !important; \}/.test(html), 'peraturan global: atribut hidden menang atas display CSS');
+ok(!/class="nav-bawah[^"]*" id="nav-dalaman"/.test(html), 'bekas butang dalaman tidak memakai kelas nav-bawah (tiada display: flex)');
+ok(!/\.nav-bawah \{[^}]*\}/.test(html) || /\.nav-bawah \{[\s\S]{0,160}display: flex/.test(html),
+   'gaya .nav-bawah kekal hanya untuk bar halaman hantar');
+ok(el('ke-3').closest('[hidden]') !== null && el('ke-3').closest('.nav-bawah') === null,
+   'butang Pratonton: tersembunyi dan tiada gaya flex yang memaksanya kelihatan');
+ok(el('balik-2').closest('[hidden]') !== null, 'butang Kembali dalaman juga tersembunyi');
+ok(w.getComputedStyle(el('ke-3')).display === 'none' || !el('ke-3').offsetParent, 'butang dalaman tiada kotak (tidak dipaparkan)');
+
   Promise.resolve().then(function () {
     console.log('\n' + pass + ' lulus, ' + fail + ' gagal, ' + skip + ' dilangkau');
     process.exit(fail ? 1 : 0);
