@@ -994,6 +994,114 @@ ok(d.querySelector('#senarai-kemahiran .baris .tahap').getAttribute('data-tahap'
 ok(/Belum dipilih/.test(d.querySelector('#senarai-kemahiran .baris .tahap-teks').textContent),
    'teks "Belum dipilih" dipaparkan untuk data lama');
 
+console.log('== 29. Butiran satu per satu (wizard langkah) + kad tambahan bulat ==');
+// muatan segar: setiap senarai berulang bermula dengan satu baris (bukan kosong)
+const domSegar = new JSDOM(html, { runScripts: 'dangerously', url: 'https://alexander751.github.io/Resume-builder-mv/',
+  beforeParse(w2) { w2.print = () => {}; w2.confirm = () => true; } });
+const dSegar = domSegar.window.document;
+['pengalaman', 'pendidikan', 'kemahiran', 'bahasa', 'rujukan'].forEach((k) => {
+  ok(dSegar.querySelectorAll('#senarai-' + k + ' .baris').length === 1,
+     'muatan segar: senarai ' + k + ' ada satu baris sedia untuk diisi');
+});
+ok(dSegar.querySelectorAll('#senarai-tambahan .baris').length === 0,
+   'muatan segar: bahagian tambahan kekal kosong (pilihan)');
+const lk = (n) => d.querySelector('#borang [data-langkah="' + n + '"]');
+const lkBulat = (n) => d.querySelector('#lk-bulat .lk-b[data-lk="' + n + '"]');
+ok(!!el('lk-nav'), 'bar navigasi langkah wujud');
+ok(el('lk-nav').classList.contains('no-print'), 'bar langkah tidak dicetak dalam PDF');
+// struktur: 8 langkah + 8 bulatan
+const semuaLangkah = d.querySelectorAll('#borang [data-langkah]');
+ok(semuaLangkah.length === 10, '10 blok borang bertanda langkah (9 fieldset + baris aksi)');
+ok(d.querySelectorAll('#lk-bulat .lk-b').length === 8, '8 bulatan langkah');
+ok([].every.call(d.querySelectorAll('#lk-bulat .lk-b'), (b) => (b.getAttribute('aria-label') || '').length > 8),
+   'setiap bulatan ada label jelas (untuk pembaca skrin)');
+// pemetaan: setiap fieldset utama berada dalam langkah yang betul
+ok(d.querySelector('fieldset[data-langkah="1"] legend').textContent.includes('Butiran Peribadi'), 'langkah 1 = butiran peribadi');
+ok(d.querySelector('fieldset[data-sek="jawatan"]').getAttribute('data-langkah') === '2', 'jawatan disasarkan = langkah 2');
+ok(d.querySelector('fieldset[data-sek="ringkasan"]').getAttribute('data-langkah') === '2', 'profil ringkasan sekali dengan jawatan');
+ok(d.querySelector('fieldset[data-sek="pengalaman"]').getAttribute('data-langkah') === '3', 'pengalaman = langkah 3');
+ok(d.querySelector('fieldset[data-sek="pendidikan"]').getAttribute('data-langkah') === '4', 'pendidikan = langkah 4');
+ok(d.querySelector('fieldset[data-sek="kemahiran"]').getAttribute('data-langkah') === '5', 'kemahiran = langkah 5');
+ok(d.querySelector('fieldset[data-sek="bahasa"]').getAttribute('data-langkah') === '6', 'bahasa = langkah 6');
+ok(d.querySelector('fieldset[data-sek="rujukan"]').getAttribute('data-langkah') === '7', 'rujukan = langkah 7');
+ok(d.querySelector('fieldset.sek-bahagian').getAttribute('data-langkah') === '8', 'bahagian tambahan = langkah terakhir');
+// keadaan awal: hanya langkah 1 kelihatan
+ok(lk(1).hidden === false && lk(2).hidden === true && lk(8).hidden === true, 'mula-mula hanya langkah 1 kelihatan');
+ok(el('lk-kira').textContent === 'Langkah 1 / 8' && el('lk-tajuk').textContent === 'Butiran Peribadi',
+   'label kiraan + tajuk langkah 1 betul');
+ok(lkBulat(1).classList.contains('aktif'), 'bulatan 1 ditanda aktif');
+ok(el('lk-seterusnya').textContent.indexOf('Seterusnya') === 0, 'butang Seterusnya pada langkah 1');
+// nota mesra apabila nama/telefon belum diisi
+el('kosongkan').click();
+ok(lk(1).hidden === false, 'selepas Kosongkan, kembali ke langkah 1');
+ok(el('lk-nota').hidden === false && el('lk-nota').textContent.includes('nama') && el('lk-nota').textContent.includes('nombor telefon'),
+   'nota mesra memberitahu nama & telefon belum diisi');
+// tekan Seterusnya -> jawatan disasarkan
+el('lk-seterusnya').click();
+ok(lk(2).hidden === false && lk(1).hidden === true, 'tekan Seterusnya pergi ke jawatan disasarkan');
+ok(el('lk-kira').textContent === 'Langkah 2 / 8' && el('lk-tajuk').textContent === 'Jawatan Disasarkan', 'label langkah 2 betul');
+ok(lkBulat(2).classList.contains('aktif') && lkBulat(1).classList.contains('dilihat'), 'bulatan 2 aktif, bulatan 1 ditanda sudah dilihat');
+ok(lkBulat(2).getAttribute('aria-current') === 'step', 'bulatan aktif ditanda untuk pembaca skrin');
+// isi nama + telefon, nota hilang
+isi('#nama', 'Ahmad bin Ali'); isi('#telefon', '012-3456789');
+el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+ok(el('lk-nota').hidden === true, 'nota mesra hilang selepas nama & telefon diisi');
+// Kembali / Seterusnya
+el('lk-balik').click();
+ok(lk(1).hidden === false, 'butang Kembali balik ke langkah sebelum');
+el('lk-seterusnya').click();
+ok(lk(2).hidden === false, 'maju semula ke langkah 2');
+el('lk-seterusnya').click(); el('lk-seterusnya').click();
+ok(lk(4).hidden === false, 'boleh maju beberapa langkah (4 = pendidikan)');
+// lompat terus melalui bulatan
+lkBulat(5).click();
+ok(lk(5).hidden === false && d.querySelector('fieldset[data-sek="kemahiran"]').hidden === false, 'tekan bulatan 5 terus ke kemahiran');
+lkBulat(7).click();
+ok(d.querySelector('fieldset[data-sek="rujukan"]').hidden === false, 'tekan bulatan 7 terus ke rujukan');
+// medan dalam langkah tersembunyi tetap direkod
+isi('#senarai-kemahiran .baris .t-nama', 'AutoCAD');
+isi('#jawatan', 'Junior Quantity Surveyor');
+el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+const dLangkah = w.ResumeMV.kumpul();
+ok(dLangkah.kemahiran[0].nama === 'AutoCAD', 'medan dalam langkah tersembunyi tetap dikumpul');
+ok(dLangkah.jawatan === 'Junior Quantity Surveyor', 'medan langkah lain juga dikumpul');
+// baris aksi (Cetak/Kosongkan) hanya pada langkah terakhir
+ok(d.querySelector('.aksi').getAttribute('data-langkah') === '8', 'baris aksi berada pada langkah terakhir');
+// langkah terakhir -> pratonton
+lkBulat(8).click();
+ok(lk(8).hidden === false, 'langkah 8 kelihatan');
+ok(el('lk-seterusnya').textContent.indexOf('Seterusnya: Pratonton') === 0, 'butang bertukar jadi Seterusnya: Pratonton');
+el('lk-seterusnya').click();
+ok(el('hal-3').hidden === false, 'tekan Seterusnya pada langkah terakhir pergi ke pratonton');
+el('balik-3').click();
+ok(el('hal-2').hidden === false && lk(8).hidden === false, 'balik ke butiran: kekal pada langkah terakhir');
+// Kembali pada langkah 1 -> halaman reka bentuk
+lkBulat(1).click();
+el('lk-balik').click();
+ok(el('hal-1').hidden === false, 'Kembali pada langkah 1 pergi ke halaman reka bentuk');
+el('mula-isi').click();
+// rupa: bulatan + kad tambahan
+ok(/\.lk-b \{[\s\S]{0,200}border-radius: 50%/.test(html), 'bulatan langkah betul-betul bulat');
+ok(/\.lk-nav \{[\s\S]{0,300}position: sticky/.test(html), 'bar langkah melekat di bawah skrin (senang tekan)');
+ok(/\.lk-b\.aktif \{[^}]*var\(--brand\)/.test(html), 'bulatan aktif berwarna jenama');
+ok(/\.lk-b\.dilihat \{[^}]*var\(--ok\)/.test(html), 'bulatan yang sudah dilihat berwarna hijau lembut');
+ok(/\.cip-ikon \{[\s\S]{0,200}border-radius: 50%/.test(html), 'ikon kad cadangan bulat');
+ok(/\.cepat-tambah \{[\s\S]{0,120}grid-template-columns: repeat\(auto-fit/.test(html), 'kad cadangan disusun sebagai grid');
+ok(/\.sek-bahagian \.cip:hover \{[\s\S]{0,120}translateY\(-2px\)/.test(html), 'kad cadangan ada gerak bila ditunjuk (hover)');
+ok(/\@media \(max-width: 620px\)[\s\S]{0,400}cepat-tambah \{ grid-template-columns: 1fr 1fr/.test(html), 'di telefon kad susun dua lajur');
+ok(d.querySelectorAll('.sek-bahagian .cip[data-tajuk]').length === 4, '4 kad cadangan siap-pakai');
+ok(d.querySelectorAll('.sek-bahagian .cip svg').length === 4, 'setiap kad ada ikon sendiri (bukan emoji)');
+ok(!!d.querySelector('.cip-ikon.plus'), 'kad "tulis sendiri" ada bulatan +');
+ok(/Tulis bahagian sendiri/.test(html), 'kad terakhir berlabel "Tulis bahagian sendiri"');
+// kad masih berfungsi selepas disusun semula
+el('kosongkan').click();
+d.querySelector('.sek-bahagian .cip[data-tajuk="Projek"]').click();
+ok(d.querySelectorAll('#senarai-tambahan .baris').length === 1, 'tekan kad Projek mencipta satu bahagian tambahan');
+ok(d.querySelector('#senarai-tambahan .baris .t-tajuk').value === 'Projek', 'tajuk bahagian diisi automatik');
+isi('#senarai-tambahan .baris .t-isi', 'Projek Perumahan Rakyat Kemaman');
+el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+ok(d.querySelector('#resume').textContent.includes('Projek Perumahan Rakyat Kemaman'), 'bahagian tambahan masuk pratonton');
+
   Promise.resolve().then(function () {
     console.log('\n' + pass + ' lulus, ' + fail + ' gagal, ' + skip + ' dilangkau');
     process.exit(fail ? 1 : 0);

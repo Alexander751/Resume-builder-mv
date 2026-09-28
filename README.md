@@ -260,6 +260,32 @@ ditengahkan menegak), (3) kalau isi terlalu banyak, halaman kedua mesti berdesig
   dengan titik kosong) - dibetulkan sebelum dikomit.
 - **Ujian** - blok 28 (34 ujian baharu). Jumlah **421 lulus, 0 gagal**.
 
+**Fasa 21 - Butiran satu per satu (wizard 8 langkah) + kad tambahan bulat**
+
+- **Halaman butiran kini 8 langkah kecil**, satu topik satu langkah: (1) Butiran Peribadi, (2) Jawatan
+  Disasarkan + Profil, (3) Pengalaman Kerja, (4) Pendidikan, (5) Kemahiran, (6) Bahasa, (7) Rujukan,
+  (8) Tambahan (pilihan). Pengguna isi satu bahagian, tekan **Seterusnya**, terus ke bahagian berikutnya.
+- **Bar navigasi langkah** (`#lk-nav`, `position: sticky` di bawah skrin supaya sentiasa boleh ditekan):
+  kiraan "Langkah 5 / 8", tajuk langkah, jalur kemajuan, **8 bulatan bernombor** (boleh tekan untuk lompat
+  terus ke mana-mana langkah; bulatan yang sudah dilihat jadi hijau lembut, yang aktif jadi warna jenama),
+  dan butang **Kembali / Seterusnya**. Pada langkah terakhir butang bertukar jadi "Seterusnya: Pratonton".
+  Bar ini bertanda `no-print` - tidak masuk ke dalam PDF.
+- **Nota mesra** (`#lk-nota`) memberitahu apa yang belum diisi ("Belum diisi: nama dan nombor telefon"),
+  tanpa menghalang pengguna daripada terus mengisi bahagian lain. Nama & telefon tetap disemak sebelum
+  pratonton pada akhirnya.
+- **Langkah Tambahan (pilihan)** dibina semula sebagai kad bulat: 4 kad siap-pakai (Kemahiran Profesional,
+  Sijil & Latihan, Projek, Aktiviti) setiap satu dengan **ikon bulat sendiri** (SVG, bukan emoji) + satu kad
+  "Tulis bahagian sendiri" dengan bulatan `+`. Kad disusun dalam grid (2 lajur di telefon), ada gerak naik
+  bila ditunjuk, dan boleh ditekan lebih daripada sekali.
+- **Muatan segar**: sebelum ini senarai Kemahiran, Bahasa dan Rujukan bermula **kosong** (hanya Pengalaman dan
+  Pendidikan dapat satu baris). Kini kesemuanya bermula dengan satu baris sedia untuk diisi - ditemui semasa
+  membina wizard, apabila baris pertama tidak wujud pada muatan baru.
+- **Disahkan Chrome**: bar langkah `position: sticky` betul dalam pelayar; bulatan 31x31 `border-radius: 50%`;
+  bulatan aktif `rgb(18,80,140)` teks putih, bulatan sudah dilihat `rgb(241,251,246)` teks hijau
+  `rgb(15,122,86)` (ukur `getComputedStyle`); kad 16px radius dengan ikon bulat 31px; cetakan PDF dengan
+  wizard ini kekal **1 halaman A4** dan tiada teks borang masuk ke dalam PDF.
+- **Ujian** - blok 29 (59 ujian baharu, termasuk muatan segar). Jumlah **480 lulus, 0 gagal**.
+
 **Fasa 13** — muat naik resume lama **dibuang** (keputusan pengguna):
 
 - Ciri muat naik resume (PDF / Word / teks) dengan auto-isi telah dibangunkan penuh, diuji, dan **kemudian dibuang atas permintaan pengguna** kerana bacaan fail tidak cukup boleh dipercayai untuk pelanggan awam
@@ -318,7 +344,7 @@ cd test && npm install        # sekali sahaja (jsdom)
 "$LOCALAPPDATA/hermes/node/node.exe" test/test_ui.js
 ```
 
-Keputusan semasa: **421 lulus, 0 gagal**.
+Keputusan semasa: **480 lulus, 0 gagal**.
 
 ## Aliran jualan melalui WhatsApp (tanpa gerbang bayaran)
 

@@ -377,6 +377,76 @@
   }
   .cip:hover { background: var(--brand-soft); }
   .nota-tambah strong { color: var(--ink); }
+
+  /* ---------- langkah butiran: satu topik satu langkah ---------- */
+  .lk-nav {
+    margin: 16px 0 0; padding: 13px 15px 12px; border-radius: 18px;
+    background: linear-gradient(180deg, #ffffff, #f6faff);
+    border: 1px solid #e2ecf8; box-shadow: 0 8px 22px rgba(18, 80, 140, .08);
+    position: sticky; bottom: 8px; z-index: 6;
+  }
+  .lk-nota {
+    margin: 0 0 10px; font-size: 12.6px; line-height: 1.5; font-weight: 600; color: #7a5b12;
+    background: #fff8e6; border: 1px solid #f2dfae; border-radius: 11px; padding: 8px 11px;
+  }
+  .lk-atas { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .lk-kira {
+    font-size: 11.4px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
+    color: var(--brand); background: var(--brand-soft); border-radius: 999px; padding: 4px 11px;
+  }
+  .lk-tajuk { font-size: 14.8px; font-weight: 800; color: var(--ink); letter-spacing: -.01em; }
+  .lk-jalur { height: 6px; border-radius: 999px; background: #e8f0fa; margin: 9px 0 11px; overflow: hidden; }
+  .lk-jalur-isi {
+    display: block; height: 100%; width: 12.5%; border-radius: 999px;
+    background: linear-gradient(90deg, #4a95e0, var(--brand)); transition: width .28s ease;
+  }
+  .lk-bulat { display: flex; gap: 7px; flex-wrap: wrap; justify-content: center; }
+  .lk-b {
+    width: 31px; height: 31px; border-radius: 50%; border: 1.5px solid #d6e5f5; background: #fff;
+    font: inherit; font-size: 12.6px; font-weight: 800; color: var(--muted); cursor: pointer; padding: 0;
+    transition: transform .13s ease, background .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease;
+  }
+  .lk-b:hover { transform: translateY(-2px); border-color: #bcd4ee; color: var(--brand); }
+  .lk-b.dilihat { border-color: #bfe3d3; background: #f1fbf6; color: var(--ok); }
+  .lk-b.aktif { background: var(--brand); border-color: var(--brand); color: #fff; box-shadow: 0 5px 14px rgba(18, 80, 140, .3); }
+  .lk-b:focus-visible { outline: 3px solid #bfd9f2; outline-offset: 2px; }
+  .lk-butang { display: flex; gap: 10px; align-items: center; margin-top: 12px; }
+  .lk-butang .btn-utama { flex: 1 1 auto; }
+  .lk-butang .btn-undur { flex: 0 0 auto; }
+
+  /* kad cadangan bulat-bulat (bahagian tambahan) */
+  .cepat-tambah { display: grid; grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); gap: 10px; }
+  .sek-bahagian .cip {
+    display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+    border-radius: 16px; padding: 10px 12px; font-size: 13px; font-weight: 700;
+    color: var(--brand); background: linear-gradient(180deg, #ffffff, #f7fbff);
+    border: 1.5px solid #dbe8f7; box-shadow: 0 2px 8px rgba(18, 80, 140, .07);
+    transition: transform .13s ease, box-shadow .13s ease, border-color .13s ease;
+  }
+  .sek-bahagian .cip:hover { transform: translateY(-2px); border-color: #b7d3ef; box-shadow: 0 10px 20px rgba(18, 80, 140, .13); }
+  .sek-bahagian .cip:active { transform: translateY(0) scale(.985); }
+  .cip-ikon {
+    flex: 0 0 auto; width: 31px; height: 31px; border-radius: 50%; display: grid; place-items: center;
+    background: radial-gradient(circle at 32% 26%, #eef6ff, #d6e8fb); color: var(--brand);
+  }
+  .cip-ikon.plus { font-size: 19px; font-weight: 800; background: radial-gradient(circle at 32% 26%, #ffffff, #e4f0fd); color: var(--brand); }
+  .cip-teks { line-height: 1.25; }
+  .sek-bahagian .btn-tambah {
+    display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 16px;
+    border: 1.6px dashed #b7d3ef; background: #fbfdff; padding: 11px; font-size: 13.4px; font-weight: 800;
+  }
+  .cip-nota { margin: 9px 0 0; font-size: 12.3px; line-height: 1.5; color: var(--muted); }
+
+  @media (max-width: 620px) {
+    .lk-nav { border-radius: 16px; padding: 11px 12px 10px; bottom: 6px; }
+    .lk-b { width: 28px; height: 28px; font-size: 11.8px; }
+    .lk-bulat { gap: 5px; }
+    .lk-butang { flex-direction: column-reverse; align-items: stretch; }
+    .lk-butang .btn-utama, .lk-butang .btn-undur { width: 100%; }
+    .cepat-tambah { grid-template-columns: 1fr 1fr; }
+    .sek-bahagian .cip { font-size: 12.4px; padding: 9px 10px; gap: 8px; }
+    .cip-ikon { width: 27px; height: 27px; }
+  }
   .btn-tambah {
     width: 100%; margin-top: 12px; background: var(--brand-soft); border: 1px dashed #a9c9e8;
     color: var(--brand); border-radius: 10px; padding: 12px 14px; font: inherit;
@@ -762,7 +832,7 @@
     <div class="papan-isi">
     <div class="lajur-borang">
   <form id="borang">
-    <fieldset>
+    <fieldset data-langkah="1">
       <legend>Butiran Peribadi</legend>
       <div class="grid-2">
         <div>
@@ -789,7 +859,7 @@
       <button type="button" id="buang-foto">Buang foto</button>
     </fieldset>
 
-    <fieldset class="sek" data-sek="jawatan">
+    <fieldset class="sek" data-sek="jawatan" data-langkah="2">
       <legend>Jawatan Disasarkan</legend>
       <button type="button" class="sek-buang" data-sek="jawatan">Buang bahagian ini</button>
       <label for="jawatan">Jawatan / Posisi</label>
@@ -797,7 +867,7 @@
       <p class="sek-nota">Bahagian <strong>Jawatan Disasarkan</strong> dibuang dari resume. <button type="button" data-sek-batal="jawatan">Tambah balik</button></p>
     </fieldset>
 
-    <fieldset class="sek" data-sek="ringkasan">
+    <fieldset class="sek" data-sek="ringkasan" data-langkah="2">
       <legend>Ringkasan Profil</legend>
       <button type="button" class="sek-buang" data-sek="ringkasan">Buang bahagian ini</button>
       <label for="ringkasan">Ringkasan (2–4 ayat)</label>
@@ -805,7 +875,7 @@
       <p class="sek-nota">Bahagian <strong>Ringkasan Profil</strong> dibuang dari resume. <button type="button" data-sek-batal="ringkasan">Tambah balik</button></p>
     </fieldset>
 
-    <fieldset class="sek" data-sek="pengalaman">
+    <fieldset class="sek" data-sek="pengalaman" data-langkah="3">
       <legend>Pengalaman Kerja</legend>
       <button type="button" class="sek-buang" data-sek="pengalaman">Buang bahagian ini</button>
       <div id="senarai-pengalaman"></div>
@@ -813,7 +883,7 @@
       <p class="sek-nota">Bahagian <strong>Pengalaman Kerja</strong> dibuang dari resume. <button type="button" data-sek-batal="pengalaman">Tambah balik</button></p>
     </fieldset>
 
-    <fieldset class="sek" data-sek="pendidikan">
+    <fieldset class="sek" data-sek="pendidikan" data-langkah="4">
       <legend>Pendidikan</legend>
       <button type="button" class="sek-buang" data-sek="pendidikan">Buang bahagian ini</button>
       <div id="senarai-pendidikan"></div>
@@ -821,7 +891,7 @@
       <p class="sek-nota">Bahagian <strong>Pendidikan</strong> dibuang dari resume. <button type="button" data-sek-batal="pendidikan">Tambah balik</button></p>
     </fieldset>
 
-    <fieldset class="sek" data-sek="kemahiran">
+    <fieldset class="sek" data-sek="kemahiran" data-langkah="5">
       <legend>Kemahiran</legend>
       <button type="button" class="sek-buang" data-sek="kemahiran">Buang bahagian ini</button>
       <p class="sek-hint">Satu kemahiran satu baris. Tekan <strong>1&#8211;5</strong> untuk tahap penguasaan (1 = asas, 5 = pakar).</p>
@@ -830,7 +900,7 @@
       <p class="sek-nota">Bahagian <strong>Kemahiran</strong> dibuang dari resume. <button type="button" data-sek-batal="kemahiran">Tambah balik</button></p>
     </fieldset>
 
-    <fieldset class="sek" data-sek="bahasa">
+    <fieldset class="sek" data-sek="bahasa" data-langkah="6">
       <legend>Bahasa</legend>
       <button type="button" class="sek-buang" data-sek="bahasa">Buang bahagian ini</button>
       <p class="sek-hint">Satu bahasa satu baris. Tekan <strong>1&#8211;5</strong> untuk tahap penguasaan (1 = asas, 5 = fasih sepenuhnya).</p>
@@ -839,7 +909,7 @@
       <p class="sek-nota">Bahagian <strong>Bahasa</strong> dibuang dari resume. <button type="button" data-sek-batal="bahasa">Tambah balik</button></p>
     </fieldset>
 
-    <fieldset class="sek" data-sek="rujukan">
+    <fieldset class="sek" data-sek="rujukan" data-langkah="7">
       <legend>Rujukan</legend>
       <button type="button" class="sek-buang" data-sek="rujukan">Buang bahagian ini</button>
     <fieldset>
@@ -850,20 +920,59 @@
     </fieldset>      <p class="sek-nota">Bahagian <strong>Rujukan</strong> dibuang dari resume. <button type="button" data-sek-batal="rujukan">Tambah balik</button></p>
     </fieldset>
 
-    <fieldset class="sek-bahagian">
+    <fieldset class="sek-bahagian" data-langkah="8">
       <legend>Bahagian Tambahan (pilihan)</legend>
-      <p class="nota-tambah">Nak masukkan bahagian yang tiada di atas? Tekan cadangan di bawah, atau tulis tajuk anda sendiri (cth. <strong>Kemahiran Profesional</strong>, <strong>Projek</strong>, <strong>Sijil</strong>).</p>
+      <p class="nota-tambah">Ada apa-apa lagi nak ditambah? Tekan kad di bawah &#8212; boleh tekan lebih daripada satu. Kalau tak ada, terus tekan <strong>Seterusnya</strong>.</p>
       <div class="cepat-tambah">
-        <button type="button" class="cip" data-tajuk="Kemahiran Profesional">+ Kemahiran Profesional</button>
-        <button type="button" class="cip" data-tajuk="Sijil &amp; Latihan">+ Sijil &amp; Latihan</button>
-        <button type="button" class="cip" data-tajuk="Projek">+ Projek</button>
-        <button type="button" class="cip" data-tajuk="Aktiviti">+ Aktiviti</button>
+        <button type="button" class="cip" data-tajuk="Kemahiran Profesional">
+          <span class="cip-ikon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2.4l2.9 6.1 6.7.9-4.9 4.6 1.3 6.6L12 17.4l-6 3.2 1.3-6.6-4.9-4.6 6.7-.9z"/></svg></span>
+          <span class="cip-teks">Kemahiran Profesional</span>
+        </button>
+        <button type="button" class="cip" data-tajuk="Sijil &amp; Latihan">
+          <span class="cip-ikon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><circle cx="12" cy="9" r="5.2"/><path d="M8.2 13.4L6.6 22l5.4-2.9L17.4 22l-1.6-8.6z"/></svg></span>
+          <span class="cip-teks">Sijil &amp; Latihan</span>
+        </button>
+        <button type="button" class="cip" data-tajuk="Projek">
+          <span class="cip-ikon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M3 5.5h6.2l1.9 2.1H21V19H3z"/></svg></span>
+          <span class="cip-teks">Projek</span>
+        </button>
+        <button type="button" class="cip" data-tajuk="Aktiviti">
+          <span class="cip-ikon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 21l-1.4-1.3C5.6 15.3 2.6 12.5 2.6 9.1A4.9 4.9 0 0 1 12 6.3a4.9 4.9 0 0 1 9.4 2.8c0 3.4-3 6.2-8 10.6z"/></svg></span>
+          <span class="cip-teks">Aktiviti</span>
+        </button>
       </div>
       <div id="senarai-tambahan"></div>
-      <button type="button" class="btn-tambah" id="tambah-bahagian">+ Tambah bahagian sendiri</button>
+      <button type="button" class="btn-tambah" id="tambah-bahagian">
+        <span class="cip-ikon plus" aria-hidden="true">+</span><span>Tulis bahagian sendiri</span>
+      </button>
+      <p class="cip-nota">Contoh lain: Anugerah, Keahlian Persatuan, Latihan Industri, Rujukan Tambahan.</p>
     </fieldset>
 
-    <div class="aksi">
+    <!-- navigasi langkah butiran (satu topik satu langkah) -->
+    <div class="lk-nav no-print" id="lk-nav">
+      <p class="lk-nota" id="lk-nota" hidden></p>
+      <div class="lk-atas">
+        <span class="lk-kira" id="lk-kira">Langkah 1 / 8</span>
+        <span class="lk-tajuk" id="lk-tajuk">Butiran Peribadi</span>
+      </div>
+      <div class="lk-jalur" aria-hidden="true"><span class="lk-jalur-isi" id="lk-jalur"></span></div>
+      <div class="lk-bulat" id="lk-bulat" role="group" aria-label="Pilih langkah butiran">
+        <button type="button" class="lk-b" data-lk="1" aria-label="Langkah 1: Butiran Peribadi">1</button>
+        <button type="button" class="lk-b" data-lk="2" aria-label="Langkah 2: Jawatan Disasarkan">2</button>
+        <button type="button" class="lk-b" data-lk="3" aria-label="Langkah 3: Pengalaman Kerja">3</button>
+        <button type="button" class="lk-b" data-lk="4" aria-label="Langkah 4: Pendidikan">4</button>
+        <button type="button" class="lk-b" data-lk="5" aria-label="Langkah 5: Kemahiran">5</button>
+        <button type="button" class="lk-b" data-lk="6" aria-label="Langkah 6: Bahasa">6</button>
+        <button type="button" class="lk-b" data-lk="7" aria-label="Langkah 7: Rujukan">7</button>
+        <button type="button" class="lk-b" data-lk="8" aria-label="Langkah 8: Bahagian tambahan">8</button>
+      </div>
+      <div class="lk-butang">
+        <button type="button" class="btn-undur" id="lk-balik">&#8592; Kembali</button>
+        <button type="button" class="btn-utama" id="lk-seterusnya">Seterusnya &#8594;</button>
+      </div>
+    </div>
+
+    <div class="aksi" data-langkah="8">
       <p class="kecil">Puas hati dengan isi ini? Tekan <strong>Seterusnya</strong> untuk semak pratonton penuh, kemudian hantar melalui WhatsApp.</p>
       <button type="button" class="penjual-sahaja" id="cetak-pdf">Cetak PDF</button>
       <button type="button" id="kosongkan">Kosongkan</button>
@@ -1900,6 +2009,7 @@
       return null;
     }
     papar(d);
+    kemasLkNota(d);
     var st = status(d);
     tulisLog(st.mesej, st.jenis);
     sediakanWa(d);
@@ -1933,6 +2043,7 @@
     try { localStorage.removeItem(KUNCI); } catch (e) { /* abaikan */ }
     tulisLogFoto();
     kemasSemula();
+    tunjukLangkah(1);
   }
 
   function isiBorang(d) {
@@ -2334,6 +2445,47 @@
     if (n === 4) kemasSemula();
   }
 
+  /* ---------- langkah butiran: satu topik satu langkah ---------- */
+  var LANGKAH = ['Butiran Peribadi', 'Jawatan Disasarkan', 'Pengalaman Kerja', 'Pendidikan',
+                 'Kemahiran', 'Bahasa', 'Rujukan', 'Tambahan (pilihan)'];
+  var langkahKini = 1, langkahDilihat = {};
+
+  function tunjukLangkah(n) {
+    if (!el('lk-nav')) return;
+    langkahKini = Math.max(1, Math.min(LANGKAH.length, parseInt(n, 10) || 1));
+    langkahDilihat[langkahKini] = true;
+    Array.prototype.forEach.call(document.querySelectorAll('#borang [data-langkah]'), function (x) {
+      x.hidden = (parseInt(x.getAttribute('data-langkah'), 10) !== langkahKini);
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('#lk-bulat .lk-b'), function (b) {
+      var n2 = parseInt(b.getAttribute('data-lk'), 10);
+      b.classList.toggle('aktif', n2 === langkahKini);
+      b.classList.toggle('dilihat', n2 !== langkahKini && !!langkahDilihat[n2]);
+      b.setAttribute('aria-current', n2 === langkahKini ? 'step' : 'false');
+    });
+    el('lk-kira').textContent = 'Langkah ' + langkahKini + ' / ' + LANGKAH.length;
+    el('lk-tajuk').textContent = LANGKAH[langkahKini - 1];
+    el('lk-jalur').style.width = (langkahKini / LANGKAH.length * 100).toFixed(1) + '%';
+    el('lk-balik').textContent = langkahKini === 1 ? '\u2190 Butiran Reka Bentuk' : '\u2190 Kembali';
+    el('lk-seterusnya').textContent = langkahKini === LANGKAH.length ? 'Seterusnya: Pratonton \u2192' : 'Seterusnya \u2192';
+    kemasLkNota();
+  }
+
+  /* nota mesra: apa yang belum diisi (tidak menghalang pengguna) */
+  function kemasLkNota(data) {
+    var nota = el('lk-nota');
+    if (!nota) return;
+    var d = data || kumpul(), kurang = [];
+    if (!d.nama) kurang.push('nama');
+    if (!d.telefon) kurang.push('nombor telefon');
+    nota.hidden = !kurang.length;
+    if (kurang.length) {
+      nota.textContent = langkahKini < LANGKAH.length
+        ? 'Belum diisi: ' + kurang.join(' dan ') + ' \u2014 perlu sebelum pratonton.'
+        : 'Belum diisi: ' + kurang.join(' dan ') + ' \u2014 isi dahulu untuk buka pratonton.';
+    }
+  }
+
   function bolehKePratonton() {
     var d = kumpul();
     if (d.nama && d.telefon) return true;
@@ -2401,6 +2553,17 @@
   el('balik-2').addEventListener('click', function () { pergiHal(1); });
   el('balik-3').addEventListener('click', function () { pergiHal(2); });
   el('balik-4').addEventListener('click', function () { pergiHal(3); });
+  el('lk-seterusnya').addEventListener('click', function () {
+    if (langkahKini >= LANGKAH.length) { el('ke-3').click(); return; }
+    tunjukLangkah(langkahKini + 1);
+  });
+  el('lk-balik').addEventListener('click', function () {
+    if (langkahKini <= 1) { el('balik-2').click(); return; }
+    tunjukLangkah(langkahKini - 1);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('#lk-bulat .lk-b'), function (b) {
+    b.addEventListener('click', function () { tunjukLangkah(parseInt(b.getAttribute('data-lk'), 10) || 1); });
+  });
   el('ke-3').addEventListener('click', function () { if (bolehKePratonton()) pergiHal(3); });
   el('ke-4').addEventListener('click', function () { pergiHal(4); });
 
@@ -2421,6 +2584,14 @@
   if (!document.querySelectorAll('#senarai-pendidikan .baris').length) {
     el('senarai-pendidikan').appendChild(barisPendidikan());
   }
+  if (!document.querySelectorAll('#senarai-rujukan .baris').length) {
+    el('senarai-rujukan').appendChild(barisRujukan());
+  }
+  ['kemahiran', 'bahasa'].forEach(function (kunci) {
+    if (!document.querySelectorAll('#senarai-' + kunci + ' .baris').length) {
+      el('senarai-' + kunci).appendChild(barisTahap(kunci));
+    }
+  });
   window.ResumeMV = { kod: kodDari, dariKod: borangDariKod, isi: isiBorang, kumpul: kumpul,
     templat: function () { return KUNCI_TEMPLAT; }, renggang: function () { return RENGGANG; },
     penuh: function () { return PENUH; }, teks: function () { return TEKS; },
@@ -2429,6 +2600,7 @@
   kemasSemula();
   kemasSek();
   susunSkalaSisi();
+  tunjukLangkah(1);
   semakSimpanan();
   pergiHal(halAwal || 1, true);
   susunSkala();
