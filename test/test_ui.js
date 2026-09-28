@@ -790,6 +790,30 @@ ok(d.querySelector('#resume .cv-bersih .cvs-badan').textContent.includes('Kemahi
 d.querySelector('.kad-pilih[data-templat="biru"]').click();
 ok(!!d.querySelector('#resume .cv-biru') && !d.querySelector('#resume .cv-bersih'), 'boleh tukar balik ke Biru & Kelabu');
 
+console.log('== 25. Isi sikit: halaman tidak lopong (auto-renggang) ==');
+ok(/--renggang: 1;/.test(html), 'pemboleh --renggang wujud pada templat satu lajur');
+ok(/calc\(4\.2mm \* var\(--renggang\)\)/.test(html), 'jarak tajuk guna --renggang');
+ok(/calc\(2\.4mm \* var\(--renggang\)\)/.test(html), 'jarak item/teks guna --renggang');
+ok(/calc\(52mm \* var\(--renggang\)\)/.test(html), 'tinggi kepala guna --renggang');
+ok(html.includes('function larasRuang()'), 'fungsi larasRuang() wujud');
+ok(/TINGGI_KERTAS = 1123/.test(html) && /TINGGI_KERTAS \* 0\.86/.test(html),
+   'sasaran isi ~86% tinggi halaman A4');
+ok(/Math\.min\(1\.6,/.test(html), 'renggangan ada had maksimum (1.6x) supaya tidak berlebihan');
+ok(/baharu > siling/.test(html), 'ada perlindungan supaya tidak melimpah ke halaman kedua');
+ok(/Ruang halaman masih lapang/.test(html), 'app beri peringatan bila ruang masih banyak');
+ok(typeof w.ResumeMV.renggang === 'function' && w.ResumeMV.renggang() >= 1, 'nilai renggangan boleh dibaca (>= 1)');
+ok(!!el('nota-lapang'), 'nota "halaman lapang" wujud di halaman pratonton');
+ok(/Halaman masih lapang/.test(html) && /tandaLapang\(\)/.test(html), 'nota dikawal oleh tandaLapang()');
+ok(/PENUH < 0\.55/.test(html), 'nota & peringatan hanya bila halaman kurang 55% penuh');
+ok(typeof w.ResumeMV.penuh === 'function' && w.ResumeMV.penuh() > 0, 'nisbah kepenuhan halaman boleh dibaca');
+ok(/\.nota-lapang \{[\s\S]{0,200}no-print|\.nota-lapang[\s\S]{0,80}no-print/.test(html) || /nota-lapang no-print/.test(html),
+   'nota tidak dicetak ke dalam PDF');
+el('mula-isi').click();
+el('nama').value = 'Ujian Nota'; el('telefon').value = '012-000 0000';
+el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+ok(el('nota-lapang').hidden === true, 'nota tersembunyi bila isi penuh/dalam templat dua lajur');
+ok(w.ResumeMV.tempat().length === 2 && w.ResumeMV.tempat().indexOf('bersih') >= 0, 'daftar templat boleh dibaca dari luar');
+
   Promise.resolve().then(function () {
     console.log('\n' + pass + ' lulus, ' + fail + ' gagal, ' + skip + ' dilangkau');
     process.exit(fail ? 1 : 0);

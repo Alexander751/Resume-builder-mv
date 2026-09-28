@@ -175,6 +175,26 @@ Permintaan: "kalau saya masukkan template baru macam mana awak integrasi?" (ruju
 - **Ujian** — blok 24 (24 ujian baharu): tukar reka bentuk, struktur satu lajur, kod pesanan menyimpan templat,
   susun blok satu lajur, buang bahagian, bahagian tambahan. Jumlah **322 lulus, 0 gagal**.
 
+**Fasa 17 — Isi sikit: halaman tidak lopong (auto-renggang)**
+
+Masalah yang dilaporkan: "kalau info sikit sangat letak, nanti pdf resume akan jadi lopong".
+
+- **Auto-renggang** — `larasRuang()` mengukur tinggi isi sebenar (bukan tinggi helaian) dan menaikkan
+  pemboleh CSS `--renggang` (1.0-1.6x) supaya jarak antara bahagian mengisi halaman sampai ~86%.
+  Nilai ditulis pada **kedua-dua** helaian (`#resume` dan `#sisi-kertas`) dan kekal semasa cetak,
+  sebab ia pemboleh CSS biasa - bukan transformasi skrin sahaja.
+- **Perlindungan dua lapis**: had 1.6x dan pemeriksaan `tinggi > siling` (1123 - 10 px) supaya
+  renggangan tidak pernah menyebabkan halaman kedua.
+- **Nota jujur kepada pelanggan** (`#nota-lapang`) pada halaman pratonton bila halaman kurang **55%** penuh,
+  menyenaraikan apa yang boleh ditambah (Kemahiran, Bahasa, bahagian sendiri Projek/Sijil/Aktiviti).
+  Nota ini `no-print` (tidak masuk PDF) dan mesej status juga menyebutnya.
+- **Disahkan Chrome** (templat Biru Bersih):
+  isi sederhana (1 pengalaman + 2 poin, pendidikan, kemahiran, bahasa, rujukan) → renggang 1.48,
+  halaman **85% penuh**, nota tersembunyi, cetakan **1 halaman** (teks terakhir y=675/842);
+  isi sangat sikit (1 pengalaman 1 poin, 1 kemahiran) → renggang 1.6 (maksimum), halaman 32% penuh,
+  nota **dipaparkan**, cetakan kekal **1 halaman**.
+- **Ujian** — blok 25 (13 ujian baharu). Jumlah **339 lulus, 0 gagal**.
+
 **Fasa 13** — muat naik resume lama **dibuang** (keputusan pengguna):
 
 - Ciri muat naik resume (PDF / Word / teks) dengan auto-isi telah dibangunkan penuh, diuji, dan **kemudian dibuang atas permintaan pengguna** kerana bacaan fail tidak cukup boleh dipercayai untuk pelanggan awam
@@ -233,7 +253,7 @@ cd test && npm install        # sekali sahaja (jsdom)
 "$LOCALAPPDATA/hermes/node/node.exe" test/test_ui.js
 ```
 
-Keputusan semasa: **322 lulus, 0 gagal**.
+Keputusan semasa: **339 lulus, 0 gagal**.
 
 ## Aliran jualan melalui WhatsApp (tanpa gerbang bayaran)
 

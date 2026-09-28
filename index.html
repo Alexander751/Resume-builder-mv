@@ -451,6 +451,12 @@
   .bar-pratonton .hal-tajuk { margin: 0; font-size: 20px; }
   .bar-pratonton .hal-sub { margin: 4px 0 0; font-size: 13px; }
   .bar-teks { flex: 1 1 320px; }
+  .nota-lapang {
+    margin: 10px 0 0; padding: 9px 13px; border-radius: 10px;
+    background: #fff8e6; border: 1px solid #f2dfae; color: #7a5b12;
+    font-size: 12.8px; line-height: 1.5; max-width: 720px;
+  }
+  .nota-lapang strong { color: #6b4d0c; }
   .bar-butang { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
   .bar-butang .btn-undur, .bar-butang .btn-utama { padding: 11px 18px; font-size: 14px; }
   .btn-skrin {
@@ -562,10 +568,11 @@
     font-family: "Inter", "Segoe UI", Arial, sans-serif;
     font-size: 10.5pt; line-height: 1.36; color: #1e1e1e; background: #fff;
     padding: 10mm 12.5mm 9mm 12.5mm; position: relative; min-height: 297mm;
+    --renggang: 1;   /* dilaraskan automatik oleh larasRuang() bila isi pendek */
   }
   .cv-bersih .cvs-foto { position: absolute; left: -3mm; top: 1mm; width: 44mm; height: 51mm; overflow: hidden; }
   .cv-bersih .cvs-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .cv-bersih .cvs-kepala { min-height: 52mm; }
+  .cv-bersih .cvs-kepala { min-height: calc(52mm * var(--renggang)); }
   .cv-bersih .cvs-identiti { margin-left: 37mm; }
   .cv-bersih.tanpa-foto .cvs-kepala { min-height: 0; }
   .cv-bersih.tanpa-foto .cvs-identiti { margin-left: 0; }
@@ -575,23 +582,23 @@
   }
   .cv-bersih .cvs-jawatan { margin: 0 0 4mm; font-size: 11pt; font-weight: 600; color: #00366d; }
   .cv-bersih .cvs-kontak { list-style: none; margin: 0; padding: 0; }
-  .cv-bersih .cvs-kontak li { display: flex; gap: 3mm; font-size: 11pt; margin-bottom: 2.2mm; }
+  .cv-bersih .cvs-kontak li { display: flex; gap: 3mm; font-size: 11pt; margin-bottom: calc(2.2mm * var(--renggang)); }
   .cv-bersih .cvs-label { font-weight: 600; flex: 0 0 20mm; }
   .lembar .cv-bersih h2 {
     font-size: 12pt; font-weight: 700; color: #00366d; letter-spacing: .02em;
-    text-transform: uppercase; margin: 4.2mm 0 0; padding-bottom: 2.1mm;
+    text-transform: uppercase; margin: calc(4.2mm * var(--renggang)) 0 0; padding-bottom: 2.1mm;
     border-bottom: 1pt solid #00366d;
   }
   .cv-bersih .cvs-badan > .blok:first-child h2 { margin-top: 0; }
-  .cv-bersih .cvs-teks { margin: 2.4mm 0 0; text-align: justify; }
-  .cv-bersih .cvs-inline { margin: 2.4mm 0 0; }
-  .cv-bersih .cvs-item { margin-top: 2.4mm; break-inside: avoid; page-break-inside: avoid; }
+  .cv-bersih .cvs-teks { margin: calc(2.4mm * var(--renggang)) 0 0; text-align: justify; }
+  .cv-bersih .cvs-inline { margin: calc(2.4mm * var(--renggang)) 0 0; }
+  .cv-bersih .cvs-item { margin-top: calc(2.4mm * var(--renggang)); break-inside: avoid; page-break-inside: avoid; }
   .cv-bersih .cvs-item-kepala { display: flex; justify-content: space-between; gap: 8mm; align-items: baseline; }
   .cv-bersih .cvs-item-kepala strong { font-size: 10.5pt; font-weight: 600; }
   .cv-bersih .cvs-item-kepala span { font-size: 10.5pt; font-weight: 600; white-space: nowrap; }
   .cv-bersih .cvs-item-sub { font-size: 10.5pt; }
   .cv-bersih .cvs-senarai { list-style: none; margin: 1.6mm 0 0; padding: 0; }
-  .cv-bersih .cvs-senarai li { position: relative; padding-left: 6.3mm; margin-bottom: .9mm; }
+  .cv-bersih .cvs-senarai li { position: relative; padding-left: 6.3mm; margin-bottom: calc(.9mm * var(--renggang)); }
   .cv-bersih .cvs-senarai li::before {
     content: ''; position: absolute; left: 2.4mm; top: 1.35mm;
     width: 3pt; height: 3pt; border-radius: 50%; background: #1d1d1d;
@@ -850,6 +857,7 @@
       <div class="bar-teks">
         <h2 class="hal-tajuk">Pratonton resume anda</h2>
         <p class="hal-sub">Beginilah rupa resume anda. Tanda air <strong>PRATONTON</strong> hilang dalam PDF bersih selepas pesanan disahkan.</p>
+        <p class="nota-lapang no-print" id="nota-lapang" hidden></p>
       </div>
       <div class="bar-butang">
         <button type="button" class="btn-alat" id="togol-susun-3" aria-pressed="false">Susun blok</button>
@@ -1057,11 +1065,85 @@
   }
 
   /* ---------- pratonton ---------- */
+  var RENGGANG = 1;              // faktor jarak templat satu lajur (1 = padat)
+  var PENUH = 1;                 // berapa penuh halaman selepas direnggangkan (0-1)
+  var TINGGI_KERTAS = 1123;      // px: tinggi A4 pada 96dpi (794 x 1123)
+
+  /* Templat satu lajur: kalau isi pendek, renggangkan jarak supaya halaman tidak lopong.
+     Nilai disimpan dalam --renggang pada helaian, jadi cetakan pun sama. */
+  function larasRuang() {
+    var kertas = [el('sisi-kertas'), el('resume')];
+    var lembar = null;
+    RENGGANG = 1;
+    for (var i = 0; i < kertas.length && !lembar; i++) {
+      var q = kertas[i] ? kertas[i].querySelector('.cv-bersih') : null;
+      if (q && q.offsetHeight > 0) lembar = q;        // ambil helaian yang sedang kelihatan
+    }
+    if (!lembar || !tmp().satuLajur) {
+      kertas.forEach(function (k) {
+        var q = k ? k.querySelector('.cv-bersih') : null;
+        if (q) q.style.removeProperty('--renggang');
+      });
+      PENUH = 1;
+      tandaLapang();
+      return RENGGANG;
+    }
+    function tinggiIsi() {
+      var bawah = 0;
+      Array.prototype.forEach.call(lembar.children, function (a) {
+        if (a.classList.contains('cvs-foto')) return;      // foto diletak mutlak di penjuru
+        bawah = Math.max(bawah, a.offsetTop + a.offsetHeight);
+      });
+      return bawah + 40;                                   // + sedikit ruang bawah
+    }
+    lembar.style.setProperty('--renggang', '1');
+    var tinggi = tinggiIsi();
+    var sasaran = TINGGI_KERTAS * 0.86;                    // isi sepatutnya ~86% halaman
+    var siling = TINGGI_KERTAS - 10;                       // jangan sampai melimpah ke halaman 2
+    if (tinggi > 0 && tinggi < sasaran) {
+      for (var j = 0; j < 4; j++) {
+        var cuba = Math.min(1.6, RENGGANG * (sasaran / Math.max(1, tinggi)));
+        if (cuba <= RENGGANG + 0.005) break;
+        lembar.style.setProperty('--renggang', cuba.toFixed(3));
+        var baharu = tinggiIsi();
+        if (baharu > siling) { lembar.style.setProperty('--renggang', RENGGANG.toFixed(3)); break; }
+        RENGGANG = cuba; tinggi = baharu;
+        if (tinggi >= sasaran * 0.98) break;
+      }
+    }
+    PENUH = tinggi / TINGGI_KERTAS;
+    var nilai = RENGGANG.toFixed(3);
+    kertas.forEach(function (k) {
+      var q = k ? k.querySelector('.cv-bersih') : null;
+      if (q) q.style.setProperty('--renggang', nilai);
+    });
+    tandaLapang();
+    return RENGGANG;
+  }
+
+  /* nota jujur kepada pelanggan: maklumat sedikit = halaman nampak lapang */
+  function tandaLapang() {
+    var nota = el('nota-lapang');
+    if (!nota) return;
+    if (tmp().satuLajur && PENUH < 0.55) {
+      nota.hidden = false;
+      nota.innerHTML = '<strong>Halaman masih lapang.</strong> Jarak sudah direnggangkan automatik, '
+        + 'tetapi resume ini masih ada banyak ruang kosong. Tambah bahagian lain supaya nampak penuh \u2014 '
+        + 'contohnya <strong>Kemahiran</strong> yang lebih lengkap, <strong>Bahasa</strong>, atau bahagian sendiri '
+        + 'seperti <strong>Projek</strong>, <strong>Sijil &amp; Latihan</strong> atau <strong>Aktiviti</strong> '
+        + '(butang di hujung borang halaman 2).';
+    } else {
+      nota.hidden = true;
+      nota.innerHTML = '';
+    }
+  }
+
   function papar(d) {
     var isi = htmlTemplat(d);
     el('resume').innerHTML = isi;
     var sisi = el('sisi-kertas');
     if (sisi) sisi.innerHTML = isi;
+    larasRuang();
     capAir(!penjual);
     susunSkalaSisi();
   }
@@ -1532,6 +1614,12 @@
     var bahagian = p + ' pengalaman, ' + pd + ' pendidikan';
     if (!d.nama && !d.telefon) return { mesej: 'Belum ada apa-apa diisi. ' + bahagian + ' akan masuk ke resume.', jenis: '' };
     if (p === 0) return { mesej: 'AMARAN: resume akan keluar tanpa bahagian Pengalaman. ' + bahagian + ' setakat ini.', jenis: 'amaran' };
+    // templat satu lajur: beritahu kalau jarak sudah direnggangkan maksimum (halaman masih lapang)
+    if (tmp().satuLajur && PENUH < 0.55) {
+      return { mesej: 'OK - ' + bahagian + ' akan masuk ke resume. Ruang halaman masih lapang '
+        + '(jarak direnggangkan automatik) - tambah kemahiran, bahasa atau bahagian tambahan supaya resume nampak penuh.',
+        jenis: 'info' };
+    }
     return { mesej: 'OK - ' + bahagian + ' akan masuk ke resume.', jenis: 'info' };
   }
 
@@ -1932,6 +2020,7 @@
     if (lt) lt.textContent = 'Langkah ' + n + ' daripada 4 \u00b7 ' + TAJUK_HAL[n];
     if (!senyap) window.scrollTo(0, 0);
     if (n === 1) susunMini();
+    if (n === 2 || n === 3) larasRuang();      // ukur semula pada helaian yang baru kelihatan
     if (n === 3) susunSkala();
     if (n === 4) kemasSemula();
   }
@@ -2022,7 +2111,10 @@
   if (!document.querySelectorAll('#senarai-pendidikan .baris').length) {
     el('senarai-pendidikan').appendChild(barisPendidikan());
   }
-  window.ResumeMV = { kod: kodDari, dariKod: borangDariKod, isi: isiBorang, kumpul: kumpul, urutan: urutan, pindah: pindahBlok };
+  window.ResumeMV = { kod: kodDari, dariKod: borangDariKod, isi: isiBorang, kumpul: kumpul,
+    templat: function () { return KUNCI_TEMPLAT; }, renggang: function () { return RENGGANG; },
+    penuh: function () { return PENUH; },
+    tempat: function () { return Object.keys(TEMPLAT); }, urutan: urutan, pindah: pindahBlok };
   kemasSemula();
   kemasSek();
   susunSkalaSisi();
