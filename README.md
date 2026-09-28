@@ -153,6 +153,28 @@ Data disimpan automatik dalam pelayar (localStorage) — pelanggan ulangan akan 
 - Ujian bertambah kepada **262 lulus, 0 gagal**
 - Tambahan kemudian (cip cadangan satu klik): blok **Kemahiran Profesional** dengan 4 item dirender sebagai senarai bulet di lajur kanan dan **cetakan kekal 1 halaman A4** (disahkan dalam Chrome); blok itu juga boleh dialih (cth. ke rel kiri); ujian **298 lulus, 0 gagal**
 
+**Fasa 16 — Templat kedua: Biru Bersih + daftar templat**
+
+Permintaan: "kalau saya masukkan template baru macam mana awak integrasi?" (rujukan dihantar:
+`Blue and White Clean and Professional Resume.pdf`).
+
+- **Daftar templat** — `var TEMPLAT = { biru: {...}, bersih: {...} }` + `KUNCI_TEMPLAT` + `htmlTemplat(d)`.
+  `papar()`, `susunMini()` dan kad pilihan halaman 1 semuanya guna satu jalan render ini.
+  Templat seterusnya = satu entri + fungsi render + blok CSS + kad (panduan penuh: `TEMPLAT-BARU.md`).
+- **Halaman 1 kini dua kad reka bentuk** (Biru & Kelabu, Biru Bersih) dengan pratonton mini sebenar;
+  klik kad → `aria-pressed` + pratonton bertukar serta-merta. Pilihan disimpan dalam kod pesanan (`s`).
+- **Templat Biru Bersih** — diukur terus daripada PDF rujukan (A4 595.5 x 842.2 pt):
+  tepi 12.5mm, nama Inter Bold 20pt #00366d, tajuk bahagian Inter Bold 12pt dengan garis 1pt navy,
+  badan Inter Regular 10.5pt #1e1e1e (tinggi baris 14.3pt), bulet 3pt, kontak berlabel sebaris,
+  foto segi empat naik ke penjuru atas. Satu lajur → mesra ATS.
+- **Susun blok dalam satu lajur** — `urutanSatu()` (kiri + kanan sebagai satu aliran), `rapikanSatuLajur()`;
+  anak panah pindah lajur disembunyikan kerana tiada lajur, tetapi naik/turun dan seret tetap berfungsi.
+- **Cetakan** — `.lembar .cv-bersih { min-height: auto }`, tajuk `break-after: avoid` (tajuk tidak terpisah
+  daripada isinya), item tidak dipotong. Disahkan Chrome: data paling padat (3 pengalaman, 6 poin, 2 pendidikan,
+  kemahiran, bahasa, rujukan, 1 bahagian tambahan) **cetak 1 halaman A4**, teks terakhir y=813.8 daripada 842.
+- **Ujian** — blok 24 (24 ujian baharu): tukar reka bentuk, struktur satu lajur, kod pesanan menyimpan templat,
+  susun blok satu lajur, buang bahagian, bahagian tambahan. Jumlah **322 lulus, 0 gagal**.
+
 **Fasa 13** — muat naik resume lama **dibuang** (keputusan pengguna):
 
 - Ciri muat naik resume (PDF / Word / teks) dengan auto-isi telah dibangunkan penuh, diuji, dan **kemudian dibuang atas permintaan pengguna** kerana bacaan fail tidak cukup boleh dipercayai untuk pelanggan awam
@@ -211,7 +233,7 @@ cd test && npm install        # sekali sahaja (jsdom)
 "$LOCALAPPDATA/hermes/node/node.exe" test/test_ui.js
 ```
 
-Keputusan semasa: **298 lulus, 0 gagal**.
+Keputusan semasa: **322 lulus, 0 gagal**.
 
 ## Aliran jualan melalui WhatsApp (tanpa gerbang bayaran)
 

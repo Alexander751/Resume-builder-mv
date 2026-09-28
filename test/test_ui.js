@@ -254,13 +254,16 @@ ok(!!dom6.window.document.querySelector('#resume .cv-biru'), 'kod memulihkan pap
 ok(dom6.window.document.querySelector('#resume .cvb-kiri').textContent.includes('English (Fluent)'),
    'bahasa dipulihkan dari kod');
 
-console.log('== 14. Satu reka bentuk sahaja (Biru & Kelabu) ==');
+console.log('== 14. Daftar templat: Biru & Kelabu + Biru Bersih ==');
 ok(!/cv-klasik|cv-eksekutif|cv-minimalis|cv-kemahiran/.test(html), 'tiada sisa kelas templat lama dalam fail');
 ok(!/htmlKlasik|htmlEksekutif|htmlMinimalis|htmlKemahiran|PELUKIS/.test(html), 'tiada sisa fungsi templat lama');
 ok(!/var TEMPLAT = \[/.test(html), 'senarai TEMPLAT sudah dibuang');
 ok(!/<select id="templat"/.test(html), 'borang tiada pemilih templat');
-ok(/var isi = htmlBiru\(d\);/.test(html) && /el\('resume'\)\.innerHTML = isi;/.test(html) && /sisi\.innerHTML = isi;/.test(html),
+ok(/var isi = htmlTemplat\(d\);/.test(html) && /el\('resume'\)\.innerHTML = isi;/.test(html) && /sisi\.innerHTML = isi;/.test(html),
    'papar() menulis resume yang sama ke kertas utama dan kertas pratonton di sisi');
+ok(/var TEMPLAT = \{/.test(html) && /bersih: \{/.test(html), 'daftar TEMPLAT (peta) wujud dalam kod');
+ok(html.includes('function htmlBersih') && html.includes('.cv-bersih'), 'templat kedua (Biru Bersih) wujud');
+ok(d.querySelectorAll('.kad-pilih[data-templat]').length === 2, 'dua kad reka bentuk di halaman 1');
 ok(!/r-sek|r-nama|\.chip/.test(html), 'tiada sisa gaya templat Klasik');
 ok(html.includes('function htmlBiru') && html.includes('.cv-biru'), 'reka bentuk Biru & Kelabu kekal utuh');
 ok(html.includes('.cvb-lencana') && html.includes('.cvb-titik') && html.includes('ikonLencana'),
@@ -314,11 +317,11 @@ ok(!el('hal-1').hidden && el('hal-2').hidden && el('hal-3').hidden && el('hal-4'
 ok(d.querySelectorAll('#langkah .dot').length === 4, 'penunjuk 4 langkah ada');
 ok(d.querySelector('#langkah .dot').classList.contains('aktif'), 'langkah 1 ditanda aktif');
 ok(d.querySelectorAll('#langkah .dot')[1].disabled, 'langkah 2 belum boleh diklik sebelum mula');
-ok(d.querySelectorAll('#mini-kertas .cv-biru').length === 1, 'pratonton mini dirender dengan data contoh');
-ok(d.querySelector('#mini-kertas .cvb-nama h1').textContent.includes('NURUL AIN'), 'nama contoh muncul dalam mini');
-ok(d.querySelectorAll('#mini-kertas .cvb-lencana').length === 4, 'mini guna gaya yang sama (4 lencana bulat)');
+ok(d.querySelectorAll('#mini-biru .cv-biru').length === 1, 'pratonton mini dirender dengan data contoh');
+ok(d.querySelector('#mini-biru .cvb-nama h1').textContent.includes('NURUL AIN'), 'nama contoh muncul dalam mini');
+ok(d.querySelectorAll('#mini-biru .cvb-lencana').length === 4, 'mini guna gaya yang sama (4 lencana bulat)');
 ok(/\.mini-kertas \{[\s\S]{0,120}zoom: var\(--skala-mini/.test(html), 'mini guna skala automatik');
-ok(!!d.querySelector('#kad-biru .pil-pilih'), 'kad ditanda "Dipilih"');
+ok(!!d.querySelector('.kad-pilih[data-templat="biru"] .pil-pilih'), 'kad yang dipilih ditanda "Dipilih"');
 
 el('mula-isi').click();
 ok(el('hal-2').hidden === false && el('hal-1').hidden === true, 'butang Mula Isi ke halaman butiran');
@@ -370,7 +373,7 @@ el('balik-2').click();
 ok(el('langkah-teks').textContent === 'Langkah 1 daripada 4 \u00b7 Reka bentuk', 'teks langkah betul di halaman 1');
 el('mula-isi').click();
 ok(el('langkah-teks').textContent === 'Langkah 2 daripada 4 \u00b7 Butiran', 'teks langkah dikemas kini di halaman 2');
-ok(!!d.querySelector('#kad-biru .kad-ciri li'), 'senarai ciri pada kad reka bentuk');
+ok(!!d.querySelector('.kad-pilih[data-templat="biru"] .kad-ciri li'), 'senarai ciri pada kad reka bentuk');
 ok(d.querySelector('#hal-1 .nota-bawah svg') !== null, 'nota halaman 1 ada ikon perisai (kepercayaan)');
 ok(d.querySelectorAll('#hal-2 .grid-2 input').length === 4, 'empat medan pendek disusun dua lajur');
 ok(!!d.querySelector('#hal-2 .aksi .kecil'), 'bar alat borang ada teks petunjuk');
@@ -721,6 +724,71 @@ d.querySelector('.cip[data-tajuk="Projek"]').click();
 ok(d.querySelector('#senarai-tambahan .baris:last-child .t-tajuk').value === 'Projek', 'cadangan "Projek" mengisi tajuknya');
 d.querySelector('#senarai-tambahan .baris:last-child .btn-hapus').click();
 ok(d.querySelectorAll('#senarai-tambahan .baris').length === bilSebelum + 1, 'baris cadangan boleh dihapus');
+
+console.log('== 24. Tukar reka bentuk + templat Biru Bersih (satu lajur) ==');
+el('kosongkan').click();
+isi('#nama', 'Muhammad Irfan bin Salleh');
+isi('#jawatan', 'Jurutera Mekanikal');
+isi('#telefon', '011-2233 4455');
+isi('#emel', 'irfan@contoh.my');
+isi('#lokasi', 'Kuantan, Pahang');
+isi('#ringkasan', 'Jurutera mekanikal dengan pengalaman penyeliaan tapak dan penyediaan dokumen kontrak.');
+isi('#kemahiran', 'AutoCAD, MS Project, Ukur Kuantiti');
+isi('#bahasa', 'Bahasa Melayu, Bahasa Inggeris');
+isi('#senarai-pengalaman .baris .p-jawatan', 'Jurutera Tapak');
+isi('#senarai-pengalaman .baris .p-syarikat', 'EPH Construction Sdn Bhd');
+isi('#senarai-pengalaman .baris .p-tempoh', 'Jan 2023 - Kini');
+isi('#senarai-pengalaman .baris .p-poin', 'Menyelia kerja struktur 3 blok\nMenyediakan laporan kemajuan bulanan');
+isi('#senarai-pendidikan .baris .d-kelulusan', 'Ijazah Sarjana Muda Kejuruteraan Mekanikal');
+isi('#senarai-pendidikan .baris .d-institusi', 'Universiti Malaysia Pahang');
+isi('#senarai-pendidikan .baris .d-tahun', '2018 - 2022');
+el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+ok(!!d.querySelector('#resume .cv-biru'), 'templat lalai ialah Biru & Kelabu');
+
+d.querySelector('.kad-pilih[data-templat="bersih"]').click();
+ok(d.querySelector('.kad-pilih[data-templat="bersih"]').getAttribute('aria-pressed') === 'true' &&
+   d.querySelector('.kad-pilih[data-templat="biru"]').getAttribute('aria-pressed') === 'false',
+   'kad yang dipilih ditanda aria-pressed');
+ok(!!d.querySelector('#resume .cv-bersih'), 'pratonton utama kini templat Biru Bersih');
+ok(!!d.querySelector('#sisi-kertas .cv-bersih'), 'kertas pratonton sisi juga Biru Bersih');
+ok(d.querySelector('#resume .cv-bersih .cvs-nama').textContent.trim() === 'Muhammad Irfan bin Salleh', 'nama dirender besar');
+ok(!d.querySelector('#resume .cv-biru'), 'templat lama tidak dirender serentak');
+ok(d.querySelectorAll('#resume .cv-bersih .cvs-badan .blok').length >= 5, 'blok utama dirender sebagai satu aliran');
+const tajukBersih = Array.prototype.map.call(d.querySelectorAll('#resume .cv-bersih .cvs-badan h2'),
+  h => h.textContent.trim().toLowerCase());
+ok(tajukBersih[0] === 'ringkasan', 'Ringkasan didahulukan dalam templat satu lajur');
+ok(tajukBersih.indexOf('pengalaman kerja') > 0 && tajukBersih.indexOf('pendidikan') > 0, 'pengalaman & pendidikan ikut di bawah');
+ok(d.querySelectorAll('#resume .cv-bersih .cvs-item').length === 2, 'satu pengalaman + satu pendidikan');
+ok(d.querySelectorAll('#resume .cv-bersih .cvs-senarai li').length === 2, 'dua poin pengalaman jadi bulet');
+ok(d.querySelector('#resume .cv-bersih .cvs-kontak li .cvs-label').textContent.trim() === 'Telefon:', 'kontak berlabel jelas');
+
+const pulihBersih = w.ResumeMV.dariKod(w.ResumeMV.kod(w.ResumeMV.kumpul()));
+ok(pulihBersih.templat === 'bersih', 'kod pesanan menyimpan templat yang dipilih');
+ok(/\.lembar \.cv-bersih \{ min-height: auto; \}/.test(html), 'templat satu lajur tidak dipaksa tinggi A4 dalam cetakan');
+
+el('togol-susun').click();
+ok(d.querySelectorAll('#resume .blok-alat .ba').length > 0, 'alat susun muncul dalam templat satu lajur');
+ok(d.querySelector('#sisi-kertas [data-blok="profil"] .blok-alat .ba[data-gerak="kanan"]') === null,
+   'tiada anak panah pindah lajur dalam templat satu lajur');
+function aliran() { const q = w.ResumeMV.urutan(w.ResumeMV.kumpul()); return q.kiri.concat(q.kanan); }
+const sebelumSatu = aliran();
+d.querySelector('#sisi-kertas [data-blok="pendidikan"] [data-gerak="naik"]').click();
+const selepasSatu = aliran();
+ok(selepasSatu.indexOf('pendidikan') === sebelumSatu.indexOf('pendidikan') - 1, 'blok boleh dialih naik dalam aliran satu lajur');
+ok(w.ResumeMV.urutan(w.ResumeMV.kumpul()).kanan.length === 0, 'susunan satu lajur disimpan sebagai satu senarai');
+el('susun-reset').click();
+el('togol-susun').click();
+
+d.querySelector('.sek[data-sek="bahasa"] .sek-buang').click();
+ok(!/Bahasa Melayu/.test(d.querySelector('#resume .cv-bersih').textContent), 'bahagian dibuang tidak muncul dalam templat bersih');
+d.querySelector('.cip[data-tajuk="Kemahiran Profesional"]').click();
+isi('#senarai-tambahan .baris:last-child .t-isi', 'AutoCAD\nUkur kuantiti (BQ)');
+el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+ok(d.querySelector('#resume .cv-bersih .cvs-badan').textContent.includes('Kemahiran Profesional'),
+   'bahagian tambahan muncul sebagai tajuk sendiri dalam templat bersih');
+
+d.querySelector('.kad-pilih[data-templat="biru"]').click();
+ok(!!d.querySelector('#resume .cv-biru') && !d.querySelector('#resume .cv-bersih'), 'boleh tukar balik ke Biru & Kelabu');
 
   Promise.resolve().then(function () {
     console.log('\n' + pass + ' lulus, ' + fail + ' gagal, ' + skip + ' dilangkau');
