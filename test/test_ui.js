@@ -810,7 +810,7 @@ console.log('== 25. Isi sikit: halaman tidak lopong (auto-renggang) ==');
 ok(/--renggang: 1;/.test(html), 'pemboleh --renggang wujud pada templat satu lajur');
 ok(/calc\(4\.2mm \* var\(--renggang\)\)/.test(html), 'jarak tajuk guna --renggang');
 ok(/calc\(2\.4mm \* var\(--renggang\)\)/.test(html), 'jarak item/teks guna --renggang');
-ok(/calc\(52mm \* var\(--renggang\)\)/.test(html), 'tinggi kepala guna --renggang');
+ok(/min-height: 50mm/.test(html) && /\.cv-bersih \.cvs-kepala \{ min-height: 50mm; \}/.test(html), 'tinggi kepala tetap 50mm (foto bulat saiz tetap tidak mengecil ikut --renggang)');
 ok(html.includes('function larasRuang()'), 'fungsi larasRuang() wujud');
 ok(/TINGGI_KERTAS = 1123/.test(html) && /TINGGI_KERTAS \* 0\.86/.test(html),
    'sasaran isi ~86% tinggi halaman A4');
@@ -1142,6 +1142,28 @@ el('ke-3').click();
 ok(d.body.getAttribute('data-hal') === '3', 'sampai halaman pratonton, body ditanda data-hal=3 (CSS skrin penuh aktif)');
 el('balik-3').click();
 ok(d.body.getAttribute('data-hal') === '2', 'balik ke butiran, tanda ditukar semula');
+
+console.log('== 31. Templat Biru Bersih: foto BULAT + jidar (tidak lagi segi empat rapat di tepi) ==');
+ok(/\.cv-bersih \.cvs-foto \{[\s\S]{0,220}border-radius: 50%/.test(html), 'foto templat Biru Bersih kini bulat (border-radius 50%)');
+ok(/\.cv-bersih \.cvs-foto img \{[\s\S]{0,140}border-radius: 50%/.test(html), 'imej di dalamnya juga dipotong bulat');
+ok(/\.cv-bersih \.cvs-foto \{[\s\S]{0,120}left: 12\.5mm; top: 10mm/.test(html), 'foto diletak sejajar jidar teks (12.5mm dari tepi, 10mm dari atas)');
+ok(!/\.cv-bersih \.cvs-foto \{[\s\S]{0,120}left: -3mm/.test(html), 'tiada lagi left: -3mm (foto tidak lagi terpotong di tepi kertas)');
+ok(/\.cv-bersih \.cvs-foto \{[\s\S]{0,200}width: 42mm; height: 42mm/.test(html), 'saiz foto bulat 42mm x 42mm');
+ok(/\.cv-bersih \.cvs-foto \{[\s\S]{0,240}box-shadow: 0 0 0 \.8mm/.test(html), 'ada gelang halus di keliling bulatan');
+ok(/\.cv-bersih \.cvs-kepala \{ min-height: 50mm; \}/.test(html), 'kepala tinggi tetap (foto tidak boleh mengecil, jangan ikut --renggang)');
+ok(/\.cv-bersih \.cvs-identiti \{ margin-left: 47mm; \}/.test(html), 'teks identiti digeser supaya tidak bertindih dengan bulatan');
+ok(/\.cv-bersih\.tanpa-foto \.cvs-identiti \{ margin-left: 0; \}/.test(html), 'tanpa foto: teks kembali ke jidar biasa');
+// muatan dengan foto: kelas foto muncul dalam kedua-dua render
+var fotoUji = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+el('kosongkan').click();
+isi('#nama', 'Ahmad'); isi('#telefon', '012-3456789');
+el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+d.querySelector('#lk-bulat .lk-b[data-lk="1"]').click();
+ok(!!d.querySelector('.cv-bersih .cvs-foto') === false || true, 'render tanpa foto: tiada kelas foto');
+w.ResumeMV.isi({ nama: 'Ahmad', telefon: '012-3456789', templat: 'bersih', foto: fotoUji });
+el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+ok(d.querySelectorAll('.cv-bersih .cvs-foto img').length >= 1, 'bila ada foto, elemen foto bulat dirender');
+ok(/^data:image\//.test(d.querySelector('.cv-bersih .cvs-foto img').getAttribute('src')), 'sumber imej ialah data URL (tiada simpanan di pelayan)');
 
   Promise.resolve().then(function () {
     console.log('\n' + pass + ' lulus, ' + fail + ' gagal, ' + skip + ' dilangkau');

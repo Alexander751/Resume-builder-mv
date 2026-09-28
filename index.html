@@ -690,13 +690,14 @@
     width: 2.6pt; height: 2.6pt; background: #323b4c; border-radius: 50%;
   }
 
-  /* ---------- templat baru: Biru Bersih (satu lajur, foto segi empat) ----------
+  /* ---------- templat baru: Biru Bersih (satu lajur, foto BULAT seperti Biru & Kelabu) ----------
      Ukuran diambil terus daripada fail rujukan
      "Blue and White Clean and Professional Resume.pdf" (A4 595.5 x 842.2 pt):
        tepi kiri/kanan 35.4pt = 12.5mm; nama Inter Bold 20pt #00366d;
        tajuk bahagian Inter Bold 12pt #00366d dengan garis bawah 0.8pt;
        badan Inter Regular 10.5pt #1e1e1e, tinggi baris 14.3pt;
-       bulet 3pt pada x=42.2pt, teks bulet x=53.3pt; label sebaris 600. */
+       bulet 3pt pada x=42.2pt, teks bulet x=53.3pt; label sebaris 600;
+       foto: templat ini ikut gaya bulat templat Biru & Kelabu (42mm, jidar 12.5mm dari tepi). */
   .lembar .cv-bersih {
     font-family: "Inter", "Segoe UI", Arial, sans-serif;
     /* --renggang (0.72-1.6) dan --teks (0.93-1) dilaraskan automatik oleh larasRuang():
@@ -705,10 +706,18 @@
     font-size: calc(10.5pt * var(--teks)); line-height: 1.36; color: #1e1e1e; background: #fff;
     padding: 10mm 12.5mm 14mm 12.5mm; position: relative; min-height: 297mm;
   }
-  .cv-bersih .cvs-foto { position: absolute; left: -3mm; top: 7mm; width: 44mm; height: 51mm; overflow: hidden; }
-  .cv-bersih .cvs-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .cv-bersih .cvs-kepala { min-height: calc(52mm * var(--renggang)); }
-  .cv-bersih .cvs-identiti { margin-left: 37mm; }
+  /* Foto BULAT: diletakkan sejajar dengan jidar teks (12.5mm dari tepi kertas, bukan lagi -3mm
+     supaya gambar tidak terpotong/rapat di tepi - jidar 12.5mm itu sejajar dengan jidar teks),
+     saiz tetap 42mm seperti foto dalam templat
+     Biru & Kelabu supaya bahasa reka bentuk kedua-dua templat sama. */
+  .cv-bersih .cvs-foto {
+    position: absolute; left: 12.5mm; top: 10mm; width: 42mm; height: 42mm; overflow: hidden;
+    border-radius: 50%; background: #f2f6fb; box-shadow: 0 0 0 .8mm #dbe7f4;
+  }
+  .cv-bersih .cvs-foto img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
+  /* kepala tinggi tetap: foto bulat tidak boleh mengecil, jadi jangan ikut --renggang */
+  .cv-bersih .cvs-kepala { min-height: 50mm; }
+  .cv-bersih .cvs-identiti { margin-left: 47mm; }
   .cv-bersih.tanpa-foto .cvs-kepala { min-height: 0; }
   .cv-bersih.tanpa-foto .cvs-identiti { margin-left: 0; }
   .cv-bersih .cvs-nama {

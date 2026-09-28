@@ -286,6 +286,24 @@ ditengahkan menegak), (3) kalau isi terlalu banyak, halaman kedua mesti berdesig
   wizard ini kekal **1 halaman A4** dan tiada teks borang masuk ke dalam PDF.
 - **Ujian** - blok 29 (59 ujian baharu, termasuk muatan segar). Jumlah **480 lulus, 0 gagal**.
 
+**Fasa 23 - Foto bulat + jidar untuk templat Biru Bersih**
+
+- **Masalah**: foto templat Biru Bersih ialah segi empat dengan `left: -3mm`. Kerana unsur
+  `position: absolute` dikira dari *padding box* (bukan kotak kandungan), `-3mm` bermakna gambar itu
+  terkeluar **3mm dari tepi kertas** - sebab itu ia nampak rapat dan terpotong di tepi. Templat
+  Biru & Kelabu pula fotonya bulat (`border-radius: 50%`), jadi kedua-dua templat tidak selaras.
+- **Pembetulan**: foto Biru Bersih kini **bulat 42mm** (sama bahasa reka bentuk dengan Biru & Kelabu),
+  diletakkan pada `left: 12.5mm; top: 10mm` - sejajar dengan jidar teks - dengan gelang halus
+  `box-shadow: 0 0 0 .8mm #dbe7f4`. Teks identiti digeser ke `margin-left: 47mm` supaya ada jarak
+  4.8mm dari bulatan. Tinggi kepala dijadikan tetap `50mm` (dulu `calc(52mm * var(--renggang))`)
+  supaya foto saiz tetap tidak pernah dihimpit/bertindih dengan teks di bawahnya dalam mod padat.
+- **Disahkan pada PDF cetakan**: gambar bulat sepenuhnya dalam kertas (x 11.6-55.3mm, y 9.3-52.9mm),
+  tiada pertindihan dengan teks (nama bermula x=59.5mm, RINGKASAN bermula y=60.1mm), jalur halaman
+  0-5mm tidak bertindih dengan foto. Resume sederhana (2 pekerjaan) kekal **1 halaman**; resume
+  sangat panjang (3 pekerjaan x 4 bulet + 6 kemahiran + 3 bahasa + 2 rujukan) memang **2 halaman**
+  dengan reka bentuk halaman kedua yang sama.
+- **Ujian** - blok 31 (12 ujian baharu) + kemas kini ujian tinggi kepala. Jumlah **518 lulus, 0 gagal**.
+
 **Fasa 22 - UI padat + bar jenama profesional + pratonton skrin penuh**
 
 - **UI dipadatkan** (pengguna kata borang "besar sangat"): jarak halaman 22/20/60 -> 16/18/40px, tajuk halaman
@@ -363,7 +381,7 @@ cd test && npm install        # sekali sahaja (jsdom)
 "$LOCALAPPDATA/hermes/node/node.exe" test/test_ui.js
 ```
 
-Keputusan semasa: **506 lulus, 0 gagal**.
+Keputusan semasa: **518 lulus, 0 gagal**.
 
 ## Aliran jualan melalui WhatsApp (tanpa gerbang bayaran)
 
