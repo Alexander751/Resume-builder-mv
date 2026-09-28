@@ -298,6 +298,22 @@ ditengahkan menegak), (3) kalau isi terlalu banyak, halaman kedua mesti berdesig
   dikira betul. Cetakan PDF kekal 1 halaman (borang tidak dicetak).
 - **Ujian** - blok 35. Jumlah **583 lulus, 0 gagal**.
 
+**Fasa 30 - Titik potong pratonton mesti diukur pada skala sebenar**
+
+- **Gejala dilaporkan**: halaman 1 pratonton terpotong awal (kandungan berhenti selepas RUJUKAN, separuh
+  halaman kosong) dan halaman 2 bermula di tengah senarai Bahasa.
+- **Punca**: `titikPotong()` membaca pemboleh ubah `--skala` pratonton, tetapi `susunSkala()` menetapkannya
+  **selepas** fungsi itu berjalan. Jadi ukuran kadang-kadang dibuat dengan skala lama (cth 1) sementara
+  kedudukan elemen sudah diskalakan - hasilnya titik potong jatuh jauh terlalu awal, dan ia bergantung pada
+  masa/tetingkap (sebab itu ia kelihatan "kadang jadi, kadang tidak").
+- **Pembetulan**: pembalut `tanpaSkala(fn)` menetapkan `--skala: 1` semasa mengukur titik potong lalu
+  memulihkannya, jadi semua kedudukan diukur dalam px susun atur sebenar (sama seperti cara `susunSkala`
+  mengukur). `titikPotongDalam()` / `kiraPotong()` kini berjalan dalam pembalut itu.
+- **Pengesahan**: resume sama, titik potong = **1048px pada 1440x900, 1500x860, 1024x768 dan 1920x1080**
+  (sebelum ini berbeza-beza), halaman 2 sentiasa bermula pada tajuk "Rujukan", bulet terakhir halaman 1
+  lengkap, dan cetakan PDF kekal 2 halaman dengan 0 bulet terpecah.
+- **Ujian** - **608 lulus, 0 gagal**.
+
 **Fasa 29 - Ayat tidak lagi terpecah antara halaman + garis pemisah penuh + jidar atas dibetulkan**
 
 - **Ayat/bulet terpecah dua halaman** (masalah utama): cetakan kini menetapkan `break-inside: avoid` pada

@@ -1594,9 +1594,17 @@
      sama dengan cetakan sebenar - bukan anggaran. */
   var POTONG = [0];              // POTONG[h-1] = kedudukan (px) mula halaman h (halaman 1 = 0)
 
-  function skalaSemasa() {
-    var v = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--skala'));
-    return v > 0 ? v : 1;
+  /* PENTING: titik potong mesti diukur pada skala SEBENAR (1), bukan skala pratonton yang
+     sedang aktif. Skala pratonton baru ditetapkan oleh susunSkala() SELEPAS fungsi ini
+     berjalan, jadi memakai nilai lama menghasilkan ukuran yang salah - titik potong jatuh
+     terlalu awal dan halaman 1 nampak terpotong. */
+  function tanpaSkala(fn) {
+    var akar = document.documentElement;
+    var simpan = akar.style.getPropertyValue('--skala');
+    akar.style.setProperty('--skala', '1');
+    var hasil = fn();
+    if (simpan) akar.style.setProperty('--skala', simpan); else akar.style.removeProperty('--skala');
+    return hasil;
   }
 
   /* Cari tempat cetakan SEBENARNYA memotong untuk sempadan pada 'had' px.
@@ -1604,7 +1612,11 @@
      bahagian) yang merentasi sempadan akan dihantar bulat-bulat ke halaman berikutnya.
      Elemen yang lebih tinggi daripada satu halaman diabaikan (pelayar pun akan memecahnya). */
   function titikPotong(lembar, had) {
-    var sk = skalaSemasa();
+    return tanpaSkala(function () { return titikPotongDalam(lembar, had); });
+  }
+
+  function titikPotongDalam(lembar, had) {
+    var sk = 1;                                   // diukur pada saiz sebenar (lihat tanpaSkala)
     var lr = lembar.getBoundingClientRect();
     function atas(e) { return (e.getBoundingClientRect().top - lr.top) / sk; }
     function bawah(e) { return (e.getBoundingClientRect().bottom - lr.top) / sk; }
@@ -1632,7 +1644,11 @@
     var n = Math.max(1, Math.min(4, HALAMAN || 1));
     var lembar = el('resume') ? el('resume').firstElementChild : null;
     if (!lembar || n < 2) return;
-    for (var h = 2; h <= n; h++) POTONG.push(titikPotong(lembar, POTONG[h - 2] + TINGGI_KERTAS));
+    POTONG = tanpaSkala(function () {
+      var senarai = [0];
+      for (var h = 2; h <= n; h++) senarai.push(titikPotongDalam(lembar, senarai[h - 2] + TINGGI_KERTAS));
+      return senarai;
+    });
   }
 
   /* Tinggi tingkap helaian h: sampai titik potong seterusnya (jadi ada ruang kosong di
