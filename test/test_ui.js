@@ -300,7 +300,7 @@ ok(/\.kertas \{[\s\S]{0,400}zoom: var\(--skala, 1\)/.test(html), 'kertas guna sk
 ok(/@media print[\s\S]{0,2000}zoom: 1 !important/.test(html), 'cetakan membatalkan skala pratonton');
 ok(/\.kertas \{[\s\S]{0,400}aspect-ratio: 210 \/ 297/.test(html), 'nisbah A4 dikekalkan dalam pratonton');
 ok(/\.panel-pratonton \{ position: sticky; top: 16px/.test(html), 'panel pratonton melekat 16px dari atas');
-ok(/@media \(max-width: 900px\) \{ \.panel-pratonton \{ position: static; \} \}/.test(html), 'telefon: panel tidak melekat');
+ok(/@media screen and \(max-width: 900px\) \{ \.panel-pratonton \{ position: static; \} \}/.test(html), 'telefon: panel tidak melekat');
 const skala = d.documentElement.style.getPropertyValue('--skala');
 ok(!!skala && Number(skala) > 0.28 && Number(skala) <= 1, 'skala dikira pada muat pertama (--skala: ' + skala + ')');
 const tinggiA4 = 794 * 297 / 210;
@@ -444,7 +444,7 @@ ok(!/@media \(max-width: 760px\)/.test(html),
 ok(/@media print[\s\S]{0,2000}\.papan \{ display: block !important; padding: 0 !important; \}/.test(html),
    'cetak: .papan tanpa padding supaya helaian kekal tepat satu halaman');
 
-ok(/@media screen and \(max-width: 760px\), screen and \(max-height: 620px\) \{/.test(html),
+ok(/@media screen and \(max-width: 760px\), screen and \(max-height: 820px\) \{/.test(html),
    'pratonton skrin penuh juga dipakai pada skrin rendah (telefon landskap)');
 ok(/#hal-3 \.papan \{[\s\S]{0,160}overflow: auto;/.test(html),
    'kawasan pratonton boleh skrol sendiri kalau skrin terlalu rendah');
@@ -1088,7 +1088,7 @@ ok(/\.lk-b\.dilihat \{[^}]*var\(--ok\)/.test(html), 'bulatan yang sudah dilihat 
 ok(/\.cip-ikon \{[\s\S]{0,200}border-radius: 50%/.test(html), 'ikon kad cadangan bulat');
 ok(/\.cepat-tambah \{[\s\S]{0,120}grid-template-columns: repeat\(auto-fit/.test(html), 'kad cadangan disusun sebagai grid');
 ok(/\.sek-bahagian \.cip:hover \{[\s\S]{0,120}translateY\(-2px\)/.test(html), 'kad cadangan ada gerak bila ditunjuk (hover)');
-ok(/\@media \(max-width: 620px\)[\s\S]{0,400}cepat-tambah \{ grid-template-columns: 1fr 1fr/.test(html), 'di telefon kad susun dua lajur');
+ok(/\@media screen and \(max-width: 620px\)[\s\S]{0,400}cepat-tambah \{ grid-template-columns: 1fr 1fr/.test(html), 'di telefon kad susun dua lajur');
 ok(d.querySelectorAll('.sek-bahagian .cip[data-tajuk]').length === 4, '4 kad cadangan siap-pakai');
 ok(d.querySelectorAll('.sek-bahagian .cip svg').length === 4, 'setiap kad ada ikon sendiri (bukan emoji)');
 ok(!!d.querySelector('.cip-ikon.plus'), 'kad "tulis sendiri" ada bulatan +');
@@ -1101,6 +1101,47 @@ ok(d.querySelector('#senarai-tambahan .baris .t-tajuk').value === 'Projek', 'taj
 isi('#senarai-tambahan .baris .t-isi', 'Projek Perumahan Rakyat Kemaman');
 el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
 ok(d.querySelector('#resume').textContent.includes('Projek Perumahan Rakyat Kemaman'), 'bahagian tambahan masuk pratonton');
+
+console.log('== 30. UI padat + bar jenama profesional + pratonton skrin penuh ==');
+// --- bar jenama profesional ---
+ok(!!d.querySelector('header.top .jenama svg'), 'lencana jenama ada ikon SVG');
+ok(!!d.querySelector('.jenama-mv'), 'label MV ada kotak sendiri (nampak macam jenama)');
+ok(/\.jenama-mv \{[\s\S]{0,220}letter-spacing: \.17em/.test(html), 'label MV ada jarak huruf (kemas)');
+ok(/header\.top::before \{[\s\S]{0,200}linear-gradient\(90deg, #0e3f70/.test(html), 'garis aksen jenama di atas bar');
+ok(/\.jenama \{[\s\S]{0,320}inset 0 1px 0 rgba\(255, 255, 255, \.24\)/.test(html), 'lencana ada sorotan dalam (nampak timbul, profesional)');
+ok(d.querySelectorAll('.jenama-lencana li').length === 3, 'tiga lencana kepercayaan (A4 / Siap cetak / 2 reka bentuk)');
+ok(/tanpa daftar akaun/.test(d.querySelector('header.top p').textContent), 'slogan sebut faedah utama (tanpa daftar akaun)');
+ok(/@media screen and \(max-width: 760px\)[\s\S]{0,320}jenama-lencana \{ display: none; \}/.test(html),
+   'telefon: lencana kepercayaan disembunyikan (jimat ruang)');
+// --- UI padat: medan/kad tidak lagi besar ---
+ok(/\.hal \{ max-width: 1000px; margin: 0 auto; padding: 16px 18px 40px; \}/.test(html), 'jarak halaman dikurangkan');
+ok(/\.hal-tajuk \{ font-size: 19px/.test(html), 'tajuk halaman 19px (dulu 22px)');
+ok(/fieldset \{[\s\S]{0,140}padding: 12px 15px 14px/.test(html), 'kad fieldset lebih padat');
+ok(/label \{ display: block; margin: 10px 0 5px; font-size: 12\.6px/.test(html), 'label lebih rapat dan kecil');
+ok(/input, textarea \{[\s\S]{0,160}padding: 9px 11px;[\s\S]{0,160}font-size: 14px;/.test(html), 'medan input lebih padat');
+ok(/\.tahap-btn \{\s*width: 38px; height: 34px/.test(html), 'butang 1-5 lebih kecil (38x34) tetapi masih mudah ditekan');
+ok(/\.tahap \{ display: inline-flex; gap: 6px/.test(html), 'jarak butang tahap dirapatkan');
+ok(/\.baris \{[\s\S]{0,120}padding: 2px 11px 10px; margin-top: 9px/.test(html), 'kad baris lebih padat');
+ok(/\.btn-utama \{[\s\S]{0,240}padding: 12px 20px;[\s\S]{0,80}font-size: 14\.6px/.test(html), 'butang utama lebih padat');
+ok(/\.lk-nav \{[\s\S]{0,80}margin: 12px 0 0; padding: 11px 13px 10px/.test(html), 'bar langkah butiran lebih nipis');
+ok(/\.lk-b \{\s*width: 29px; height: 29px/.test(html), 'bulatan langkah 29px (masih bulat dan boleh tekan)');
+ok(/\.bar-pratonton \.hal-tajuk \{ margin: 0; font-size: 17\.5px; \}/.test(html), 'tajuk bar pratonton lebih kecil');
+// --- pratonton skrin penuh pada semua saiz ---
+ok(/body\[data-hal="3"\] header\.top,/.test(html) && /body\[data-hal="3"\] > \.langkah,/.test(html),
+   'halaman pratonton: bar jenama dan penunjuk langkah disembunyikan');
+ok(/body\[data-hal="3"\] #hal-3 \.hal-sub \{ display: none; \}/.test(html), 'halaman pratonton: baris kecil di bawah tajuk dibuang');
+ok(/@media screen and \(max-width: 760px\), screen and \(max-height: 820px\)/.test(html),
+   'pratonton skrin penuh dipakai pada skrin rendah sampai 820px (laptop biasa pun dapat)');
+ok(/body\[data-hal="3"\] \{ overflow: hidden; \}/.test(html), 'halaman pratonton tidak berskrol di skrin rendah');
+// halaman 3 tanda data-hal pada body
+el('kosongkan').click();
+isi('#nama', 'Ahmad'); isi('#telefon', '012-3456789');
+d.querySelector('#lk-bulat .lk-b[data-lk="8"]').click();
+el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+el('ke-3').click();
+ok(d.body.getAttribute('data-hal') === '3', 'sampai halaman pratonton, body ditanda data-hal=3 (CSS skrin penuh aktif)');
+el('balik-3').click();
+ok(d.body.getAttribute('data-hal') === '2', 'balik ke butiran, tanda ditukar semula');
 
   Promise.resolve().then(function () {
     console.log('\n' + pass + ' lulus, ' + fail + ' gagal, ' + skip + ' dilangkau');

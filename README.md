@@ -286,6 +286,25 @@ ditengahkan menegak), (3) kalau isi terlalu banyak, halaman kedua mesti berdesig
   wizard ini kekal **1 halaman A4** dan tiada teks borang masuk ke dalam PDF.
 - **Ujian** - blok 29 (59 ujian baharu, termasuk muatan segar). Jumlah **480 lulus, 0 gagal**.
 
+**Fasa 22 - UI padat + bar jenama profesional + pratonton skrin penuh**
+
+- **UI dipadatkan** (pengguna kata borang "besar sangat"): jarak halaman 22/20/60 -> 16/18/40px, tajuk halaman
+  22 -> 19px, kad fieldset 16/20/22 -> 12/15/14px, label 14px -> 10px jarak, medan input 11/13 -> 9/11px dengan fon
+  14.5 -> 14px, kad baris dan butang 1-5 (42x40 -> 38x34px) serta butang utama dikecilkan, bar langkah butiran
+  13/15/12 -> 11/13/10px, bulatan langkah 31 -> 29px. Semua masih melebihi sasaran sentuh 34px.
+- **Bar jenama dibina semula supaya nampak profesional**: garis aksen gradien 3px di atas, lencana monogram
+  38x38px dengan gradien navy + sorotan dalam (nampak timbul) + ikon dokumen dengan percikan kilau (SVG),
+  wordmark 18.5px, label **MV** dalam kotak huruf berjarak, slogan faedah ("Resume A4 siap cetak - tanpa daftar
+  akaun - hantar terus melalui WhatsApp"), dan tiga lencana kepercayaan (A4 / Siap cetak / 2 reka bentuk) yang
+  disembunyikan di telefon.
+- **Pratonton kini benar-benar skrin penuh**: sebelum ini ambang "skrin rendah" ialah 620px, jadi laptop biasa
+  (tinggi skrin ~650-780px) terlepas dan helaian A4 menjadi kecil (skala 0.28) sedangkan halaman masih berskrol.
+  Ambang dinaikkan ke **820px**, dan pada halaman pratonton bar jenama + penunjuk langkah + baris kecil tajuk
+  dibuang (`body[data-hal="3"]`) supaya helaian dapat seluruh tinggi skrin.
+  Disahkan Chrome: pada tetingkap 1424x679 helaian 534px tinggi (79% skrin), tiada skrol; pada 1904x929 skala 0.66.
+- **Disemak semula**: semua media query lebar kini `@media screen and (...)` (elak gaya telefon bocor ke cetakan).
+- **Ujian** - blok 30 (30 ujian baharu). Jumlah **506 lulus, 0 gagal**.
+
 **Fasa 13** — muat naik resume lama **dibuang** (keputusan pengguna):
 
 - Ciri muat naik resume (PDF / Word / teks) dengan auto-isi telah dibangunkan penuh, diuji, dan **kemudian dibuang atas permintaan pengguna** kerana bacaan fail tidak cukup boleh dipercayai untuk pelanggan awam
@@ -344,7 +363,7 @@ cd test && npm install        # sekali sahaja (jsdom)
 "$LOCALAPPDATA/hermes/node/node.exe" test/test_ui.js
 ```
 
-Keputusan semasa: **480 lulus, 0 gagal**.
+Keputusan semasa: **506 lulus, 0 gagal**.
 
 ## Aliran jualan melalui WhatsApp (tanpa gerbang bayaran)
 
