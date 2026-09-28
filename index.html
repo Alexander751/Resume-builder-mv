@@ -424,6 +424,10 @@
   input::placeholder, textarea::placeholder { color: #9aa6b6; }
   input:focus, textarea:focus { outline: 0; border-color: var(--brand); box-shadow: 0 0 0 3.5px var(--brand-soft); }
   textarea { resize: vertical; min-height: 60px; line-height: 1.48; }
+  /* medan yang selalunya diisi beberapa baris: beri tinggi sedia yang selesa
+     supaya pelanggan tidak perlu menarik bucu medan untuk melihat apa yang ditulis */
+  #ringkasan { min-height: 150px; }        /* ringkasan profil: 6-7 baris */
+  .p-poin, .t-isi { min-height: 96px; }    /* senarai bulet pengalaman & bahagian tambahan */
   input[type="file"] { padding: 9px 11px; background: #fbfcfe; border-style: dashed; cursor: pointer; }
   #foto-info { margin-top: 7px; font-size: 12.5px; }
   #buang-foto {
@@ -563,6 +567,8 @@
     .galeri::-webkit-scrollbar { display: none; }
     .galeri .kad-pilih { flex: 0 0 84%; scroll-snap-align: center; }
     .galeri-hint { display: block; }
+    #ringkasan { min-height: 172px; }
+    .p-poin, .t-isi { min-height: 112px; }
     .sek-bahagian .cip { font-size: 12.4px; padding: 9px 10px; gap: 8px; }
     .cip-ikon { width: 27px; height: 27px; }
   }
@@ -993,7 +999,7 @@
       <legend>Ringkasan Profil</legend>
       <button type="button" class="sek-buang" data-sek="ringkasan">Buang bahagian ini</button>
       <label for="ringkasan">Ringkasan (2–4 ayat)</label>
-      <textarea id="ringkasan" placeholder="cth. Graduan Sarjana Muda Ukur Bahan dengan 2 tahun pengalaman..."></textarea>
+      <textarea id="ringkasan" rows="6" placeholder="cth. Graduan Sarjana Muda Ukur Bahan dengan 2 tahun pengalaman..."></textarea>
       <p class="sek-nota">Bahagian <strong>Ringkasan Profil</strong> dibuang dari resume. <button type="button" data-sek-batal="ringkasan">Tambah balik</button></p>
     </fieldset>
 
@@ -1248,7 +1254,7 @@
       '<label>Tajuk bahagian</label>' +
       '<input class="t-tajuk" type="text" placeholder="cth. Projek, Sijil, Aktiviti, Latihan">' +
       '<label>Isi (satu baris satu item)</label>' +
-      '<textarea class="t-isi" placeholder="cth. Projek Perumahan Mampu Milik Kemaman (2024)&#10;Sijil AutoCAD Asas (2023)"></textarea>';
+      '<textarea class="t-isi" rows="4" placeholder="cth. Projek Perumahan Mampu Milik Kemaman (2024)&#10;Sijil AutoCAD Asas (2023)"></textarea>';
     b.querySelector('.t-tajuk').value = data.t || '';
     b.querySelector('.t-isi').value = data.b || '';
     b.querySelector('.btn-hapus').addEventListener('click', function () {
@@ -1271,7 +1277,7 @@
       '<label>Syarikat</label><input class="p-syarikat" type="text" placeholder="cth. EPH Construction Sdn Bhd">' +
       '<label>Tempoh</label><input class="p-tempoh" type="text" placeholder="cth. Mac 2024 - Kini">' +
       '<label>Perkara utama (satu baris satu poin)</label>' +
-      '<textarea class="p-poin" placeholder="Sediakan BQ untuk 3 projek perumahan&#10;Semak tuntutan kontraktor setiap bulan"></textarea>';
+      '<textarea class="p-poin" rows="4" placeholder="Sediakan BQ untuk 3 projek perumahan&#10;Semak tuntutan kontraktor setiap bulan"></textarea>';
     b.querySelector('.p-jawatan').value = data.jawatan || '';
     b.querySelector('.p-syarikat').value = data.syarikat || '';
     b.querySelector('.p-tempoh').value = data.tempoh || '';

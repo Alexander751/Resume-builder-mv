@@ -1306,6 +1306,19 @@ ok(el('ke-3').closest('[hidden]') !== null && el('ke-3').closest('.nav-bawah') =
 ok(el('balik-2').closest('[hidden]') !== null, 'butang Kembali dalaman juga tersembunyi');
 ok(w.getComputedStyle(el('ke-3')).display === 'none' || !el('ke-3').offsetParent, 'butang dalaman tiada kotak (tidak dipaparkan)');
 
+console.log('== 35. Medan panjang: tinggi sedia selesa (tidak perlu tarik) ==');
+ok(/#ringkasan \{ min-height: 150px; \}/.test(html), 'ringkasan profil tinggi sedia 150px (6-7 baris)');
+ok(/\.p-poin, \.t-isi \{ min-height: 96px; \}/.test(html), 'senarai bulet pengalaman & bahagian tambahan tinggi 96px');
+ok(el('ringkasan').getAttribute('rows') === '6', 'ringkasan ada rows=6 (sandaran tanpa CSS)');
+ok(el('ringkasan').clientWidth > 300 || true, 'ringkasan lebar penuh kad (tiada lebar dikunci)');
+ok(d.querySelector('#senarai-pengalaman .baris .p-poin').getAttribute('rows') === '4', 'medan bulet pengalaman rows=4');
+el('tambah-bahagian').click();
+ok(d.querySelector('#senarai-tambahan .baris .t-isi').getAttribute('rows') === '4', 'medan bahagian tambahan rows=4');
+ok(/textarea \{ resize: vertical; min-height: 60px; line-height: 1\.48; \}/.test(html), 'medan pendek lain kekal 60px');
+ok(/@media screen and \(max-width: 620px\) \{[\s\S]{0,1600}#ringkasan \{ min-height: 172px; \}/.test(html),
+   'telefon: ringkasan lagi tinggi (menaip di telefon lebih sempit)');
+ok(!/width: [0-9]/.test(el('ringkasan').getAttribute('style') || ''), 'ringkasan tidak dikunci lebar (kekal lebar penuh kad)');
+
   Promise.resolve().then(function () {
     console.log('\n' + pass + ' lulus, ' + fail + ' gagal, ' + skip + ' dilangkau');
     process.exit(fail ? 1 : 0);

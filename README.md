@@ -286,6 +286,18 @@ ditengahkan menegak), (3) kalau isi terlalu banyak, halaman kedua mesti berdesig
   wizard ini kekal **1 halaman A4** dan tiada teks borang masuk ke dalam PDF.
 - **Ujian** - blok 29 (59 ujian baharu, termasuk muatan segar). Jumlah **480 lulus, 0 gagal**.
 
+**Fasa 27 - Medan panjang sedia tinggi (tidak perlu ditarik)**
+
+- **Permintaan**: medan Ringkasan Profil terlalu pendek, pelanggan terpaksa menarik bucu medan untuk melihat
+  apa yang ditulis.
+- **Pembetulan**: `#ringkasan` diberi `min-height: 150px` (6-7 baris) dan `rows="6"`; medan senarai bulet
+  pengalaman (`.p-poin`) serta bahagian tambahan (`.t-isi`) diberi 96px + `rows="4"`. Di telefon, ringkasan
+  172px dan bulet 112px (menaip di skrin sempit lebih memerlukan ruang). `resize: vertical` dikekalkan supaya
+  pelanggan masih boleh besarkan sendiri. Medan pendek lain kekal 60px.
+- **Disahkan Chrome**: ringkasan 864x150px (desktop) dan 440x172px (telefon), lebar penuh kad, `min-height`
+  dikira betul. Cetakan PDF kekal 1 halaman (borang tidak dicetak).
+- **Ujian** - blok 35. Jumlah **583 lulus, 0 gagal**.
+
 **Fasa 26 - Butang dalaman "Kembali/Pratonton" yang masih muncul di penjuru bawah**
 
 - **Bug**: butang pratonton/kembali lama disimpan sebagai butang dalaman dengan atribut `hidden`, tetapi
@@ -440,7 +452,7 @@ cd test && npm install        # sekali sahaja (jsdom)
 "$LOCALAPPDATA/hermes/node/node.exe" test/test_ui.js
 ```
 
-Keputusan semasa: **574 lulus, 0 gagal**.
+Keputusan semasa: **583 lulus, 0 gagal**.
 
 ## Aliran jualan melalui WhatsApp (tanpa gerbang bayaran)
 
