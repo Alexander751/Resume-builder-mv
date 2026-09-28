@@ -18,14 +18,14 @@ Semua berlaku dalam pelayar — **tiada data dihantar ke mana-mana pelayan**.
 
 Buka `index.html` (klik dua kali) atau laman awam di atas. Aliran **4 halaman**:
 
-1. **Pilih reka bentuk** — kad *Biru & Kelabu* dengan **pratonton mini sebenar** (bukan gambar) → **Mula Isi Butiran**
+1. **Pilih reka bentuk + jenis resume** — kad *Biru & Kelabu* dengan **pratonton mini sebenar** (bukan gambar), kemudian pilih **Resume baru** atau **Kemas kini resume lama** (tampal kod lama → semua detail terus masuk) → **Mula Isi Butiran**
 2. **Isi butiran** — Nama + Nombor Telefon wajib; foto, jawatan, ringkasan, pengalaman, pendidikan, kemahiran, bahasa, rujukan → **Seterusnya: Pratonton**
 3. **Pratonton** — desktop: helaian A4 penuh + butang **Skrin penuh** + senarai semak "Semak sebelum hantar"; telefon: pratonton **sepenuh skrin** tanpa skrol → **Seterusnya: Hantar**
 4. **Hantar** — tekan butang WhatsApp; mesej pesanan + kod resume sudah siap diisi, anda cuma tekan hantar
 
 Pelanggan **tidak** perlu butang cetak — pratonton + hantar melalui WhatsApp sudah cukup. Cetak hanya perlu oleh penjual (lihat bahagian Mod Penjual).
 
-Data disimpan automatik dalam pelayar (localStorage). **Kosongkan** memadam semuanya.
+Data disimpan automatik dalam pelayar (localStorage) — pelanggan ulangan akan nampak pilihan **kemas kini** dengan nama resumenya. **Kosongkan** memadam semuanya.
 
 ## Apa yang sudah ada
 
@@ -126,6 +126,17 @@ Data disimpan automatik dalam pelayar (localStorage). **Kosongkan** memadam semu
 - Cetakan penjual dari halaman pratonton masih **1 halaman A4, 595×842 pt, tanpa tanda air** (bbox sama seperti sebelum ini)
 - Ujian bertambah kepada **219 lulus, 0 gagal**
 
+**Fasa 12** — pilihan "resume baru" vs "kemas kini resume lama" (selepas pilih reka bentuk):
+
+- Halaman 1 kini ada blok pilihan: pil **Resume baru** (isi dari kosong) dan **Kemas kini resume lama** (tampal kod lama)
+- Pilih "kemas kini" → kotak kod terbuka: tampal kod → butang **Muat resume lama** (atau tekan Enter) membawa terus ke halaman butiran dengan **semua detail sudah terisi** (nama, kontak, jawatan, ringkasan, kemahiran, bahasa, rujukan, baris pengalaman & pendidikan dibina semula dari kod)
+- **Pelanggan ulangan dikesan automatik**: kalau ada resume dalam `localStorage`, app terus pilih pil "kemas kini", buka kotak kod dan papar nota "Ada resume disimpan dalam peranti ini: <nama>" + butang **Guna resume terakhir: <nama>**
+- Kod tidak sah → mesej merah pada kotak kod (`Kod resume tidak sah atau tidak lengkap…`), kekal di halaman 1, kod yang salah tidak dipadam; kod kosong + tekan CTA → terus ke butiran tanpa ralat
+- Buang data tersimpan hanya melalui pautan eksplisit **"buang dari peranti ini"** (+ `confirm`) — tiada pemadaman senyap
+- `kosongkanBorang()` dikongsi antara butang **Kosongkan** dan pautan buang; selepas kosong, satu baris pengalaman/pendidikan kosong ditinggalkan sebagai tempat isi
+- Disemak dalam Chrome (4 senario): peranti baru → pil "resume baru", kotak tertutup; pelanggan ulangan → pil "kemas kini" + nota nama; kod salah → mesej merah, kekal halaman 1; kod sah → halaman butiran dengan `Siti Nurhaliza / 013-9998877 / Pembantu Tadbir / Syarikat Maju / Politeknik Kuantan` dan pratonton dikemas kini
+- Ujian bertambah kepada **260 lulus, 0 gagal** (termasuk satu JSDOM kedua dengan `localStorage` disemai untuk meniru pelanggan ulangan)
+
 ## Ujian
 
 ```bash
@@ -133,7 +144,7 @@ cd test && npm install        # sekali sahaja (jsdom)
 "$LOCALAPPDATA/hermes/node/node.exe" test/test_ui.js
 ```
 
-Keputusan semasa: **219 lulus, 0 gagal**.
+Keputusan semasa: **260 lulus, 0 gagal**.
 
 ## Aliran jualan melalui WhatsApp (tanpa gerbang bayaran)
 

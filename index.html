@@ -154,6 +154,42 @@
     border-radius: 50%; background: #e8f6ef; color: var(--ok);
     font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center;
   }
+  /* ---------- pilihan: resume baru vs kemas kini resume lama (halaman 1) ---------- */
+  .pilih-mula {
+    margin-top: 22px; background: #fff; border: 1px solid var(--line);
+    border-radius: 18px; padding: 22px 24px; box-shadow: var(--sh1);
+  }
+  .pilih-tajuk { margin: 0 0 14px; font-size: 15.5px; font-weight: 700; color: var(--ink); }
+  .dua-pil { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .pil-mula {
+    display: flex; flex-direction: column; gap: 2px; align-items: flex-start; text-align: left;
+    background: #fff; border: 1.5px solid var(--line); border-radius: 14px; padding: 13px 16px;
+    font: inherit; cursor: pointer; color: var(--muted);
+    transition: border-color .15s ease, background .15s ease, box-shadow .15s ease;
+  }
+  .pil-mula strong { font-size: 15px; font-weight: 700; color: var(--ink); }
+  .pil-mula span { font-size: 12.5px; line-height: 1.35; }
+  .pil-mula:hover { border-color: #c6d5e6; }
+  .pil-mula.dipilih { border-color: var(--brand); background: var(--brand-soft); box-shadow: 0 0 0 3px rgba(18, 80, 140, .08); }
+  .pil-mula.dipilih strong { color: var(--brand); }
+  .kotak-update { margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--line); }
+  .kotak-update label { display: block; margin-bottom: 7px; font-size: 13.5px; font-weight: 700; color: var(--ink); }
+  .baris-kod { display: flex; gap: 10px; align-items: stretch; }
+  .baris-kod input {
+    flex: 1 1 auto; min-width: 0; font-family: ui-monospace, Consolas, monospace; font-size: 13px;
+    padding: 11px 13px; border: 1.5px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink);
+  }
+  .baris-kod input:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(18, 80, 140, .12); }
+  #muat-kod { flex: 0 0 auto; padding: 12px 20px; font-size: 14.5px; }
+  #guna-terakhir { margin-top: 10px; }
+  .nota-kod, .nota-mula { margin: 10px 0 0; font-size: 12.8px; line-height: 1.5; color: var(--muted); }
+  .nota-mula { margin-top: 16px; }
+  .pil-ralat { color: var(--danger); font-weight: 600; }
+  .pautan-buang {
+    background: none; border: 0; padding: 0; margin: 0; font: inherit; font-size: 12.8px;
+    color: var(--danger); font-weight: 700; cursor: pointer; text-decoration: underline;
+  }
+  .btn-besar { width: 100%; margin-top: 16px; }
   .nota-bawah {
     display: flex; align-items: center; justify-content: center; gap: 8px;
     color: var(--muted); font-size: 12.5px; margin-top: 18px;
@@ -537,8 +573,33 @@
           <li>Semua bahagian penting sudah ada tempatnya</li>
           <li>Cetak terus dari pelayar &mdash; jadi PDF tanpa aplikasi tambahan</li>
         </ul>
-        <button type="button" class="btn-utama" id="mula-isi">Mula Isi Butiran &rarr;</button>
       </div>
+    </div>
+
+    <div class="pilih-mula">
+      <p class="pilih-tajuk">Resume ini baru, atau kemas kini yang lama?</p>
+      <div class="dua-pil" role="group" aria-label="Jenis resume">
+        <button type="button" class="pil-mula dipilih" id="mula-baru" aria-pressed="true">
+          <strong>Resume baru</strong><span>Isi butiran dari kosong</span>
+        </button>
+        <button type="button" class="pil-mula" id="mula-update" aria-pressed="false">
+          <strong>Kemas kini resume lama</strong><span>Tampal kod lama &mdash; detail terus masuk</span>
+        </button>
+      </div>
+
+      <div class="kotak-update" id="kotak-update" hidden>
+        <label for="kod-lama">Tampal kod resume lama anda</label>
+        <div class="baris-kod">
+          <input id="kod-lama" type="text" autocomplete="off" spellcheck="false"
+                 placeholder="cth. eyJzIjoiYmlydSIsIm4iOiJBaG1hZCBiYXJpIEFsaSIsInQiOiIwMTItMzQ1Njc4OSIsImUiOiIuLi4i">
+          <button type="button" class="btn-utama" id="muat-kod">Muat resume lama</button>
+        </div>
+        <button type="button" class="btn-undur" id="guna-terakhir" hidden>Guna resume terakhir</button>
+        <p class="nota-kod" id="nota-kod">Kod ini ada dalam mesej WhatsApp pesanan anda yang lepas, atau yang disimpan penjual.</p>
+      </div>
+
+      <p class="nota-mula" id="nota-mula"></p>
+      <button type="button" class="btn-utama btn-besar" id="mula-isi">Mula Isi Butiran &rarr;</button>
     </div>
     <p class="nota-bawah"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg> Percuma dicuba &mdash; bayaran <strong>RM29.90</strong> hanya bila anda mahu PDF bersih tanpa tanda air.</p>
   </section>
@@ -932,6 +993,91 @@
     }
   }
 
+  /* ---------- halaman 1: resume baru atau kemas kini resume lama ---------- */
+  var MOD_MULA = 'baru';
+
+  function simpananTerakhir() {
+    try {
+      var mentah = localStorage.getItem(KUNCI);
+      if (!mentah) return null;
+      var d = JSON.parse(mentah);
+      return (d && d.nama) ? d : null;
+    } catch (e) { return null; }
+  }
+
+  function pilihMula(m, tanpaFokus) {
+    MOD_MULA = (m === 'update') ? 'update' : 'baru';
+    var b = el('mula-baru'), u = el('mula-update');
+    if (!b || !u) return;
+    b.classList.toggle('dipilih', MOD_MULA === 'baru');
+    u.classList.toggle('dipilih', MOD_MULA === 'update');
+    b.setAttribute('aria-pressed', MOD_MULA === 'baru' ? 'true' : 'false');
+    u.setAttribute('aria-pressed', MOD_MULA === 'update' ? 'true' : 'false');
+    el('kotak-update').hidden = (MOD_MULA !== 'update');
+    var n = el('nota-kod');
+    if (n) n.classList.remove('pil-ralat');
+    if (MOD_MULA === 'update' && !tanpaFokus && el('kod-lama')) el('kod-lama').focus();
+  }
+
+  function semakMula() {
+    var d = simpananTerakhir(), nota = el('nota-mula'), gt = el('guna-terakhir');
+    if (gt) {
+      gt.hidden = !d;
+      if (d) gt.textContent = 'Guna resume terakhir: ' + String(d.nama).slice(0, 40);
+    }
+    if (!nota) return;
+    nota.innerHTML = '';
+    if (d) {
+      nota.innerHTML = 'Ada resume disimpan dalam peranti ini: <strong>' + esc(String(d.nama).slice(0, 40))
+        + '</strong>. Tekan <strong>Mula Isi Butiran</strong> untuk sambung dan kemas kini, atau ';
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'pautan-buang'; b.id = 'buang-simpanan';
+      b.textContent = 'buang dari peranti ini';
+      b.addEventListener('click', function () {
+        if (!window.confirm('Buang resume yang disimpan dalam peranti ini? Kod lama anda masih boleh dimuatkan semula.')) return;
+        kosongkanBorang();
+        semakMula();
+        pilihMula('baru', true);
+        tulisLog('Resume tersimpan dibuang dari peranti ini. Isi butiran baru anda.', 'info');
+      });
+      nota.appendChild(b);
+    } else {
+      nota.textContent = 'Belum ada resume disimpan dalam peranti ini. Kalau anda pernah buat resume sebelum ini (di peranti lain), pilih "Kemas kini resume lama" dan tampal kod daripada mesej WhatsApp anda.';
+    }
+  }
+
+  function ralatKod(mesej) {
+    var n = el('nota-kod');
+    if (n) { n.classList.add('pil-ralat'); n.textContent = mesej; }
+    tulisLog(mesej, 'ralat');
+  }
+
+  function gunaKodLama(kod) {
+    var bersih = String(kod == null ? '' : kod).trim();
+    if (!bersih) { ralatKod('Tampal dahulu kod resume lama anda.'); return false; }
+    var d = borangDariKod(bersih);
+    if (!d || !d.nama) {
+      ralatKod('Kod resume tidak sah atau tidak lengkap. Salin semula kod itu, atau pilih "Resume baru".');
+      if (el('kod-lama')) el('kod-lama').focus();
+      return false;
+    }
+    isiBorang(d);
+    el('kod-lama').value = bersih;
+    kemasSemula();
+    tulisLog('Resume lama dimuatkan (' + d.nama + '). Semak dan kemas kini, kemudian tekan Seterusnya: Pratonton.', 'info');
+    pergiHal(2);
+    return true;
+  }
+
+  function gunaTerakhir() {
+    var d = simpananTerakhir();
+    if (!d) { ralatKod('Tiada resume disimpan dalam peranti ini.'); return; }
+    isiBorang(d);
+    kemasSemula();
+    tulisLog('Resume terakhir di peranti ini dimuatkan (' + d.nama + ').', 'info');
+    pergiHal(2);
+  }
+
   /* ---------- pautan pesanan WhatsApp ---------- */
   function sediakanWa(d) {
     var pautan = el('wa');
@@ -978,6 +1124,19 @@
   }
 
   /* ---------- isi borang dari data ---------- */
+  function kosongkanBorang() {
+    foto = '';
+    el('borang').reset();
+    el('senarai-pengalaman').innerHTML = '';
+    el('senarai-pendidikan').innerHTML = '';
+    bilPengalaman = 0; bilPendidikan = 0;
+    el('senarai-pengalaman').appendChild(barisPengalaman());
+    el('senarai-pendidikan').appendChild(barisPendidikan());
+    try { localStorage.removeItem(KUNCI); } catch (e) { /* abaikan */ }
+    tulisLogFoto();
+    kemasSemula();
+  }
+
   function isiBorang(d) {
     el('nama').value = d.nama || '';
     el('telefon').value = d.telefon || '';
@@ -1122,13 +1281,8 @@
   });
   el('kosongkan').addEventListener('click', function () {
     if (!window.confirm('Padam semua isi borang?')) return;
-    foto = '';
-    el('borang').reset();
-    el('senarai-pengalaman').innerHTML = '';
-    el('senarai-pendidikan').innerHTML = '';
-    bilPengalaman = 0; bilPendidikan = 0;
-    try { localStorage.removeItem(KUNCI); } catch (e) { /* abaikan */ }
-    kemasSemula();
+    kosongkanBorang();
+    semakMula();
   });
 
   /* ---------- mod penjual ---------- */
@@ -1310,7 +1464,17 @@
 
   el('mini-kertas').innerHTML = htmlBiru(CONTOH);
 
-  el('mula-isi').addEventListener('click', function () { pergiHal(2); });
+  el('mula-baru').addEventListener('click', function () { pilihMula('baru'); });
+  el('mula-update').addEventListener('click', function () { pilihMula('update'); });
+  el('muat-kod').addEventListener('click', function () { gunaKodLama(el('kod-lama').value); });
+  el('kod-lama').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); gunaKodLama(el('kod-lama').value); }
+  });
+  el('guna-terakhir').addEventListener('click', gunaTerakhir);
+  el('mula-isi').addEventListener('click', function () {
+    if (MOD_MULA === 'update' && el('kod-lama').value.trim()) { gunaKodLama(el('kod-lama').value); return; }
+    pergiHal(2);
+  });
   el('balik-2').addEventListener('click', function () { pergiHal(1); });
   el('balik-3').addEventListener('click', function () { pergiHal(2); });
   el('balik-4').addEventListener('click', function () { pergiHal(3); });
@@ -1335,6 +1499,8 @@
     el('senarai-pendidikan').appendChild(barisPendidikan());
   }
   kemasSemula();
+  pilihMula(simpananTerakhir() ? 'update' : 'baru', true);   // ada resume lama? tawarkan kemas kini
+  semakMula();
   pergiHal(halAwal || 1, true);
   susunSkala();
 })();

@@ -94,7 +94,9 @@ ok(resume().includes('Sarjana Muda Ukur Bahan'), 'pendidikan masuk pratonton');
 ok(el('log').textContent.includes('1 pendidikan'), 'baris pendidikan kosong ditapis dari kiraan');
 
 el('kosongkan').click();
-ok(d.querySelectorAll('#senarai-pengalaman .baris').length === 0, 'Kosongkan buang semua baris pengalaman');
+ok(d.querySelectorAll('#senarai-pengalaman .baris').length === 1, 'Kosongkan tinggalkan satu baris pengalaman kosong');
+ok(d.querySelector('#senarai-pengalaman .baris .p-jawatan').value === '', 'baris itu kosong (tiada nilai lama)');
+ok(d.querySelector('#senarai-pendidikan .baris .d-kelulusan').value === '', 'baris pendidikan juga kosong');
 ok(resume().includes('NAMA ANDA'), 'pratonton kembali ke tempat letak (banner nama kosong)');
 
 console.log('== 6. Kemahiran + keselamatan ==');
@@ -427,6 +429,108 @@ ok(/@media screen and \(max-width: 760px\), screen and \(max-height: 620px\) \{/
    'pratonton skrin penuh juga dipakai pada skrin rendah (telefon landskap)');
 ok(/#hal-3 \.papan \{[\s\S]{0,160}overflow: auto;/.test(html),
    'kawasan pratonton boleh skrol sendiri kalau skrin terlalu rendah');
+
+console.log('== 20. Halaman 1: resume baru vs kemas kini resume lama ==');
+el('balik-3').click(); el('balik-2').click();          // ujian 18 tinggalkan kita di halaman pratonton
+ok(el('hal-1').hidden === false && el('hal-2').hidden === true, 'kembali ke halaman pilih reka bentuk');
+ok(!!el('mula-baru') && !!el('mula-update') && !!el('kotak-update'), 'kawalan pilih-mula wujud (dua pil + kotak kod)');
+ok(!!el('nota-mula') && el('nota-mula').textContent.length > 20, 'nota panduan dipaparkan di bawah pil');
+ok(el('mula-baru').classList.contains('dipilih') && el('kotak-update').hidden === true,
+   'peranti kosong: mod "resume baru" jadi lalai, kotak kod tertutup');
+ok(el('mula-isi').textContent.includes('Mula Isi Butiran'), 'CTA tunggal dikekalkan di bawah pilihan');
+
+el('mula-update').click();
+ok(el('mula-update').classList.contains('dipilih') && !el('mula-baru').classList.contains('dipilih'),
+   'tekan pil "kemas kini" memindahkan penanda pilihan');
+ok(el('kotak-update').hidden === false, 'tekan pil "kemas kini" membuka kotak kod');
+ok(el('mula-update').getAttribute('aria-pressed') === 'true' && el('mula-baru').getAttribute('aria-pressed') === 'false',
+   'aria-pressed dikemas kini untuk pembaca skrin');
+el('mula-baru').click();
+ok(el('mula-baru').classList.contains('dipilih') && el('kotak-update').hidden === true,
+   'tekan pil "resume baru" menutup kotak kod semula');
+el('mula-update').click();
+
+// kod tidak sah
+el('kod-lama').value = 'ini-bukan-kod';
+el('muat-kod').click();
+ok(el('nota-kod').textContent.includes('tidak sah'), 'mesej ralat untuk kod tidak sah');
+ok(el('nota-kod').classList.contains('pil-ralat'), 'mesej ralat ditanda warna amaran');
+ok(el('hal-1').hidden === false, 'kekal di halaman 1 bila kod tidak sah');
+ok(el('kod-lama').value === 'ini-bukan-kod', 'kod yang salah tidak dipadam (senang dibetulkan)');
+
+// kod lama yang sah (bina sama seperti app: base64url bagi objek ringkas)
+const ringkas = { s: 'biru', n: 'Siti Nurhaliza', t: '013-9998877', e: 'siti@mail.com', l: 'Kuantan',
+                  j: 'Pembantu Tadbir', g: 'Berpengalaman 3 tahun.', k: 'Excel, Fail', b: 'Melayu, Inggeris',
+                  u: 'Encik Rahman - 019-1112222',
+                  p: [{ jawatan: 'Kerani', syarikat: 'Syarikat Maju', tempoh: '2022 - 2024', poin: ['Rekod & fail', 'Kemas kini data'] }],
+                  d: [{ kelulusan: 'Diploma Pengurusan', institusi: 'Politeknik Kuantan', tahun: '2019 - 2021' }] };
+const kodLama = Buffer.from(JSON.stringify(ringkas), 'utf8').toString('base64')
+  .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+el('nama').value = 'Nama Lama Sebelum Ini';
+el('kod-lama').value = kodLama;
+el('muat-kod').click();
+ok(el('nama').value === 'Siti Nurhaliza', 'nama lama dimuatkan dari kod (menimpa data semasa)');
+ok(el('telefon').value === '013-9998877' && el('emel').value === 'siti@mail.com', 'kontak dimuatkan dari kod');
+ok(el('lokasi').value === 'Kuantan' && el('jawatan').value === 'Pembantu Tadbir', 'lokasi & jawatan dimuatkan');
+ok(el('ringkasan').value === 'Berpengalaman 3 tahun.' && el('kemahiran').value === 'Excel, Fail', 'ringkasan & kemahiran dimuatkan');
+ok(el('bahasa').value === 'Melayu, Inggeris' && el('rujukan').value === 'Encik Rahman - 019-1112222', 'bahasa & rujukan dimuatkan');
+ok(d.querySelectorAll('#senarai-pengalaman .baris').length === 1, 'baris pengalaman dibina semula (1)');
+ok(d.querySelector('#senarai-pengalaman .baris .p-syarikat').value === 'Syarikat Maju', 'nilai pengalaman masuk ke baris');
+ok(d.querySelector('#senarai-pengalaman .baris .p-tempoh').value === '2022 - 2024', 'tempoh pengalaman masuk ke baris');
+ok(d.querySelector('#senarai-pengalaman .baris .p-poin').value === 'Rekod & fail\nKemas kini data', 'poin pengalaman masuk sebagai baris baru');
+ok(d.querySelectorAll('#senarai-pendidikan .baris').length === 1, 'baris pendidikan dibina semula (1)');
+ok(d.querySelector('#senarai-pendidikan .baris .d-institusi').value === 'Politeknik Kuantan', 'nilai pendidikan masuk ke baris');
+ok(el('hal-2').hidden === false, 'terus ke halaman butiran selepas kod lama dimuatkan');
+ok(el('log').textContent.includes('Resume lama dimuatkan (Siti Nurhaliza)'), 'log memberitahu resume lama dimuatkan');
+ok(el('log').textContent.includes('Seterusnya: Pratonton'), 'log memberitahu langkah seterusnya');
+ok(resume().includes('Siti Nurhaliza') && resume().includes('Politeknik Kuantan'), 'pratonton dikemas kini dengan data lama');
+el('balik-2').click();
+
+// kod kosong: CTA tetap bawa ke halaman butiran, tanpa ralat
+el('mula-update').click();
+el('kod-lama').value = '   ';
+el('mula-isi').click();
+ok(el('hal-2').hidden === false, 'tanpa kod, "Mula Isi Butiran" terus ke halaman butiran (tiada ralat)');
+el('balik-2').click();
+
+// medan kod: tekan Enter = muat kod
+el('mula-update').click();
+el('kod-lama').value = kodLama;
+el('kod-lama').dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+ok(el('hal-2').hidden === false, 'tekan Enter dalam medan kod memuatkan resume lama');
+ok(el('kod-lama').value === kodLama, 'kod kekal dalam medan untuk rujukan');
+el('balik-2').click();
+
+// pelanggan ulangan: buka app dengan resume sudah tersimpan dalam peranti
+const domUlang = new JSDOM(html, {
+  runScripts: 'dangerously',
+  url: 'https://alexander751.github.io/Resume-builder-mv/',
+  beforeParse(ww) {
+    ww.print = () => {};
+    ww.confirm = () => true;
+    const simpan = { nama: 'Ahmad bin Ali', telefon: '012-3456789', emel: 'ahmad@mail.com', lokasi: 'Kemaman',
+                     jawatan: 'Juruteknik', ringkasan: 'Lama.', kemahiran: 'AutoCAD', bahasa: 'Melayu',
+                     rujukan: 'En. Samad', pengalaman: [], pendidikan: [] };
+    Object.defineProperty(ww, 'localStorage', {
+      configurable: true,
+      value: {
+        getItem: (k) => (k === 'resume-mv-v1' ? JSON.stringify(simpan) : null),
+        setItem: () => {}, removeItem: () => {}
+      }
+    });
+  }
+});
+const wU = domUlang.window, dU = wU.document, elU = (i) => dU.getElementById(i);
+ok(elU('mula-update').classList.contains('dipilih'), 'pelanggan ulangan: pil "kemas kini" dipilih automatik');
+ok(elU('kotak-update').hidden === false, 'pelanggan ulangan: kotak kod terus terbuka');
+ok(elU('nota-mula').textContent.includes('Ahmad bin Ali'), 'nota sebut nama resume tersimpan');
+ok(elU('guna-terakhir').hidden === false && elU('guna-terakhir').textContent.includes('Ahmad bin Ali'),
+   'butang "guna resume terakhir" kelihatan bersama nama');
+ok(elU('nama').value === 'Ahmad bin Ali', 'borang sudah berisi detail lama (autosimpan peranti)');
+elU('guna-terakhir').click();
+ok(elU('hal-2').hidden === false, 'tekan "guna resume terakhir" terus ke halaman butiran');
+ok(elU('log').textContent.includes('dimuatkan'), 'log memberitahu resume terakhir dimuatkan');
+ok(elU('hal-1').hidden === true, 'halaman pilih reka bentuk ditutup selepas itu');
 
 console.log('== 11. Semakan statik pada HTML ==');
 ok(html.includes('@page { size: A4'), 'ada tetapan cetak A4 (@page size A4)');
