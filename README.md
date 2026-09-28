@@ -286,6 +286,29 @@ ditengahkan menegak), (3) kalau isi terlalu banyak, halaman kedua mesti berdesig
   wizard ini kekal **1 halaman A4** dan tiada teks borang masuk ke dalam PDF.
 - **Ujian** - blok 29 (59 ujian baharu, termasuk muatan segar). Jumlah **480 lulus, 0 gagal**.
 
+**Fasa 24 - Mesra telefon: tidak lagi tersalah tekan ke pratonton**
+
+- **Punca utama ditemui**: `#borang` ialah `<form>`, jadi kekunci "Pergi/Next" pada papan kekunci telefon
+  menghantar borang secara senyap. Pengendali `submit` dahulu terus membawa ke pratonton, jadi pelanggan
+  yang baru selesai menaip nama/telefon tiba-tiba sudah berada di halaman pratonton walaupun belum mengisi
+  bahagian lain.
+  Pembetulan: (1) Enter biasa **tidak** menghantar borang - ia memindahkan fokus ke medan seterusnya
+  **dalam langkah yang sama** (fungsi `fokusSeterusnya()`); (2) `submit` tanpa niat diabaikan sepenuhnya;
+  (3) hanya **Ctrl+Enter** (sengaja) membawa ke pratonton; (4) medan mendapat `enterkeyhint="next"` supaya
+  papan kekunci telefon memaparkan "Next", bukan "Pergi".
+- **Punca kedua**: bar langkah yang melekat (`position: sticky; bottom: 8px`) menutupi medan terakhir
+  sesuatu langkah. Bila papan kekunci terbuka, pelanggan yang menekan medan itu sebenarnya menekan
+  "Seterusnya". Pembetulan: bar **mengecil** menjadi jalur nipis (`dikecilkan`, butang dan bulatan
+  disembunyikan) sementara ada medan dalam borang yang menerima fokus, dan kembali besar apabila fokus
+  keluar. Disahkan Chrome pada 390x700: bar 214px -> **37px** semasa menaip.
+- **Penjaga dua ketukan**: pada langkah terakhir, jika masih ada bahagian kosong (Ringkasan/Pengalaman/
+  Pendidikan/Kemahiran/Bahasa/Rujukan - bahagian yang dibuang pelanggan dikecualikan), ketukan pertama
+  hanya memaparkan amaran "Belum diisi: ... Tekan sekali lagi untuk terus ke pratonton", ketukan kedua
+  barulah ke pratonton. Bila semua lengkap, satu ketukan sahaja.
+- Tambahan: pada telefon `#borang` diberi `padding-bottom: 168px` (ruang skrol) dan bulatan langkah
+  dibesarkan ke 32px untuk sasaran jari.
+- **Ujian** - blok 32, kemas kini ujian 3 dan 19 (kelakuan Enter lama). Jumlah **543 lulus, 0 gagal**.
+
 **Fasa 23 - Foto bulat + jidar untuk templat Biru Bersih**
 
 - **Masalah**: foto templat Biru Bersih ialah segi empat dengan `left: -3mm`. Kerana unsur
@@ -381,7 +404,7 @@ cd test && npm install        # sekali sahaja (jsdom)
 "$LOCALAPPDATA/hermes/node/node.exe" test/test_ui.js
 ```
 
-Keputusan semasa: **518 lulus, 0 gagal**.
+Keputusan semasa: **543 lulus, 0 gagal**.
 
 ## Aliran jualan melalui WhatsApp (tanpa gerbang bayaran)
 

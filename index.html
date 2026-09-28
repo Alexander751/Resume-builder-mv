@@ -290,6 +290,25 @@
     header.top p { font-size: 12px; }
   }
 
+  /* --- telefon: beri ruang skrol pada hujung borang supaya medan TERAKHIR satu langkah
+     boleh naik melepasi bar langkah yang melekat. Tanpa ruang ini medan terakhir berada
+     di bawah bar, jadi pengguna yang menekan medan itu sebenarnya menekan "Seterusnya". --- */
+  @media screen and (max-width: 900px) {
+    #borang { padding-bottom: 168px; }
+    .lk-nav { margin-top: 20px; padding: 10px 12px 9px; }
+    .lk-b { width: 32px; height: 32px; font-size: 13px; }
+    .lk-butang { gap: 8px; }
+    /* Semasa pelanggan menaip (papan kekunci terbuka), bar ini mengecil menjadi satu jalur
+       nipis sahaja: butang Seterusnya/Kembali dan bulatan langkah disembunyikan. Ini kerana
+       bar yang melekat di bawah skrin menutupi medan terakhir sesuatu langkah - pelanggan
+       yang menekan medan itu sebenarnya menekan "Seterusnya" dan terus ke halaman lain. */
+    .lk-nav.dikecilkan { padding: 7px 11px; }
+    .lk-nav.dikecilkan .lk-bulat,
+    .lk-nav.dikecilkan .lk-butang,
+    .lk-nav.dikecilkan .lk-jalur,
+    .lk-nav.dikecilkan .lk-nota { display: none; }
+  }
+
   /* --- halaman pratonton: bar jenama & penunjuk langkah dibuang supaya helaian dapat
      seluruh tinggi skrin (pratonton "skrin penuh" pada semua saiz skrin, bukan telefon sahaja) --- */
   body[data-hal="3"] header.top,
@@ -2188,11 +2207,62 @@
   }
 
   /* ---------- ikatan peristiwa ---------- */
-  /* tiada butang Jana PDF untuk pelanggan: hantar borang (Ctrl+Enter / Enter) = terus ke pratonton */
+  /* PENTING (mesra telefon): #borang ialah <form>, jadi papan kekunci telefon ("Pergi/Next")
+     menghantar borang secara SENYAP -> pengguna terkejut sudah berada di pratonton sebelum
+     sempat mengisi semua butiran. Sekarang:
+       - Enter biasa  : fokus ke medan seterusnya DALAM langkah yang sama sahaja
+       - Ctrl+Enter   : sengaja lompat ke pratonton (kuasa penjual yang biasa)
+       - hantar tak sengaja: diabaikan sama sekali (tidak ke mana-mana) */
+  var niatPratonton = false;
+  el('borang').addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter' || e.altKey || e.shiftKey) return;
+    if (e.target && e.target.tagName === 'TEXTAREA') return;   // textarea: Enter = baris baru
+    if (e.ctrlKey || e.metaKey) { niatPratonton = true; return; }  // sengaja: biar hantar berjalan
+    e.preventDefault();                                        // elak hantar tak sengaja
+    fokusSeterusnya(e.target);
+  });
   el('borang').addEventListener('submit', function (e) {
     e.preventDefault();
+    if (!niatPratonton) return;    // hantar tak sengaja (Enter papan kekunci telefon) diabaikan
+    niatPratonton = false;
     if (!bolehKePratonton()) return;
     pergiHal(3);
+  });
+
+  /* hantar fokus ke medan seterusnya dalam langkah yang sedang dilihat - jangan tukar halaman */
+  function fokusSeterusnya(dari) {
+    var fs = dari && dari.closest ? dari.closest('fieldset[data-langkah]') : null;
+    if (!fs) return;
+    var medan = fs.querySelectorAll('input, textarea, select');
+    var idx = Array.prototype.indexOf.call(medan, dari);
+    for (var i = idx + 1; i < medan.length; i++) {
+      // langkah lain disembunyikan dengan atribut 'hidden' (lihat tunjukLangkah)
+      if (!medan[i].disabled && !medan[i].closest('[hidden]')) { medan[i].focus(); return; }
+    }
+    dari.blur();   // medan terakhir dalam langkah: tutup papan kekunci, JANGAN ke halaman lain
+  }
+
+  /* papan kekunci telefon tunjuk "Next" (bukan "Pergi") supaya tidak nampak macam hantar borang,
+     DAN bar langkah dikecilkan semasa menaip supaya tidak menutupi medan yang sedang diisi */
+  function medanBorang(e) {
+    var t = e.target;
+    if (!t || !t.tagName) return null;
+    if (t.tagName !== 'INPUT' && t.tagName !== 'TEXTAREA' && t.tagName !== 'SELECT') return null;
+    return t.closest && t.closest('#borang') ? t : null;
+  }
+  document.addEventListener('focusin', function (e) {
+    var t = medanBorang(e);
+    if (!t) return;
+    if (t.tagName === 'INPUT' && !t.getAttribute('enterkeyhint')) t.setAttribute('enterkeyhint', 'next');
+    if (el('lk-nav')) el('lk-nav').classList.add('dikecilkan');
+  });
+  document.addEventListener('focusout', function (e) {
+    if (!medanBorang(e)) return;
+    setTimeout(function () {
+      var akt = document.activeElement;
+      var masih = akt && akt.tagName && akt.closest && akt.closest('#borang') && akt.tagName !== 'FORM';
+      if (!masih && el('lk-nav')) el('lk-nav').classList.remove('dikecilkan');
+    }, 80);
   });
 
   /* cetak PDF hanya dalam Mod Penjual (pelanggan dapat PDF bersih melalui WhatsApp) */
@@ -2475,6 +2545,7 @@
 
   /* ---------- aliran 4 halaman (wizard) ---------- */
   var HAL_SEMASA = 1, HAL_MAKS = 1;
+  var sediaPratonton = false;   // penjaga dua ketukan sebelum masuk pratonton
   var TAJUK_HAL = ['', 'Reka bentuk', 'Butiran', 'Pratonton', 'Hantar'];
 
   function pergiHal(n, senyap) {
@@ -2526,13 +2597,28 @@
     el('lk-jalur').style.width = (langkahKini / LANGKAH.length * 100).toFixed(1) + '%';
     el('lk-balik').textContent = langkahKini === 1 ? '\u2190 Butiran Reka Bentuk' : '\u2190 Kembali';
     el('lk-seterusnya').textContent = langkahKini === LANGKAH.length ? 'Seterusnya: Pratonton \u2192' : 'Seterusnya \u2192';
+    sediaPratonton = false;                     // penjaga dua ketukan bermula semula setiap langkah
+    if (el('lk-nav')) el('lk-nav').classList.remove('dikecilkan');
     kemasLkNota();
   }
 
+  /* bahagian yang masih kosong (untuk amaran mesra, bukan sekatan) */
+  function bahagianKosong(d) {
+    var kosong = [];
+    if (!d.ringkasan && !dibuang(d, 'ringkasan')) kosong.push('Ringkasan');
+    if (!(d.pengalaman || []).length && !dibuang(d, 'pengalaman')) kosong.push('Pengalaman');
+    if (!(d.pendidikan || []).length && !dibuang(d, 'pendidikan')) kosong.push('Pendidikan');
+    if (!(d.kemahiran || []).length && !dibuang(d, 'kemahiran')) kosong.push('Kemahiran');
+    if (!(d.bahasa || []).length && !dibuang(d, 'bahasa')) kosong.push('Bahasa');
+    if (!(d.rujukan || []).length && !dibuang(d, 'rujukan')) kosong.push('Rujukan');
+    return kosong;
+  }
+
   /* nota mesra: apa yang belum diisi (tidak menghalang pengguna) */
-  function kemasLkNota(data) {
+  function kemasLkNota(data, mesej) {
     var nota = el('lk-nota');
     if (!nota) return;
+    if (mesej) { nota.hidden = false; nota.textContent = mesej; return; }
     var d = data || kumpul(), kurang = [];
     if (!d.nama) kurang.push('nama');
     if (!d.telefon) kurang.push('nombor telefon');
@@ -2612,7 +2698,20 @@
   el('balik-3').addEventListener('click', function () { pergiHal(2); });
   el('balik-4').addEventListener('click', function () { pergiHal(3); });
   el('lk-seterusnya').addEventListener('click', function () {
-    if (langkahKini >= LANGKAH.length) { el('ke-3').click(); return; }
+    if (langkahKini >= LANGKAH.length) {
+      /* mesra pengguna: kalau masih ada bahagian kosong, ketukan pertama hanya beri amaran
+         (tidak terus bawa ke pratonton) - ketukan kedua barulah ke pratonton */
+      var kosong = bahagianKosong(kumpul());
+      if (kosong.length && !sediaPratonton) {
+        sediaPratonton = true;
+        kemasLkNota(null, 'Belum diisi: ' + kosong.join(', ') + '. Tekan sekali lagi untuk terus ke pratonton, atau isi dahulu.');
+        return;
+      }
+      sediaPratonton = false;
+      el('ke-3').click();
+      return;
+    }
+    sediaPratonton = false;
     tunjukLangkah(langkahKini + 1);
   });
   el('lk-balik').addEventListener('click', function () {

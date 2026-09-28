@@ -59,8 +59,14 @@ ok(d.querySelectorAll('#senarai-pendidikan .baris').length === 1, 'bermula denga
 
 console.log('== 3. Ralat bila Nama/Telefon kosong (tanpa Jana PDF) ==');
 printCalls = 0;
+// hantar tak sengaja (papan kekunci telefon) tidak boleh membawa ke mana-mana
 el('borang').dispatchEvent(new w.Event('submit', { bubbles: true, cancelable: true }));
-ok(el('log').textContent.includes('sebelum lihat pratonton'), 'mesej ralat dipaparkan');
+ok(el('hal-3').hidden === true, 'hantar tak sengaja: masih di halaman butiran (tidak ke pratonton)');
+ok(printCalls === 0, 'tiada cetakan berlaku');
+// Ctrl+Enter = sengaja -> baru dinilai
+el('nama').dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Enter', ctrlKey: true, bubbles: true }));
+el('borang').dispatchEvent(new w.Event('submit', { bubbles: true, cancelable: true }));
+ok(el('log').textContent.includes('sebelum lihat pratonton'), 'Ctrl+Enter tanpa Nama/Telefon: mesej ralat dipaparkan');
 ok(el('hal-3').hidden === true, 'tidak dibawa ke pratonton bila data wajib kosong');
 ok(printCalls === 0, 'tiada cetakan berlaku bila data wajib kosong');
 
@@ -410,11 +416,15 @@ ok(/\.kad-pilih \{[\s\S]{0,300}border-radius: 18px/.test(html), 'kad reka bentuk
 ok(/\.langkah \.dot\.siap b::after \{ content: /.test(html), 'langkah siap bertukar tanda centang');
 ok(/\.kad-ciri li::before \{[\s\S]{0,80}content: /.test(html), 'senarai ciri guna tanda centang hijau');
 ok(/#wa:not\(\.sedia\) \{ background: #c3ccd6/.test(html), 'butang WhatsApp kelabu sebelum nama/telefon diisi');
-// hantar borang (tekan Enter) = terus ke pratonton, bukan cetak
+// Enter biasa TIDAK ke pratonton; Ctrl+Enter (sengaja) baru ke pratonton
 printCalls = 0;
 el('borang').dispatchEvent(new w.Event('submit', { bubbles: true, cancelable: true }));
-ok(printCalls === 0, 'hantar borang tidak mencetak apa-apa');
-ok(el('hal-3').hidden === false, 'hantar borang terus membawa ke halaman pratonton');
+ok(el('hal-3').hidden === true, 'Enter papan kekunci telefon tidak melompat ke pratonton');
+el('nama').dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Enter', ctrlKey: true, bubbles: true }));
+el('borang').dispatchEvent(new w.Event('submit', { bubbles: true, cancelable: true }));
+ok(printCalls === 0, 'Ctrl+Enter tidak mencetak apa-apa');
+ok(el('hal-3').hidden === false, 'Ctrl+Enter membawa ke halaman pratonton');
+el('balik-3').click();
 
 console.log('== 19. Telefon: pratonton skrin penuh tanpa skrol ==');
 ok(/@media screen and \(max-width: 760px\)[\s\S]{0,2600}#hal-3 \{[\s\S]{0,200}position: fixed; inset: 0/.test(html),
@@ -1072,6 +1082,7 @@ lkBulat(8).click();
 ok(lk(8).hidden === false, 'langkah 8 kelihatan');
 ok(el('lk-seterusnya').textContent.indexOf('Seterusnya: Pratonton') === 0, 'butang bertukar jadi Seterusnya: Pratonton');
 el('lk-seterusnya').click();
+if (el('hal-3').hidden) el('lk-seterusnya').click();   // penjaga dua ketukan bila ada bahagian kosong
 ok(el('hal-3').hidden === false, 'tekan Seterusnya pada langkah terakhir pergi ke pratonton');
 el('balik-3').click();
 ok(el('hal-2').hidden === false && lk(8).hidden === false, 'balik ke butiran: kekal pada langkah terakhir');
@@ -1164,6 +1175,83 @@ w.ResumeMV.isi({ nama: 'Ahmad', telefon: '012-3456789', templat: 'bersih', foto:
 el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
 ok(d.querySelectorAll('.cv-bersih .cvs-foto img').length >= 1, 'bila ada foto, elemen foto bulat dirender');
 ok(/^data:image\//.test(d.querySelector('.cv-bersih .cvs-foto img').getAttribute('src')), 'sumber imej ialah data URL (tiada simpanan di pelayan)');
+
+console.log('== 32. Mesra telefon: Enter tidak melompat, bar tidak menutup medan, penjaga dua ketukan ==');
+// --- Enter dalam medan: fokus ke medan seterusnya, bukan tukar halaman ---
+el('kosongkan').click();
+d.querySelector('#lk-bulat .lk-b[data-lk="1"]').click();
+isi('#nama', 'Ahmad bin Ali'); isi('#telefon', '012-3456789');
+var ent = new w.KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true });
+var dibatalkan = !el('nama').dispatchEvent(ent);
+ok(dibatalkan, 'Enter dalam medan dihalang daripada menghantar borang');
+ok(d.activeElement && d.activeElement.id === 'telefon', 'Enter memindahkan fokus ke medan seterusnya dalam langkah yang sama');
+ok(el('hal-3').hidden === true, 'Enter tidak membawa ke pratonton');
+// textarea: Enter mesti kekal jadi baris baru
+var ct = new w.KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true });
+var okTextarea = el('ringkasan') ? el('ringkasan').dispatchEvent(ct) : true;
+ok(okTextarea === true, 'Enter dalam ruang teks tidak dihalang (boleh buat baris baru)');
+// enterkeyhint = next (papan kekunci telefon tunjuk "Next", bukan "Pergi")
+el('emel').focus();
+ok(el('emel').getAttribute('enterkeyhint') === 'next', 'medan dapat enterkeyhint=next supaya papan kekunci telefon tidak tunjuk "Pergi"');
+// --- CSS: ruang skrol supaya medan terakhir tidak di bawah bar melekat ---
+ok(/@media screen and \(max-width: 900px\) \{[\s\S]{0,200}#borang \{ padding-bottom: 168px; \}/.test(html),
+   'telefon: borang ada ruang skrol di bawah (medan terakhir boleh naik melepasi bar)');
+ok(/@media screen and \(max-width: 900px\) \{[\s\S]{0,300}\.lk-nav \{ margin-top: 20px/.test(html),
+   'telefon: jarak antara medan terakhir dan bar ditambah');
+ok(/@media screen and \(max-width: 900px\) \{[\s\S]{0,400}\.lk-b \{ width: 32px; height: 32px/.test(html),
+   'telefon: bulatan langkah dibesarkan sedikit (sasaran jari)');
+// --- penjaga dua ketukan sebelum pratonton ---
+el('kosongkan').click();
+d.querySelector('#lk-bulat .lk-b[data-lk="2"]').click();
+isi('#nama', 'Ahmad bin Ali'); isi('#telefon', '012-3456789');
+d.querySelector('#lk-bulat .lk-b[data-lk="8"]').click();
+ok(el('lk-seterusnya').textContent.indexOf('Seterusnya: Pratonton') === 0, 'langkah 8: butang jadi Seterusnya: Pratonton');
+el('lk-seterusnya').click();
+ok(el('hal-3').hidden === true, 'ketukan pertama (bahagian masih kosong) tidak membawa ke pratonton');
+ok(/Belum diisi:/.test(el('lk-nota').textContent), 'amaran senarai bahagian kosong dipaparkan: ' + el('lk-nota').textContent.slice(0, 60));
+el('lk-seterusnya').click();
+ok(el('hal-3').hidden === false, 'ketukan kedua barulah ke pratonton');
+// bila semua sudah diisi: satu ketukan sahaja
+el('balik-3').click();
+d.querySelector('#lk-bulat .lk-b[data-lk="2"]').click();
+isi('#ringkasan', 'Juruteknik yang berpengalaman.');
+d.querySelector('#lk-bulat .lk-b[data-lk="3"]').click();
+isi('#senarai-pengalaman .baris .p-jawatan', 'Juruteknik Tapak');
+d.querySelector('#lk-bulat .lk-b[data-lk="4"]').click();
+isi('#senarai-pendidikan .baris .d-kelulusan', 'Diploma Kejuruteraan');
+d.querySelector('#lk-bulat .lk-b[data-lk="5"]').click();
+isiTahap('kemahiran', [['AutoCAD', 4]]);
+d.querySelector('#lk-bulat .lk-b[data-lk="6"]').click();
+isiTahap('bahasa', [['Bahasa Melayu', 5]]);
+d.querySelector('#lk-bulat .lk-b[data-lk="7"]').click();
+isi('#senarai-rujukan .baris .rj-nama', 'En. Ahmad');
+d.querySelector('#lk-bulat .lk-b[data-lk="8"]').click();
+ok(el('lk-nota').hidden === true, 'nota amaran hilang bila semua bahagian sudah diisi');
+el('lk-seterusnya').click();
+ok(el('hal-3').hidden === false, 'semua lengkap: satu ketukan terus ke pratonton');
+el('balik-3').click();
+// penjaga bermula semula selepas tukar langkah (kosongkan satu bahagian dahulu)
+d.querySelector('#lk-bulat .lk-b[data-lk="5"]').click();
+d.querySelector('#senarai-kemahiran .baris .t-nama').value = '';
+d.querySelector('#lk-bulat .lk-b[data-lk="8"]').click();
+el('lk-seterusnya').click();
+ok(el('hal-3').hidden === true && /Belum diisi: Kemahiran/.test(el('lk-nota').textContent),
+   'penjaga dua ketukan bermula semula selepas tukar langkah (amaran sebut Kemahiran)');
+
+// bar langkah mengecil semasa menaip supaya tidak menutupi medan (punca tersalah tekan)
+ok(/\.lk-nav\.dikecilkan \{ padding: 7px 11px; \}/.test(html), 'telefon: ada gaya bar mengecil semasa menaip');
+ok(/\.lk-nav\.dikecilkan \.lk-butang,[\s\S]{0,160}display: none;/.test(html),
+   'telefon: butang Seterusnya/Kembali dan bulatan langkah disembunyikan semasa menaip');
+ok(/document\.addEventListener\('focusout', function \(e\) \{[\s\S]{0,400}classList\.remove\('dikecilkan'\)/.test(html),
+   'bar kembali besar apabila fokus keluar dari medan');
+d.querySelector('#lk-bulat .lk-b[data-lk="1"]').click();
+el('nama').focus();
+ok(el('lk-nav').classList.contains('dikecilkan'), 'fokus ke medan: bar langkah mengecil');
+el('emel').focus();
+ok(el('lk-nav').classList.contains('dikecilkan'), 'pindah ke medan lain: bar kekal mengecil');
+d.querySelector('#lk-bulat .lk-b[data-lk="5"]').click();
+ok(!el('lk-nav').classList.contains('dikecilkan'), 'tukar langkah: bar kembali besar');
+ok(/function medanBorang\(e\)/.test(html) && /closest\('#borang'\)/.test(html), 'hanya medan dalam borang yang mengaktifkan pengecilan');
 
   Promise.resolve().then(function () {
     console.log('\n' + pass + ' lulus, ' + fail + ' gagal, ' + skip + ' dilangkau');
