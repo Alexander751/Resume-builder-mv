@@ -127,7 +127,7 @@
   /* ---------- halaman 1: pilih reka bentuk ---------- */
   .senarai-templat { display: grid; gap: 20px; margin-bottom: 4px; }
   .kad-pilih {
-    display: grid; grid-template-columns: minmax(200px, 290px) 1fr; gap: 28px; align-items: center;
+    display: grid; grid-template-columns: minmax(200px, 290px) 1fr; gap: 28px; align-items: start;
     position: relative; overflow: hidden; background: #fff; width: 100%; text-align: left;
     font: inherit; color: inherit; cursor: pointer;
     border: 1px solid var(--line); border-radius: 18px; padding: 26px; box-shadow: var(--sh2);
@@ -345,6 +345,12 @@
     background: none; border: 0; padding: 0; margin: 0; font: inherit; font-size: 12.7px;
     font-weight: 700; color: var(--brand); cursor: pointer; text-decoration: underline;
   }
+  .sek-hint { margin: 0 0 8px; font-size: 12.7px; line-height: 1.55; color: var(--muted); }
+  /* ---------- elemen berulang ketika cetak (halaman 2+ berdesign sama) ---------- */
+  .cetak-berulang { display: none; }
+  .cb-rel { display: none; }
+  body[data-templat="bersih"] { --jalur: #00366d; }
+  body[data-templat="biru"] { --jalur: #323b4c; }
   .nota-tambah { margin: 0 0 8px; font-size: 12.7px; line-height: 1.55; color: var(--muted); }
   .cepat-tambah { display: flex; flex-wrap: wrap; gap: 7px; margin: 0 0 4px; }
   .cip {
@@ -507,10 +513,10 @@
   .cvb-badan { display: flex; flex: 1 1 auto; align-items: stretch; }
   .cvb-kiri {
     width: 65mm; flex: 0 0 auto; background: #e4e4e4;
-    padding: 32.2mm 7mm 10mm 7mm;
+    padding: 32.2mm 7mm 15mm 7mm;
   }
   .cvb-kanan {
-    flex: 1 1 auto; min-width: 0; margin-left: 8.3mm; padding: 12.8mm 12.5mm 10mm 9.5mm;
+    flex: 1 1 auto; min-width: 0; margin-left: 8.3mm; padding: 12.8mm 12.5mm 15mm 9.5mm;
     border-left: .6pt solid #323b4c;
   }
   .lembar .cv-biru h2 {
@@ -570,9 +576,9 @@
        isi pendek -> renggang (halaman tidak lopong); isi panjang -> padat (muat 1 halaman) */
     --renggang: 1; --teks: 1;
     font-size: calc(10.5pt * var(--teks)); line-height: 1.36; color: #1e1e1e; background: #fff;
-    padding: 10mm 12.5mm 9mm 12.5mm; position: relative; min-height: 297mm;
+    padding: 10mm 12.5mm 14mm 12.5mm; position: relative; min-height: 297mm;
   }
-  .cv-bersih .cvs-foto { position: absolute; left: -3mm; top: 1mm; width: 44mm; height: 51mm; overflow: hidden; }
+  .cv-bersih .cvs-foto { position: absolute; left: -3mm; top: 7mm; width: 44mm; height: 51mm; overflow: hidden; }
   .cv-bersih .cvs-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .cv-bersih .cvs-kepala { min-height: calc(52mm * var(--renggang)); }
   .cv-bersih .cvs-identiti { margin-left: 37mm; }
@@ -646,6 +652,25 @@
     .lembar .cvb-kiri, .lembar .cvb-kanan { break-inside: auto; }
     /* templat satu lajur: jangan paksa tinggi A4; benarkan blok panjang mengalir,
        tetapi tajuk tidak boleh terpisah daripada isinya dan item tidak dipotong */
+    html, body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .cetak-berulang { display: block; }
+    .cb-jalur {
+      position: fixed; left: 0; right: 0; top: 0; height: 5mm; background: var(--jalur, #00366d);
+    }
+    .cb-kaki {
+      position: fixed; left: 0; right: 0; bottom: 0; min-height: 9mm; background: transparent;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 12.5mm; border-top: .6pt solid rgba(50, 59, 76, .28);
+      font-family: "Inter", "Segoe UI", Arial, sans-serif; font-size: 8pt; font-weight: 600;
+      color: var(--jalur, #00366d);
+    }
+    .cb-sambung { font-weight: 400; opacity: .75; }
+    /* templat dua lajur: rel kelabu diteruskan ke setiap halaman supaya halaman 2 sama design */
+    body[data-templat="biru"] .cb-rel {
+      display: block; position: fixed; left: 0; top: 50mm; bottom: 0; width: 65mm;
+      background: #e4e4e4; z-index: 0;
+    }
+    .lembar .cvb-kiri, .lembar .cvb-kanan { position: relative; z-index: 1; }
     .lembar .cv-bersih { min-height: auto; }
     .lembar .cv-bersih h2 { break-after: avoid; page-break-after: avoid; }
     .lembar .cv-bersih .cvs-item { break-inside: avoid; page-break-inside: avoid; }
@@ -794,8 +819,9 @@
       <button type="button" class="sek-buang" data-sek="rujukan">Buang bahagian ini</button>
     <fieldset>
       <legend>Rujukan</legend>
-      <label for="rujukan">Rujukan (satu baris satu orang)</label>
-      <textarea id="rujukan" placeholder="cth. En. Ahmad — Pengurus Projek, EPH Construction, 012-3456789"></textarea>
+      <p class="sek-hint">Isi satu orang satu baris &#8212; <strong>tiada tanda koma</strong> perlu.</p>
+      <div id="senarai-rujukan"></div>
+      <button type="button" class="btn-tambah" id="tambah-rujukan">+ Tambah rujukan</button>
     </fieldset>      <p class="sek-nota">Bahagian <strong>Rujukan</strong> dibuang dari resume. <button type="button" data-sek-batal="rujukan">Tambah balik</button></p>
     </fieldset>
 
@@ -911,7 +937,7 @@
   'use strict';
 
   var KUNCI = 'resume-mv-v1';
-  var bilPengalaman = 0, bilPendidikan = 0, bilTambahan = 0;
+  var bilPengalaman = 0, bilPendidikan = 0, bilTambahan = 0, bilRujukan = 0;
   var BUANG = [];   // bahagian piawai yang pelanggan pilih untuk dibuang
 
   /* ============================================================
@@ -996,6 +1022,43 @@
     return b;
   }
 
+  /* satu rujukan = satu baris (nama / jawatan+syarikat / telefon) - tiada tanda koma */
+  function barisRujukan(data) {
+    data = data || {};
+    bilRujukan++;
+    var n = bilRujukan;
+    var b = document.createElement('div');
+    b.className = 'baris';
+    b.innerHTML =
+      '<div class="kepala"><strong>Rujukan ' + n + '</strong>' +
+      '<button type="button" class="btn-hapus">Hapus</button></div>' +
+      '<label>Nama</label><input class="rj-nama" type="text" placeholder="cth. En. Ahmad Faizal bin Hassan">' +
+      '<label>Jawatan &amp; syarikat</label><input class="rj-jawatan" type="text" placeholder="cth. Pengurus Projek, EPH Construction Sdn Bhd">' +
+      '<label>Telefon atau e-mel</label><input class="rj-telefon" type="text" placeholder="cth. 012-345 6789 atau ahmad@contoh.my">';
+    b.querySelector('.rj-nama').value = data.nama || '';
+    b.querySelector('.rj-jawatan').value = data.jawatan || '';
+    b.querySelector('.rj-telefon').value = data.telefon || '';
+    b.querySelector('.btn-hapus').addEventListener('click', function () {
+      b.remove();
+      kemasSemula();
+    });
+    return b;
+  }
+
+  /* terima format baharu (senarai objek) atau kod lama (teks satu baris satu orang) */
+  function senaraiRujukan(d) {
+    var r = d ? d.rujukan : null;
+    if (Array.isArray(r)) {
+      return r.filter(function (o) { return o && (o.nama || o.jawatan || o.telefon); })
+        .map(function (o) { return { nama: o.nama || '', jawatan: o.jawatan || '', telefon: o.telefon || '' }; });
+    }
+    if (typeof r === 'string' && r.trim()) {
+      return r.split('\n').map(function (x) { return x.trim(); }).filter(Boolean)
+        .map(function (x) { return { nama: x, jawatan: '', telefon: '' }; });
+    }
+    return [];
+  }
+
   function barisPendidikan(data) {
     data = data || {};
     bilPendidikan++;
@@ -1029,7 +1092,7 @@
       ringkasan: el('ringkasan').value.trim(),
       kemahiran: el('kemahiran').value.trim(),
       bahasa: el('bahasa').value.trim(),
-      rujukan: el('rujukan').value.trim(),
+      rujukan: [],
       foto: foto,
       pengalaman: [],
       pendidikan: [],
@@ -1061,6 +1124,14 @@
         b: b.querySelector('.t-isi').value.split('\n').map(function (x) { return x.trim(); }).filter(Boolean).join('\n')
       };
       if (o.t || o.b) d.tambahan.push(o);
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('#senarai-rujukan .baris'), function (b) {
+      var o = {
+        nama: b.querySelector('.rj-nama').value.trim(),
+        jawatan: b.querySelector('.rj-jawatan').value.trim(),
+        telefon: b.querySelector('.rj-telefon').value.trim()
+      };
+      if (o.nama || o.jawatan || o.telefon) d.rujukan.push(o);
     });
     d.templat = KUNCI_TEMPLAT;
     return d;
@@ -1192,6 +1263,9 @@
     el('resume').innerHTML = isi;
     var sisi = el('sisi-kertas');
     if (sisi) sisi.innerHTML = isi;
+    document.body.setAttribute('data-templat', KUNCI_TEMPLAT);
+    var kakiNama = el('cb-nama');
+    if (kakiNama) kakiNama.textContent = (d.nama || 'Resume') + (d.jawatan ? ' \u00b7 ' + d.jawatan : '');
     larasRuang();
     capAir(!penjual);
     susunSkalaSisi();
@@ -1367,9 +1441,14 @@
       }).join('');
     }
 
-    if (d.rujukan && !dibuang(d, 'rujukan')) {
-      blok.rujukan = '<h2>' + ikonLencana('orangRamai') + 'Rujukan</h2>' + d.rujukan.split('\n').map(function (s) { return s.trim(); }).filter(Boolean)
-        .map(function (s) { return '<div class="cvb-teks">' + esc(s) + '</div>'; }).join('');
+    var rujBiru = senaraiRujukan(d);
+    if (rujBiru.length && !dibuang(d, 'rujukan')) {
+      blok.rujukan = '<h2>' + ikonLencana('orangRamai') + 'Rujukan</h2>' + rujBiru.map(function (o) {
+        var x = '<div class="cvb-item"><div class="cvb-item-kepala"><strong>' + esc(o.nama || o.jawatan || '(Rujukan)') + '</strong>' +
+                '<span>' + esc(o.telefon) + '</span></div>';
+        if (o.jawatan && o.nama) x += '<div class="cvb-item-sub">' + esc(o.jawatan) + '</div>';
+        return x + '</div>';
+      }).join('');
     }
 
     // bahagian yang pelanggan tambah sendiri (Projek, Sijil, Aktiviti, ...)
@@ -1432,9 +1511,14 @@
     }
     if (d.kemahiran && !dibuang(d, 'kemahiran')) blok.kemahiran = '<h2>Kemahiran</h2><p class="cvs-inline">' + esc(d.kemahiran) + '</p>';
     if (d.bahasa && !dibuang(d, 'bahasa')) blok.bahasa = '<h2>Bahasa</h2><p class="cvs-inline">' + esc(d.bahasa) + '</p>';
-    if (d.rujukan && !dibuang(d, 'rujukan')) {
-      blok.rujukan = '<h2>Rujukan</h2>' + d.rujukan.split('\n').map(function (x) { return x.trim(); }).filter(Boolean)
-        .map(function (x) { return '<p class="cvs-inline">' + esc(x) + '</p>'; }).join('');
+    var rujBersih = senaraiRujukan(d);
+    if (rujBersih.length && !dibuang(d, 'rujukan')) {
+      blok.rujukan = '<h2>Rujukan</h2>' + rujBersih.map(function (o) {
+        var x = '<div class="cvs-item"><div class="cvs-item-kepala"><strong>' + esc(o.nama || o.jawatan || '(Rujukan)') + '</strong>' +
+                '<span>' + esc(o.telefon) + '</span></div>';
+        if (o.jawatan && o.nama) x += '<div class="cvs-item-sub">' + esc(o.jawatan) + '</div>';
+        return x + '</div>';
+      }).join('');
     }
     (d.tambahan || []).forEach(function (o, i) {
       var tajuk = String(o.t || '').trim();
@@ -1471,7 +1555,8 @@
   function kodDari(d) {
     var ringkas = {
       s: KUNCI_TEMPLAT, n: d.nama, t: d.telefon, e: d.emel, l: d.lokasi, j: d.jawatan,
-      g: d.ringkasan, k: d.kemahiran, b: d.bahasa, u: d.rujukan,
+      g: d.ringkasan, k: d.kemahiran, b: d.bahasa,
+      u: senaraiRujukan(d).map(function (o) { return { n: o.nama, j: o.jawatan, t: o.telefon }; }),
       p: d.pengalaman, d: d.pendidikan,
       a: (d.tambahan || []).filter(function (o) { return String(o.t || '').trim(); }),   // bahagian tambahan
       x: d.buang || [],                                                                 // bahagian dibuang
@@ -1491,7 +1576,10 @@
         templat: (TEMPLAT[o.s] ? o.s : 'biru'),
         nama: o.n || '', telefon: o.t || '', emel: o.e || '', lokasi: o.l || '',
         jawatan: o.j || '', ringkasan: o.g || '', kemahiran: o.k || '',
-        bahasa: o.b || '', rujukan: o.u || '',
+        bahasa: o.b || '',
+        rujukan: (Array.isArray(o.u)
+          ? o.u.map(function (x) { return { nama: x.n || x.nama || '', jawatan: x.j || x.jawatan || '', telefon: x.t || x.telefon || '' }; })
+          : senaraiRujukan({ rujukan: o.u })),
         pengalaman: Array.isArray(o.p) ? o.p : [], pendidikan: Array.isArray(o.d) ? o.d : [],
         tambahan: Array.isArray(o.a) ? o.a : [], buang: Array.isArray(o.x) ? o.x : [],
         susun: (o.y && (o.y.kiri || o.y.kanan)) ? { kiri: o.y.kiri || [], kanan: o.y.kanan || [] } : null
@@ -1703,6 +1791,9 @@
     el('senarai-pendidikan').appendChild(barisPendidikan());
     el('senarai-tambahan').innerHTML = '';
     bilTambahan = 0;
+    el('senarai-rujukan').innerHTML = '';
+    bilRujukan = 0;
+    el('senarai-rujukan').appendChild(barisRujukan());
     BUANG = [];
     SUSUN = null;
     kemasSek();
@@ -1721,7 +1812,10 @@
     el('ringkasan').value = d.ringkasan || '';
     el('kemahiran').value = d.kemahiran || '';
     el('bahasa').value = d.bahasa || '';
-    el('rujukan').value = d.rujukan || '';
+    el('senarai-rujukan').innerHTML = '';
+    bilRujukan = 0;
+    senaraiRujukan(d).forEach(function (o) { el('senarai-rujukan').appendChild(barisRujukan(o)); });
+    if (!el('senarai-rujukan').children.length) el('senarai-rujukan').appendChild(barisRujukan());
     foto = d.foto || '';
     tulisLogFoto();
     el('senarai-pengalaman').innerHTML = '';
@@ -1816,6 +1910,12 @@
   el('tambah-pengalaman').addEventListener('click', function () {
     el('senarai-pengalaman').appendChild(barisPengalaman());
     kemasSemula();
+  });
+  el('tambah-rujukan').addEventListener('click', function () {
+    el('senarai-rujukan').appendChild(barisRujukan());
+    kemasSemula();
+    var baris = el('senarai-rujukan').lastElementChild;
+    if (baris) baris.querySelector('.rj-nama').focus();
   });
   el('togol-susun').addEventListener('click', function () { setModSusun(!MOD_SUSUN); });
   el('togol-susun-3').addEventListener('click', function () { setModSusun(!MOD_SUSUN); });
@@ -2100,7 +2200,7 @@
     ringkasan: 'Graduan Sarjana Muda Ukur Bahan dengan 2 tahun pengalaman dalam projek perumahan mampu milik. Berpengalaman menyediakan BQ dan menyemak tuntutan kontraktor.',
     kemahiran: 'Pengukuran Kuantiti, AutoCAD, MS Excel, BIM Revit, Pengurusan Kontrak',
     bahasa: 'Bahasa Melayu (Fasih), English (Fluent)',
-    rujukan: 'En. Ahmad Faizal — Pengurus Projek, EPH Construction, 012-3456789',
+    rujukan: [{ nama: 'En. Ahmad Faizal bin Hassan', jawatan: 'Pengurus Projek, EPH Construction Sdn Bhd', telefon: '012-345 6789' }],
     pengalaman: [
       { syarikat: 'EPH Construction Sdn Bhd', jawatan: 'Quantity Surveyor', tempoh: 'Mac 2024 - Kini',
         poin: ['Sediakan BQ untuk 3 projek perumahan mampu milik.', 'Semak dan nilai tuntutan kontraktor bulanan.'] },
@@ -2178,5 +2278,12 @@
 })();
 </script>
 
+<!-- Elemen berulang pada SETIAP halaman cetakan: jalur atas + kaki halaman.
+     Ini menjadikan halaman 2 (dan seterusnya) berdesign sama seperti halaman 1. -->
+<div class="cetak-berulang" id="cetak-berulang" aria-hidden="true">
+  <div class="cb-jalur"></div>
+  <div class="cb-rel"></div>
+  <div class="cb-kaki"><span id="cb-nama">Resume</span><span class="cb-sambung">sambungan halaman</span></div>
+</div>
 </body>
 </html>

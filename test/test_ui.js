@@ -216,7 +216,9 @@ isi('#senarai-pendidikan .baris:nth-child(1) .d-institusi', 'UiTM Shah Alam');
 isi('#senarai-pendidikan .baris:nth-child(1) .d-tahun', '2021 - 2024');
 ok(!el('templat'), 'pemilih templat sudah dibuang (satu reka bentuk sahaja)');
 el('bahasa').value = 'Bahasa Melayu (Fasih), English (Fluent)';
-el('rujukan').value = 'En. Ahmad — Pengurus Projek, EPH Construction';
+isi('#senarai-rujukan .baris .rj-nama', 'En. Ahmad Faizal');
+isi('#senarai-rujukan .baris .rj-jawatan', 'Pengurus Projek, EPH Construction');
+isi('#senarai-rujukan .baris .rj-telefon', '012-345 6789');
 el('borang').dispatchEvent(new w.Event('change', { bubbles: true }));
 const biru = d.querySelector('#resume .cv-biru');
 ok(!!biru, 'templat Biru & Kelabu dirender secara lalai');
@@ -548,7 +550,8 @@ el('mula-isi').click();
 ok(el('hal-2').hidden === false, 'di halaman butiran');
 isi('#nama', 'Ahmad bin Ali'); isi('#telefon', '012-3456789');
 isi('#jawatan', 'Juruteknik Tapak'); isi('#kemahiran', 'AutoCAD, MS Excel');
-isi('#bahasa', 'Bahasa Melayu, English'); isi('#rujukan', 'En. Samad - 019-1112222');
+isi('#bahasa', 'Bahasa Melayu, English');
+isi('#senarai-rujukan .baris .rj-nama', 'En. Samad'); isi('#senarai-rujukan .baris .rj-telefon', '019-1112222');
 isi('#ringkasan', 'Juruteknik awam dengan 4 tahun pengalaman.');
 isi('#senarai-pengalaman .p-jawatan', 'Juruteknik Tapak');
 isi('#senarai-pengalaman .p-syarikat', 'EPH Construction');
@@ -621,7 +624,7 @@ isi('#nama', 'Ahmad bin Ali'); isi('#telefon', '012-3456789'); isi('#emel', 'ahm
 isi('#lokasi', 'Kemaman'); isi('#jawatan', 'Juruteknik Tapak');
 isi('#ringkasan', 'Juruteknik awam dengan 4 tahun pengalaman.');
 isi('#kemahiran', 'AutoCAD, MS Excel'); isi('#bahasa', 'Bahasa Melayu, English');
-isi('#rujukan', 'En. Samad - 019-1112222');
+isi('#senarai-rujukan .baris .rj-nama', 'En. Samad'); isi('#senarai-rujukan .baris .rj-telefon', '019-1112222');
 isi('#senarai-pengalaman .p-jawatan', 'Juruteknik Tapak');
 isi('#senarai-pengalaman .p-syarikat', 'EPH Construction');
 isi('#senarai-pendidikan .d-kelulusan', 'Diploma Kejuruteraan Awam');
@@ -829,6 +832,73 @@ ok(/dicetak 2 halaman/.test(html), 'nota menyatakan kesan sebenar (2 halaman)');
 ok(typeof w.ResumeMV.teks === 'function' && w.ResumeMV.teks() === 1, 'skala fon boleh dibaca (lalai 1)');
 ok(typeof w.ResumeMV.lebih === 'function' && w.ResumeMV.lebih() === false, 'isyarat melebihi halaman lalai false');
 ok(html.indexOf('auto-padat') >= 0 || /padatkan \(jarak rapat/.test(html), 'kod pemadatan berkomentar jelas');
+
+console.log('== 27. Rujukan mesra pengguna (tanpa koma) + halaman 2 berdesign sama ==');
+// medan rujukan berstruktur
+ok(!!el('senarai-rujukan'), 'bekas #senarai-rujukan wujud');
+ok(!!el('tambah-rujukan'), 'butang + Tambah rujukan wujud');
+ok(el('rujukan') === null, 'textarea #rujukan yang lama sudah dibuang');
+ok(/tiada tanda koma/.test(html), 'arahan jelas: tiada tanda koma perlu');
+ok(d.querySelectorAll('#senarai-rujukan .baris').length === 1, 'bermula dengan satu baris rujukan');
+const r1 = d.querySelector('#senarai-rujukan .baris');
+ok(!!r1.querySelector('.rj-nama') && !!r1.querySelector('.rj-jawatan') && !!r1.querySelector('.rj-telefon'),
+   'setiap rujukan ada medan nama / jawatan+syarikat / telefon');
+el('tambah-rujukan').click();
+ok(d.querySelectorAll('#senarai-rujukan .baris').length === 2, 'butang menambah baris rujukan');
+isi('#senarai-rujukan .baris:nth-child(1) .rj-nama', 'En. Ahmad Faizal bin Hassan');
+isi('#senarai-rujukan .baris:nth-child(1) .rj-jawatan', 'Pengurus Projek, EPH Construction Sdn Bhd');
+isi('#senarai-rujukan .baris:nth-child(1) .rj-telefon', '012-345 6789');
+isi('#senarai-rujukan .baris:nth-child(2) .rj-nama', 'Puan Siti Aminah');
+isi('#senarai-rujukan .baris:nth-child(2) .rj-telefon', '019-222 3333');
+el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+const dRuj = w.ResumeMV.kumpul();
+ok(Array.isArray(dRuj.rujukan) && dRuj.rujukan.length === 2, 'rujukan dikumpul sebagai senarai (bukan teks berkoma)');
+ok(dRuj.rujukan[0].nama === 'En. Ahmad Faizal bin Hassan' && dRuj.rujukan[0].jawatan.indexOf('EPH') >= 0 &&
+   dRuj.rujukan[0].telefon === '012-345 6789', 'nama / jawatan / telefon disimpan berasingan');
+ok(dRuj.rujukan[1].jawatan === '', 'medan yang tidak diisi dibiarkan kosong (tidak jadi koma berganda)');
+// pratonton templat bersih
+d.querySelector('.kad-pilih[data-templat="bersih"]').click();
+const blokRuj = d.querySelector('#resume .cv-bersih [data-blok="rujukan"]');
+ok(!!blokRuj, 'bahagian Rujukan dirender dalam templat Biru Bersih');
+ok(blokRuj.querySelectorAll('.cvs-item').length === 2, 'dua rujukan = dua item (bukan satu perenggan berkoma)');
+ok(blokRuj.textContent.indexOf('En. Ahmad Faizal bin Hassan') >= 0 &&
+   blokRuj.textContent.indexOf('Pengurus Projek, EPH Construction Sdn Bhd') >= 0 &&
+   blokRuj.textContent.indexOf('012-345 6789') >= 0, 'nama, jawatan dan telefon semua muncul');
+ok(blokRuj.textContent.indexOf(', ,') < 0, 'tiada tanda koma berganda');
+// templat biru
+d.querySelector('.kad-pilih[data-templat="biru"]').click();
+const blokRuj2 = d.querySelector('#resume .cv-biru [data-blok="rujukan"]');
+ok(!!blokRuj2 && blokRuj2.querySelectorAll('.cvb-item').length === 2, 'dua rujukan juga dirender dalam templat Biru & Kelabu');
+// kod pesanan menyimpan + memulihkan rujukan
+const kodR = w.ResumeMV.kod(w.ResumeMV.kumpul());
+const balikR = w.ResumeMV.dariKod(kodR);
+ok(Array.isArray(balikR.rujukan) && balikR.rujukan.length === 2 && balikR.rujukan[0].nama.indexOf('Ahmad') >= 0,
+   'kod pesanan menyimpan rujukan berstruktur');
+const kodLamaR = 'eyJzIjoiYmlydSIsIm4iOiJVamlhbiIsInQiOiIwMTIiLCJ1IjoiRW4uIExhbWEgLSBQZW5nYXJ1cyJ9';
+const balikLama = w.ResumeMV.dariKod(kodLamaR);
+ok(Array.isArray(balikLama.rujukan) && balikLama.rujukan.length === 1 && balikLama.rujukan[0].nama.indexOf('En. Lama') >= 0,
+   'kod pesanan LAMA (rujukan sebagai teks) tetap dibaca dengan betul');
+// buang baris
+d.querySelector('#senarai-rujukan .baris:nth-child(2) .btn-hapus').click();
+ok(d.querySelectorAll('#senarai-rujukan .baris').length === 1, 'baris rujukan boleh dihapus');
+// kad templat rata atas (tidak ditengahkan menegak)
+ok(/\.kad-pilih \{[\s\S]{0,260}align-items: start/.test(html), 'kad reka bentuk: pratonton mini duduk di atas (tidak ditengahkan)');
+// elemen cetak berulang (halaman 2 berdesign sama)
+ok(!!el('cetak-berulang') && !!el('cb-nama'), 'elemen cetak berulang wujud (jalur atas + kaki halaman)');
+ok(/\.cb-jalur \{[\s\S]{0,200}position: fixed/.test(html) && /\.cb-kaki \{[\s\S]{0,200}position: fixed/.test(html),
+   'jalur atas & kaki halaman guna position: fixed (berulang pada setiap halaman cetakan)');
+ok(/body\[data-templat="bersih"\] \{ --jalur: #00366d/.test(html) && /body\[data-templat="biru"\] \{ --jalur: #323b4c/.test(html),
+   'warna jalur ikut reka bentuk yang dipilih');
+ok(/print-color-adjust: exact/.test(html), 'warna dipaksa cetak (reka bentuk tidak hilang kalau kotak warna dimatikan)');
+ok(/body\[data-templat="biru"\] \.cb-rel \{[\s\S]{0,200}position: fixed[\s\S]{0,160}width: 65mm/.test(html),
+   'templat dua lajur: rel kelabu diteruskan pada halaman 2 (65mm, dari 50mm ke bawah)');
+ok(/\.lembar \.cvb-kiri, \.lembar \.cvb-kanan \{ position: relative; z-index: 1; \}/.test(html),
+   'kandungan lajur dilukis di atas rel supaya teks tidak tertutup');
+ok(d.body.getAttribute('data-templat') === 'biru', 'body ditanda dengan reka bentuk semasa');
+d.querySelector('.kad-pilih[data-templat="bersih"]').click();
+ok(d.body.getAttribute('data-templat') === 'bersih', 'tanda data-templat bertukar bila reka bentuk ditukar');
+ok(el('cb-nama').textContent.indexOf('Ahmad') >= 0 || el('cb-nama').textContent.length > 0, 'nama dipaparkan pada kaki halaman');
+d.querySelector('.kad-pilih[data-templat="biru"]').click();
 
   Promise.resolve().then(function () {
     console.log('\n' + pass + ' lulus, ' + fail + ' gagal, ' + skip + ' dilangkau');

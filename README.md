@@ -215,6 +215,29 @@ dengan halaman terakhir hampir kosong).
   (halaman 1 penuh sehingga y=795/842). Templat Biru & Kelabu dengan 5 x 4 → 165%, nota tetap dipaparkan.
 - **Ujian** — blok 26 (12 ujian baharu). Jumlah **351 lulus, 0 gagal**.
 
+**Fasa 19 — Rujukan mesra pengguna + halaman 2 berdesign sama**
+
+Tiga permintaan: (1) ruang rujukan jangan paksa taip berkoma, (2) kad reka bentuk duduk di atas (tidak
+ditengahkan menegak), (3) kalau isi terlalu banyak, halaman kedua mesti berdesign sama.
+
+- **Rujukan berstruktur** — textarea tunggal diganti dengan baris berulang seperti Pengalaman:
+  **Nama**, **Jawatan & syarikat**, **Telefon atau e-mel**. Butang **+ Tambah rujukan** dan **Hapus** setiap baris.
+  Data disimpan sebagai senarai objek (`{nama, jawatan, telefon}`) - tiada koma, tiada format yang perlu dihafal.
+  Kod pesanan kod menyimpannya sebagai `u: [{n,j,t}]`; kod **lama** (rujukan sebagai teks satu baris satu orang)
+  tetap dibaca betul (`senaraiRujukan()` menerima kedua-duanya).
+- **Cetakan halaman 2+ berdesign sama** — `.cetak-berulang` dengan `position: fixed` (Chrome mencetaknya pada
+  **setiap** halaman): jalur atas 5mm berwarna ikut reka bentuk (`--jalur`) + kaki halaman dengan nama & jawatan.
+  Untuk templat dua lajur, rel kelabu 65mm juga diteruskan (`body[data-templat="biru"] .cb-rel`), dengan
+  `z-index` supaya teks lajur kekal di atas rel.
+- **Warna dipaksa cetak** — `print-color-adjust: exact` supaya reka bentuk tidak hilang kalau pelanggan
+  mematikan "background graphics".
+- **Kad reka bentuk rata atas** — `.kad-pilih { align-items: start }` (pratonton mini tidak lagi ditengahkan
+  menegak) + padding bawah templat ditambah supaya baris terakhir tidak tertindih kaki halaman.
+- **Disahkan Chrome** (2 halaman cetak): templat Biru Bersih - jalur navy `#00366d` dan kaki nama muncul pada
+  **kedua-dua** halaman; templat Biru & Kelabu - jalur `#323b4c` + **rel kelabu 65mm berterusan** pada halaman 2
+  (piksel x=30, y=300 dan y=600 = (227,227,227)) + kaki nama pada kedua-dua halaman.
+- **Ujian** — blok 27 (24 ujian baharu). Jumlah **379 lulus, 0 gagal**.
+
 **Fasa 13** — muat naik resume lama **dibuang** (keputusan pengguna):
 
 - Ciri muat naik resume (PDF / Word / teks) dengan auto-isi telah dibangunkan penuh, diuji, dan **kemudian dibuang atas permintaan pengguna** kerana bacaan fail tidak cukup boleh dipercayai untuk pelanggan awam
@@ -273,7 +296,7 @@ cd test && npm install        # sekali sahaja (jsdom)
 "$LOCALAPPDATA/hermes/node/node.exe" test/test_ui.js
 ```
 
-Keputusan semasa: **351 lulus, 0 gagal**.
+Keputusan semasa: **379 lulus, 0 gagal**.
 
 ## Aliran jualan melalui WhatsApp (tanpa gerbang bayaran)
 
