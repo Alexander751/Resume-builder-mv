@@ -79,7 +79,7 @@
   .langkah .dot.siap:not(:disabled):hover b, .langkah .dot.aktif b { color: #fff; }
   .langkah .dot:focus-visible { outline: 3px solid #bfd9f2; outline-offset: 2px; }
   .langkah-teks { display: none; text-align: center; color: var(--muted); font-size: 12.5px; margin: 10px 0 0; }
-  @media (max-width: 640px) {
+  @media screen and (max-width: 640px) {
     .langkah .dot span { display: none; }
     .langkah .dot { padding: 5px 6px; }
     .langkah-teks { display: block; }
@@ -163,7 +163,7 @@
   /* papan pratonton: helaian + senarai semak di sisi (skrin lebar) */
   .papan { display: grid; grid-template-columns: 1fr; gap: 22px; align-items: start; }
   .sisi { display: none; }
-  @media (min-width: 1080px) {
+  @media screen and (min-width: 1080px) {
     .papan { grid-template-columns: auto 286px; justify-content: center; }
     .sisi {
       display: block; background: #fff; border: 1px solid var(--line); border-radius: 16px;
@@ -181,20 +181,48 @@
   }
 
   /* skrin kecil: satu lajur, butang penuh lebar (senang tekan dengan ibu jari) */
-  @media (max-width: 760px) {
+  @media screen and (max-width: 760px) {
     .hal { padding: 16px 14px 44px; }
     .kad-pilih { grid-template-columns: 1fr; gap: 20px; padding: 20px 18px; }
     .mini { max-width: 260px; margin: 0 auto; }
     .hal-tajuk { font-size: 19.5px; }
     .btn-utama, .btn-undur { width: 100%; }
     .nav-bawah { flex-direction: column-reverse; }
-    .bar-butang { width: 100%; }
-    .bar-butang .btn-undur, .bar-butang .btn-utama { width: 100%; }
-    .bar-pratonton { align-items: flex-start; }
     header.top { padding: 11px 14px; gap: 10px; }
     header.top p { font-size: 12px; }
   }
-  @media (max-width: 520px) { header.top p { display: none; } }
+
+  /* --- halaman pratonton: skrin penuh, helaian A4 muat tanpa skrol ---
+     Dipakai pada telefon (skrin sempit) DAN pada skrin rendah (telefon landskap / tetingkap pendek).
+     #hal-3 jadi lapisan tetap; bar tajuk di atas, butang tindakan di bawah, helaian di tengah. */
+  @media screen and (max-width: 760px), screen and (max-height: 620px) {
+    body[data-hal="3"] { overflow: hidden; }
+    #hal-3 {
+      position: fixed; inset: 0; z-index: 65; display: flex; flex-direction: column;
+      max-width: none; margin: 0; padding: 0; background: var(--bg); animation: none;
+    }
+    #hal-3 .bar-pratonton { display: contents; }   /* anak-anaknya jadi baris flex #hal-3 */
+    #hal-3 .bar-teks {
+      order: 1; flex: 0 0 auto; padding: 9px 13px;
+      background: #fff; border-bottom: 1px solid var(--line);
+    }
+    #hal-3 .bar-teks .hal-tajuk { font-size: 15px; margin: 0; }
+    #hal-3 .hal-sub { display: none; }
+    #hal-3 .papan {
+      order: 2; flex: 1 1 auto; min-height: 0; display: flex;
+      align-items: flex-start; justify-content: center; overflow: auto; padding: 8px;
+    }
+    #hal-3 .panel-pratonton { position: static; }
+    #hal-3 .sisi { display: none; }
+    #hal-3 .btn-skrin { display: none; }           /* pratonton memang sudah skrin penuh */
+    #hal-3 .bar-butang {
+      order: 3; flex: 0 0 auto; width: auto; gap: 8px; padding: 9px 12px;
+      background: #fff; border-top: 1px solid var(--line);
+    }
+    #hal-3 .bar-butang .btn-undur { width: auto; flex: 0 0 auto; padding: 12px 14px; font-size: 13px; }
+    #hal-3 .bar-butang .btn-utama { width: auto; flex: 1 1 auto; padding: 12px 14px; font-size: 14px; }
+  }
+  @media screen and (max-width: 520px) { header.top p { display: none; } }
 
   /* ---------- borang ---------- */
   form { background: none; border: 0; padding: 0; }
@@ -224,7 +252,7 @@
   }
   #buang-foto:hover { border-color: #c7d4e2; color: var(--danger); }
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
-  @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
+  @media screen and (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
   .baris {
     border: 1px solid var(--line); border-radius: 12px; background: #fbfcfe;
     padding: 4px 14px 14px; margin-top: 12px;
@@ -351,7 +379,7 @@
   .kertas {
     background: #fff; border: 1px solid var(--line); box-shadow: 0 2px 10px rgba(16, 24, 40, .08);
     width: 794px; aspect-ratio: 210 / 297; margin: 0 auto;
-    padding: 0; overflow: auto;
+    padding: 0; overflow: hidden;   /* helaian sentiasa diskalakan supaya muat: tiada skrol dalam */
     zoom: var(--skala, 1);   /* auto-saiz (JS susunSkala) supaya seluruh A4 muat tanpa skrol */
   }
   @media (max-width: 900px) { .panel-pratonton { position: static; } }
@@ -455,8 +483,10 @@
     header.top, form, #log, .no-print, .bar-pratonton, .langkah, .nav-bawah,
     .hal-tajuk, .hal-sub, #hal-1, #hal-2, #hal-4 { display: none !important; }
     /* hanya helaian resume yang dicetak, tak kira di halaman mana pengguna berada */
-    #hal-3 { display: block !important; max-width: none; padding: 0; }
-    .papan { display: block !important; }   /* grid pratonton mesti jadi blok biasa semasa cetak */
+    #hal-3 { display: block !important; max-width: none; padding: 0; position: static !important; }
+    body[data-hal="3"] { overflow: visible !important; }
+    .papan { display: block !important; padding: 0 !important; }   /* grid/padding pratonton mesti jadi blok biasa semasa cetak */
+    #hal-3 .bar-pratonton { display: none !important; }   /* bar tajuk/butang mesti kekal tersembunyi */
     main { display: block; padding: 0; gap: 0; }
     .panel-pratonton { position: static; }
     .kertas {
@@ -1141,20 +1171,44 @@
   });
 
   /* ---------- skala pratonton: seluruh A4 muat pada skrin, tanpa skrol ---------- */
+  /* lebar dalam bekas (tolak padding + border) */
+  function lebarDalam(n) {
+    if (!n) return 0;
+    var g = window.getComputedStyle(n);
+    var r = n.getBoundingClientRect();
+    var tepi = (parseFloat(g.paddingLeft) || 0) + (parseFloat(g.paddingRight) || 0)
+             + (parseFloat(g.borderLeftWidth) || 0) + (parseFloat(g.borderRightWidth) || 0);
+    return Math.max(0, r.width - tepi);
+  }
+
   function susunSkala() {
     var panel = document.querySelector('.panel-pratonton');
     var kertas = document.querySelector('.kertas');
     if (!panel || !kertas) return;
+    var penuh = document.body.classList.contains('skrin-penuh');
     var akar = document.documentElement;
     akar.style.setProperty('--skala', '1');          // ukur pada saiz sebenar dahulu
     var kk = kertas.getBoundingClientRect();
     var pk = panel.getBoundingClientRect();
     var atas = Math.max(kk.top, 16 + (kk.top - pk.top));   // kedudukan melekat + tinggi tajuk
     var tinggiTersedia = window.innerHeight - atas - 20;
-    var lebarTersedia = document.body.classList.contains('skrin-penuh')
-      ? window.innerWidth - 56 : (panel.clientWidth || 794);
+    /* PENTING: lebar diambil daripada BEKAS panel, bukan panel itu sendiri —
+       panel hanya selebar helaian, jadi memakainya bermakna had lebar tak pernah dikira
+       (helaian terpotong pada skrin telefon). */
+    var bekas = panel.parentElement || document.body;
+    var lebarTersedia;
+    if (penuh) {
+      lebarTersedia = window.innerWidth - 56;
+    } else {
+      lebarTersedia = lebarDalam(bekas) || window.innerWidth;
+      var sisi = bekas.querySelector ? bekas.querySelector('.sisi') : null;
+      if (sisi && window.getComputedStyle(sisi).display !== 'none') {
+        lebarTersedia -= sisi.getBoundingClientRect().width + 22;   // tolok kad semak di sisi
+      }
+    }
     var skala = Math.min(1, lebarTersedia / 794, tinggiTersedia / 1123);
     akar.style.setProperty('--skala', Math.max(0.28, skala).toFixed(4));
+    kertas.setAttribute('data-skala', Math.max(0.28, skala).toFixed(4));   // untuk ujian/ukur
   }
   window.addEventListener('resize', function () { susunSkala(); susunMini(); });
   window.addEventListener('orientationchange', function () { susunSkala(); susunMini(); });

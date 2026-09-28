@@ -20,7 +20,7 @@ Buka `index.html` (klik dua kali) atau laman awam di atas. Aliran **4 halaman**:
 
 1. **Pilih reka bentuk** — kad *Biru & Kelabu* dengan **pratonton mini sebenar** (bukan gambar) → **Mula Isi Butiran**
 2. **Isi butiran** — Nama + Nombor Telefon wajib; foto, jawatan, ringkasan, pengalaman, pendidikan, kemahiran, bahasa, rujukan → **Seterusnya: Pratonton**
-3. **Pratonton** — helaian A4 penuh (muat tanpa skrol) + butang **Skrin penuh** + senarai semak "Semak sebelum hantar" → **Seterusnya: Hantar**
+3. **Pratonton** — desktop: helaian A4 penuh + butang **Skrin penuh** + senarai semak "Semak sebelum hantar"; telefon: pratonton **sepenuh skrin** tanpa skrol → **Seterusnya: Hantar**
 4. **Hantar** — tekan butang WhatsApp; mesej pesanan + kod resume sudah siap diisi, anda cuma tekan hantar
 
 Butang **Jana PDF** ada di halaman butiran; cetak tetap keluar resume penuh walaupun anda berada di halaman lain.
@@ -105,6 +105,18 @@ Data disimpan automatik dalam pelayar (localStorage). **Kosongkan** memadam semu
 - Disahkan dalam Chrome: tiada limpahan mendatar pada mana-mana halaman, skrol pratonton 0px, helaian 361×511 pada 1424×749, butang WhatsApp 566×53, dan **cetakan dari keempat-empat halaman menghasilkan PDF yang identik** (1 halaman, 595×842 pt, 7/7 bahagian)
 - Ujian bertambah kepada **198 lulus, 0 gagal**
 
+**Fasa 10** — pratonton skrin penuh pada telefon (tanpa skrol):
+
+- Di telefon, halaman pratonton kini jadi **lapisan tetap sepenuh skrin** (`#hal-3 { position: fixed; inset: 0 }`): bar tajuk di atas, butang tindakan di bawah, helaian A4 di tengah. Skrol halaman dikunci (`body[data-hal="3"] { overflow: hidden }`)
+- `.bar-pratonton { display: contents }` supaya `bar-teks` dan `bar-butang` jadi baris flex `#hal-3` — tiada tinggi bar yang dikodkan keras, helaian ambil baki skrin (`flex: 1 1 auto`)
+- Dipakai pada **skrin sempit (≤760px) DAN skrin rendah (≤620px)** — jadi telefon landskap dan tetingkap pendek pun dapat pratonton penuh, bukan skrol
+- Hasil diukur: telefon 390×844 → helaian **485×686, skrol halaman 0px**; telefon pendek 501×551 → 342×484, skrol 0px; desktop 1440×900 → tidak berubah (lapisan statik, 361×511)
+- **Pepijat 1**: `susunSkala()` mengambil lebar daripada **panel** (yang selebar helaian itu sendiri), jadi had lebar tidak pernah dikira dan helaian **terpotong** pada telefon. Kini lebar diambil daripada **bekas** panel (`.papan`), tolak padding/border dan lebar kad semak di sisi
+- **Pepijat 2**: helaian ada `overflow: auto` dan tanda air (`inset: -8%`) menjadikannya lebih besar daripada kotak, jadi pelayar sebenar memaparkan **bar skrol dalam** pratonton. Ditukar kepada `overflow: hidden` (helaian sentiasa diskalakan supaya muat)
+- **Pepijat 3**: peraturan `@media (max-width: 760px)` **bocor ke mod cetak** (padding `.papan` menambah 16px) menjadikan PDF **2 halaman**. Semua media query lebar kini ditulis `@media screen and (...)` supaya tidak menyentuh cetakan; ditambah `.papan { padding: 0 !important }` dalam `@media print`
+- Cetakan disemak semula: dari keempat-empat halaman, dari telefon, dan dari mod penjual — **semuanya identik dengan sebelum perubahan** (1 halaman A4, 595×842pt, 7/7 bahagian)
+- Ujian bertambah kepada **214 lulus, 0 gagal**
+
 ## Ujian
 
 ```bash
@@ -112,7 +124,7 @@ cd test && npm install        # sekali sahaja (jsdom)
 "$LOCALAPPDATA/hermes/node/node.exe" test/test_ui.js
 ```
 
-Keputusan semasa: **198 lulus, 0 gagal**.
+Keputusan semasa: **214 lulus, 0 gagal**.
 
 ## Aliran jualan melalui WhatsApp (tanpa gerbang bayaran)
 

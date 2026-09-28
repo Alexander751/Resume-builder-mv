@@ -385,6 +385,39 @@ ok(/\.langkah \.dot\.siap b::after \{ content: /.test(html), 'langkah siap bertu
 ok(/\.kad-ciri li::before \{[\s\S]{0,80}content: /.test(html), 'senarai ciri guna tanda centang hijau');
 ok(/#wa:not\(\.sedia\) \{ background: #c3ccd6/.test(html), 'butang WhatsApp kelabu sebelum nama/telefon diisi');
 
+console.log('== 19. Telefon: pratonton skrin penuh tanpa skrol ==');
+ok(/@media screen and \(max-width: 760px\)[\s\S]{0,2600}#hal-3 \{[\s\S]{0,200}position: fixed; inset: 0/.test(html),
+   'telefon: halaman pratonton jadi lapisan tetap (skrin penuh)');
+ok(/body\[data-hal="3"\] \{ overflow: hidden; \}/.test(html), 'telefon: skrol halaman dikunci semasa pratonton');
+ok(/#hal-3 \.bar-pratonton \{ display: contents; \}/.test(html), 'bar tajuk & butang jadi baris flex penuh skrin');
+ok(/#hal-3 \.papan \{[\s\S]{0,160}flex: 1 1 auto/.test(html), 'helaian ambil baki tinggi skrin');
+ok(/#hal-3 \.btn-skrin \{ display: none; \}/.test(html), 'butang Skrin penuh disembunyikan di telefon (sudah penuh)');
+ok(/@media print[\s\S]{0,2000}#hal-3 \{[\s\S]{0,90}position: static !important/.test(html),
+   'cetak: lapisan tetap dibatalkan supaya cetakan kekal A4');
+
+ok(/var bekas = panel\.parentElement \|\| document\.body;/.test(html),
+   'skala: lebar diambil dari bekas panel (bukan helaian sendiri)');
+ok(/lebarDalam\(bekas\)/.test(html), 'skala: padding/border bekas ditolak');
+ok(/sisi\.getBoundingClientRect\(\)\.width \+ 22/.test(html), 'skala: kad semak di sisi ditolak dari lebar');
+ok(d.querySelector('.kertas').getAttribute('data-skala') !== null,
+   'skala semasa ditulis pada .kertas (data-skala)');
+
+ok(/\.kertas \{[\s\S]{0,300}overflow: hidden;/.test(html),
+   'helaian tiada skrol dalam (elak bar skrol dalam pratonton)');
+
+ok(/@media print[\s\S]{0,2000}#hal-3 \.bar-pratonton \{ display: none !important; \}/.test(html),
+   'cetak: bar tajuk/butang kekal tersembunyi (jangan tulis display:block selepas senarai sembunyi)');
+
+ok(!/@media \(max-width: 760px\)/.test(html),
+   'media query lebar guna "screen and" supaya peraturan telefon tidak bocor ke cetakan (punca PDF 2 halaman)');
+ok(/@media print[\s\S]{0,2000}\.papan \{ display: block !important; padding: 0 !important; \}/.test(html),
+   'cetak: .papan tanpa padding supaya helaian kekal tepat satu halaman');
+
+ok(/@media screen and \(max-width: 760px\), screen and \(max-height: 620px\) \{/.test(html),
+   'pratonton skrin penuh juga dipakai pada skrin rendah (telefon landskap)');
+ok(/#hal-3 \.papan \{[\s\S]{0,160}overflow: auto;/.test(html),
+   'kawasan pratonton boleh skrol sendiri kalau skrin terlalu rendah');
+
 console.log('== 11. Semakan statik pada HTML ==');
 ok(html.includes('@page { size: A4'), 'ada tetapan cetak A4 (@page size A4)');
 ok(/@media print/.test(html), 'ada @media print');
