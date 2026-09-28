@@ -959,17 +959,23 @@
     .lembar h2 { break-after: avoid; page-break-after: avoid; }
     body[data-templat="biru"] .cb-garis {
       display: block; position: fixed; left: 73.3mm; top: 50mm; bottom: 0; width: 0;
-      border-left: .6pt solid #323b4c; z-index: 1;
+      border-left: .6pt solid #323b4c; z-index: 3;
     }
     /* helaian pratonton tambahan hanya untuk skrin: cetakan sudah mengalir sendiri,
        jadi helaian ini WAJIB keluar dari PDF (kalau tidak resume jadi 4 halaman) */
     .kertas-tambahan { display: none !important; }
     .pil-hal { display: none !important; }
+    /* PENTING: lajur kiri/kanan mendapat z-index: 1 di bawah, jadi hiasan berulang ini MESTI
+       berada di atasnya. Tanpa z-index, lajur kiri melukis atas kaki halaman dan nama pelanggan
+       di kaki itu hilang (lapisan teks PDF tetap ada, jadi pemeriksaan teks tidak nampak masalah
+       ini - hanya pemeriksaan piksel). */
     .cb-jalur {
       position: fixed; left: 0; right: 0; top: 0; height: 5mm; background: var(--jalur, #00366d);
+      z-index: 3;
     }
     .cb-kaki {
       position: fixed; left: 0; right: 0; bottom: 0; min-height: 9mm; background: transparent;
+      z-index: 3;
       display: flex; align-items: center; justify-content: space-between;
       padding: 0 12.5mm; border-top: .6pt solid rgba(50, 59, 76, .28);
       font-family: "Inter", "Segoe UI", Arial, sans-serif; font-size: 8pt; font-weight: 600;

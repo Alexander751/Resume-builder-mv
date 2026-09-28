@@ -5,6 +5,13 @@ test/package-lock.json
 # Dokumen komersial (jangan siar di repo awam)
 Pelan_Komersialisasi_*.xlsx
 
+# Helper email resume (PC penjual): JANGAN siar token/PDF pelanggan di repo awam
+backend_email/config_email.json
+backend_email/helper.log
+backend_email/diproses.json
+backend_email/outbox/
+backend_email/__pycache__/
+
 # Fail sistem
 Thumbs.db
 desktop.ini

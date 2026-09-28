@@ -1426,6 +1426,16 @@ el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
 el('wa').click();
 ok(dipanggil.length === 2, 'resume yang berubah dihantar semula (kod berbeza)');
 
+console.log('== 39. Hiasan berulang cetakan mesti di ATAS lajur (kaki halaman tidak tertutup) ==');
+var cetak2 = html.slice(html.indexOf('@media print {'));
+ok(/\.cb-kaki \{[\s\S]{0,400}?z-index: 3;/.test(cetak2),
+   'kaki halaman ada z-index di atas lajur kiri/kanan (kalau tidak nama di kaki hilang)');
+ok(/\.cb-jalur \{[\s\S]{0,200}?z-index: 3;/.test(cetak2), 'jalur atas cetakan juga di atas lajur');
+ok(/body\[data-templat="biru"\] \.cb-garis \{[\s\S]{0,220}?z-index: 3;/.test(cetak2),
+   'garis pemisah kolum di atas lajur (supaya kelihatan penuh pada setiap halaman)');
+ok(/\.lembar \.cvb-kiri, \.lembar \.cvb-kanan \{ position: relative; z-index: 1; \}/.test(cetak2),
+   'lajur kekal z-index 1 (di atas rel kelabu, di bawah hiasan berulang)');
+
   Promise.resolve().then(function () {
     console.log('\n' + pass + ' lulus, ' + fail + ' gagal, ' + skip + ' dilangkau');
     process.exit(fail ? 1 : 0);

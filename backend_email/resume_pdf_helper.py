@@ -417,6 +417,10 @@ def bina_html_sementara(data, kod, laluan_html):
 
     Corak yang terbukti dalam harness ujian projek ini:
        ResumeMV.isi(data) -> #mula-isi diklik -> #borang 'input' -> #ke-3 diklik
+
+    Nota penting: blok ini juga menghidupkan MOD PENJUAL (sama seperti laluan
+    '#penjual' / '#kod=' dalam app). Ini WAJIB kerana mod penjual mematikan tanda
+    air "PRATONTON - BELUM DIBAYAR" - PDF yang diemail kepada pelanggan mesti bersih.
     """
     if not os.path.exists(LALUAN_APP):
         raise RuntimeError('Fail app tidak dijumpai: %s' % LALUAN_APP)
@@ -432,19 +436,25 @@ def bina_html_sementara(data, kod, laluan_html):
     js_kod = _js_saster(kod or '')
 
     skrip = (
-        '\n<!-- blok suntikan helper PDF: auto-isi resume + buka pratonton -->\n'
+        '\n<!-- blok suntikan helper PDF: mod penjual + auto-isi resume + buka pratonton -->\n'
         '<script>\n'
         '(function () {\n'
         '  var KOD = ' + js_kod + ';\n'
-        '  var DATA_CONTOH = ' + js_data + ';\n'
+        '  var DATA = ' + js_data + ';\n'
         '  var D = null;\n'
         '  try {\n'
         '    if (window.ResumeMV && window.ResumeMV.dariKod && KOD) {\n'
         '      D = window.ResumeMV.dariKod(KOD);\n'
         '    }\n'
         '  } catch (e) { D = null; }\n'
-        '  if (!D || !D.nama) { D = DATA_CONTOH; }\n'
+        '  if (!D || !D.nama) { D = DATA; }\n'
         '  try {\n'
+        '    /* mod penjual: tanda air "PRATONTON/BELUM DIBAYAR" dimatikan */\n'
+        '    document.body.classList.add("mod-penjual");\n'
+        '    ["cap-air", "cap-air-sisi"].forEach(function (id) {\n'
+        '      var k = document.getElementById(id);\n'
+        '      if (k) { k.innerHTML = ""; k.style.display = "none"; }\n'
+        '    });\n'
         '    window.ResumeMV.isi(D);\n'
         '    document.getElementById("mula-isi").click();\n'
         '    document.getElementById("borang").dispatchEvent(new Event("input", { bubbles: true }));\n'
@@ -463,7 +473,11 @@ def bina_html_sementara(data, kod, laluan_html):
 
 
 def jana_pdf(data, kod, laluan_pdf, tanda=''):
-    """Jana satu PDF. Pulangkan laluan folder temp supaya pemanggil boleh padam."""
+    """Jana satu PDF. Pulangkan laluan folder temp supaya pemanggil boleh padam.
+
+    Kalau `kod` ada, URL dibuka dengan '#kod=<kod>' - laluan masuk rasmi app yang
+    memuatkan resume pelanggan DAN menghidupkan mod penjual (PDF bersih).
+    """
     chrome = cari_chrome()
     if not chrome:
         raise RuntimeError('chrome.exe tidak dijumpai. Set LALUAN_CHROME dalam config.')
@@ -475,6 +489,10 @@ def jana_pdf(data, kod, laluan_pdf, tanda=''):
     bina_html_sementara(data, kod, laluan_html)
 
     url = 'file:///' + os.path.abspath(laluan_html).replace('\\', '/')
+    if kod:
+        url += '#kod=' + urllib.parse.quote(str(kod), safe='')
+    else:
+        url += '#penjual'
     cmd = [
         chrome,
         '--headless=new',
@@ -500,29 +518,39 @@ def jana_pdf(data, kod, laluan_pdf, tanda=''):
     return folder_temp
 
 
-def pdf_ada_nama(laluan_pdf, nama):
-    """Sahkan PDF dengan PyMuPDF. Pulangkan (bil_halaman, sah, teks_awal).
+def pdf_periksa(laluan_pdf, nama):
+    """Sahkan PDF dengan PyMuPDF.
 
-    sah = None bermakna pymupdf tiada, jadi tidak dapat disahkan.
+    Pulangkan dict: {'bil': int|None, 'sah': bool|None, 'teks': str, 'tanda_air': bool}
+    'bil' = None bermakna pymupdf tiada, jadi PDF tidak dapat disahkan.
     """
+    hasil = {'bil': None, 'sah': None, 'teks': '', 'tanda_air': False, 'panjang': 0}
     try:
         import pymupdf
     except Exception:
-        return (None, None, '')
+        return hasil
     try:
         doc = pymupdf.open(laluan_pdf)
     except Exception as e:
         raise RuntimeError('PDF tidak boleh dibuka oleh PyMuPDF: %s' % e)
     try:
-        bil = doc.page_count
-        teks = doc[0].get_text() if bil else ''
+        hasil['bil'] = doc.page_count
+        keping = []
+        for i in range(min(doc.page_count, 4)):
+            keping.append(doc[i].get_text())
+        teks = '\n'.join(keping)
     finally:
         doc.close()
 
+    hasil['teks'] = teks[:1200]
     normal = ''.join(teks.split()).lower()
+    hasil['panjang'] = len(normal)
     nama_normal = ''.join(str(nama).split()).lower()
-    sah = bool(nama_normal) and (nama_normal in normal)
-    return (bil, sah, teks[:400])
+    hasil['sah'] = bool(nama_normal) and (nama_normal in normal)
+    # Tanda air pratinjau app: kalau ini muncul dalam PDF yang diemail kepada
+    # pelanggan, mod penjual gagal dihidupkan.
+    hasil['tanda_air'] = ('belumdibayar' in normal) or ('pratonton·' in normal)
+    return hasil
 
 
 # ============================================================================
@@ -633,18 +661,26 @@ def proses_satu(kerja, sudah_diproses):
         saiz = os.path.getsize(laluan_pdf)
 
         # 4) Sahkan PDF dengan PyMuPDF sebelum hantar (elak email PDF kosong).
-        bil, sah, teks = pdf_ada_nama(laluan_pdf, data.get('nama'))
-        if bil is None:
+        semak = pdf_periksa(laluan_pdf, data.get('nama'))
+        if semak['bil'] is None:
             log_amaran('pymupdf tiada - PDF dihantar TANPA pengesahan.')
         else:
-            if bil < 1:
+            if semak['bil'] < 1:
                 raise RuntimeError('PDF tidak ada halaman.')
-            if not sah:
-                raise RuntimeError('Nama "%s" tidak dijumpai dalam halaman 1 PDF '
-                                   '(teks: %s)' % (data.get('nama'), ' '.join(teks.split())[:160]))
-            log('PDF disahkan: nama dijumpai dalam halaman 1.')
+            if not semak['sah']:
+                raise RuntimeError('Nama "%s" tidak dijumpai dalam teks PDF '
+                                   '(teks: %s)' % (data.get('nama'),
+                                                   ' '.join(semak['teks'].split())[:160]))
+            if semak['panjang'] < 150:
+                raise RuntimeError('Teks PDF terlalu pendek (%d aksara) - kemungkinan '
+                                   'resume tidak dirender.' % semak['panjang'])
+            log('PDF disahkan: nama "%s" dijumpai, %d aksara teks.' % (
+                data.get('nama'), semak['panjang']))
+            if semak['tanda_air']:
+                log_amaran('PDF #%s masih ada tanda air PRATONTON/BELUM DIBAYAR! '
+                           'Semak bahawa app masih menyokong mod penjual.' % id_kerja)
 
-        log('PDF siap: %d halaman, %d KB' % (bil or halaman_dijangka or 1,
+        log('PDF siap: %d halaman, %d KB' % (semak['bil'] or halaman_dijangka or 1,
                                              max(1, round(saiz / 1024.0))))
 
         with open(laluan_pdf, 'rb') as f:
@@ -728,6 +764,13 @@ def gelung_utama(sekali=False):
     if sudah:
         log('%d id kerja pernah diproses akan dilangkau.' % len(sudah))
 
+    # Semakan sihat GAS (action=uji). Gagal pun tidak mematikan helper.
+    try:
+        kuota = semak_kuota()
+        log('Semakan sihat GAS: ok (kuota=%s)' % kuota)
+    except Exception as e:
+        log_amaran('Semakan sihat GAS gagal (%s) - teruskan juga.' % e)
+
     while True:
         try:
             satu_kitaran(sudah)
@@ -780,25 +823,30 @@ def uji_tempat():
     try:
         folder_temp = jana_pdf(DATA_CONTOH, '', laluan_pdf, tanda='ujian')
         saiz = os.path.getsize(laluan_pdf)
-        bil, sah, teks = pdf_ada_nama(laluan_pdf, NAMA_CONTOH)
+        semak = pdf_periksa(laluan_pdf, NAMA_CONTOH)
 
-        if bil is None:
+        if semak['bil'] is None:
             log_amaran('pymupdf tiada - PDF dijana tetapi TIDAK dapat disahkan.')
-            log('UJIAN TEMPAT LULUS (tanpa pengesahan): %d bait' % saiz)
             log('Fail ujian: %s' % laluan_pdf)
-            print('UJIAN TEMPAT LULUS: %d halaman, %d bait' % (1, saiz))
+            print('UJIAN TEMPAT LULUS (tanpa pengesahan): %d bait' % saiz)
             return 0
 
+        bil = semak['bil']
         log('PDF dijana: %d halaman, %d bait' % (bil, saiz))
         if bil < 1:
             log_ralat('PDF tiada halaman.')
             return 2
-        if not sah:
-            log_ralat('Nama contoh "%s" TIDAK dijumpai dalam teks halaman 1.' % NAMA_CONTOH)
-            log('   Teks halaman 1 (200 aksara pertama): %s' % ' '.join(teks.split())[:200])
+        if not semak['sah']:
+            log_ralat('Nama contoh "%s" TIDAK dijumpai dalam teks PDF.' % NAMA_CONTOH)
+            log('   Teks PDF (200 aksara pertama): %s' % ' '.join(semak['teks'].split())[:200])
             return 3
 
-        log('Nama contoh "%s" dijumpai dalam teks halaman 1.' % NAMA_CONTOH)
+        log('Nama contoh "%s" dijumpai dalam teks PDF.' % NAMA_CONTOH)
+        if semak['tanda_air']:
+            log_amaran('PDF ujian MASIH ada tanda air PRATONTON/BELUM DIBAYAR - '
+                       'mod penjual tidak berjaya dihidupkan.')
+        else:
+            log('Tiada tanda air PRATONTON/BELUM DIBAYAR - PDF bersih untuk pelanggan.')
         log('Fail ujian: %s' % laluan_pdf)
         print('UJIAN TEMPAT LULUS: %d halaman, %d bait' % (bil, saiz))
         return 0

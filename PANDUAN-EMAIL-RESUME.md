@@ -151,10 +151,37 @@ Anda patut nampak jawapan seperti:
 
 Helper inilah yang buka resume dalam PC, render jadi PDF, dan minta GAS email PDF itu.
 
-1. Pastikan PC penjual **hidup** dan ada sambungan internet.
-2. Pergi ke folder projek `Resume-builder-mv`.
-3. Klik dua kali **`mula-email-resume.bat`** (dibina oleh agent lain; jalankan sekali, biarkan tingkap itu terbuka).
-4. Kali pertama: Windows/Python mungkin minta kebenaran firewall atau "Run anyway" - benarkan. Anda hanya perlu buat sekali.
+### 3.1 Isi URL + token pada helper (sekali sahaja)
+
+1. Buka folder `Resume-builder-mv` > subfolder **`backend_email`**.
+2. Buka fail **`resume_pdf_helper.py`** dengan Notepad (klik kanan > Open with > Notepad).
+3. Cari 2 baris ini di bahagian atas dan tukar:
+
+```python
+GAS_URL = 'TUKAR-DENGAN-URL-GAS-ANDA'
+TOKEN = 'TUKAR-TOKEN-INI'
+```
+
+Isi dengan nilai dari Bahagian 1 - contoh:
+
+```python
+GAS_URL = 'https://script.google.com/macros/s/AKfycbxxxx/exec'
+TOKEN = 'ResumeMV-alex-9f42b1-KUNCI'
+```
+
+   - `GAS_URL` **mesti** berakhir dengan `/exec`.
+   - `TOKEN` **mesti sama** dengan dalam GAS dan dalam app.
+
+4. Simpan (**Ctrl+S**) dan tutup Notepad.
+   - Pilihan lanjutan: daripada edit `.py`, anda boleh cipta fail **`config_email.json`** dalam folder `backend_email` yang sama dengan isi `{"GAS_URL": "...", "TOKEN": "..."}`. Kalau fail ini ada, ia mengalahkan nilai dalam `.py`. (Mesti JSON yang sah - tiada tanda `//` atau komen.)
+
+### 3.2 Jalankan helper
+
+5. Pastikan PC penjual **hidup** dan ada sambungan internet.
+6. Pergi ke folder projek `Resume-builder-mv`.
+7. Klik dua kali **`mula-email-resume.bat`**, kemudian biarkan tingkap itu terbuka.
+   - Kalau fail `.bat` belum ada: buka Command Prompt dalam folder `backend_email` dan jalankan `python resume_pdf_helper.py`.
+8. Kali pertama: Windows/Python mungkin minta kebenaran firewall atau "Run anyway" - benarkan. Anda hanya perlu buat sekali.
 
 Apa yang berlaku selepas ini, dalam susunan:
 
@@ -226,4 +253,5 @@ Ringkasnya: **satu sheet untuk diri anda sahaja, akses "Restricted", jangan kong
 | Uji kuota | `<URL>/exec?action=uji&token=<TOKEN>` |
 | Kuota harian | 100 penerima/hari (Gmail percuma) |
 | Kunci localStorage app | URL: `resume-mv-email-api` \| Token: `resume-mv-email-token` |
+| Tetapan helper PC | `backend_email/resume_pdf_helper.py` - `GAS_URL` (berakhir `/exec`) + `TOKEN`, atau `backend_email/config_email.json` |
 | Selepas ubah kod | **Deploy > Manage deployments > New version** |

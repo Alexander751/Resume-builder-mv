@@ -1,0 +1,16 @@
+{
+  "_nota": [
+    "Salin fail ini menjadi 'config_email.json' (buang akhiran .contoh), kemudian",
+    "isi GAS_URL dan TOKEN. Selagi config_email.json tiada, helper akan guna",
+    "pemalar di bahagian atas resume_pdf_helper.py.",
+    "PENTING: config_email.json mengandungi TOKEN - jangan commit ke GitHub",
+    "(ia sudah disenaraikan dalam .gitignore)."
+  ],
+  "GAS_URL": "https://script.google.com/macros/s/GANTI-DENGAN-ID-DEPLOYMENT/exec",
+  "TOKEN": "GANTI-DENGAN-TOKEN-YANG-SAMA-DALAM-SKRIP-GAS",
+  "LALUAN_APP": "C:/Users/ADMIN/Documents/Resume-builder-mv/index.html",
+  "SELA_SAAT": 20,
+  "FOLDER_KELUARAN": "outbox",
+  "HAD_POLLING": 5,
+  "LALUAN_CHROME": "C:/Program Files/Google/Chrome/Application/chrome.exe"
+}

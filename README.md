@@ -298,6 +298,32 @@ ditengahkan menegak), (3) kalau isi terlalu banyak, halaman kedua mesti berdesig
   dikira betul. Cetakan PDF kekal 1 halaman (borang tidak dicetak).
 - **Ujian** - blok 35. Jumlah **583 lulus, 0 gagal**.
 
+**Fasa 34 - Rantaian email lengkap (Apps Script + helper PC) + pembetulan kaki halaman**
+
+Fail baharu: `EmailResume.gs` (+ `PANDUAN-EMAIL-RESUME.md`), `backend_email/resume_pdf_helper.py`,
+`backend_email/mula-email-resume.bat`, `backend_email/uji_tiruan.py`. `config_email.json`, log, `diproses.json`
+dan `outbox/` masuk `.gitignore` (repo ini awam - token dan PDF pelanggan tidak boleh disiar).
+
+- **Aliran**: pelanggan tekan WhatsApp -> app POST ke Apps Script (`action:hantar`) -> Apps Script simpan rekod
+  dalam sheet, simpan foto ke Drive, **email data + kod kepada penjual serta-merta** -> helper di PC penjual poll
+  Apps Script (`?action=kerja`) -> render PDF dengan Chrome headless guna app tempatan -> POST kembali
+  (`action:selesai`) -> Apps Script **email PDF** kepada penjual. Tiada terowong awam diperlukan: helper hanya
+  membuat permintaan keluar, jadi pautan tidak berubah dan PC boleh hidup/mati bila-bila.
+- **Tanda air**: helper membuka app dengan `#kod=<kod>` + `body.mod-penjual` dan mengosongkan `#cap-air` - laluan
+  masuk rasmi app, jadi PDF yang diemail kepada pelanggan bersih tanpa cap "PRATONTON / BELUM DIBAYAR".
+- **Pengesahan sebenar** (dijalankan sendiri, bukan dakwaan agent): `node --check EmailResume.gs` lulus;
+  `--uji-tempat` menghasilkan PDF 1 halaman 106,742 bait tanpa tanda air; `uji_tiruan.py` (GAS tiruan) **17 lulus,
+  0 gagal** termasuk tepat satu POST `selesai`, PDF bermula `%PDF-`, nama pelanggan ada dalam teks, tiada tanda air.
+- **PEPIJAT DITEMUI & DIBETULKAN (kaki halaman)**: `.lembar .cvb-kiri/.cvb-kanan` ada `z-index: 1` di blok cetak,
+  manakala `.cb-kaki` (nama pelanggan di kaki halaman) tiada z-index - jadi lajur kiri melukis DI ATAS kaki itu dan
+  nama pelanggan hilang dari setiap halaman. Pembetulan: `z-index: 3` pada `.cb-kaki`, `.cb-jalur` dan `.cb-garis`
+  dalam `@media print` (lajur kekal 1, rel kelabu kekal 0).
+  **Pelajaran penting**: lapisan teks PDF kekal utuh walaupun teks ditutup, jadi pemeriksaan `get_text()` TIDAK
+  mengesan masalah ini. Ujian piksel yang mengesannya: jalur kaki halaman dirender pada 200 dpi, piksel gelap di
+  bahagian dalam lajur kelabu dikira - 0 piksel (rosak) -> 2,369 piksel (betul). Skrip itu disimpan sebagai
+  `test/uji_kaki_piksel.py` supaya boleh diuji semula bila-bila masa.
+- **Ujian** - blok 39 baharu. Jumlah **634 lulus, 0 gagal**.
+
 **Fasa 33 - Hantar resume ke email penjual secara automatik (bahagian app)**
 
 - **Permintaan pengguna**: "bila pelanggan tekan butang WhatsApp, sistem terus email PDF resume ke saya".
