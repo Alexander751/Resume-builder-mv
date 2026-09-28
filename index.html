@@ -566,9 +566,11 @@
        bulet 3pt pada x=42.2pt, teks bulet x=53.3pt; label sebaris 600. */
   .lembar .cv-bersih {
     font-family: "Inter", "Segoe UI", Arial, sans-serif;
-    font-size: 10.5pt; line-height: 1.36; color: #1e1e1e; background: #fff;
+    /* --renggang (0.72-1.6) dan --teks (0.93-1) dilaraskan automatik oleh larasRuang():
+       isi pendek -> renggang (halaman tidak lopong); isi panjang -> padat (muat 1 halaman) */
+    --renggang: 1; --teks: 1;
+    font-size: calc(10.5pt * var(--teks)); line-height: 1.36; color: #1e1e1e; background: #fff;
     padding: 10mm 12.5mm 9mm 12.5mm; position: relative; min-height: 297mm;
-    --renggang: 1;   /* dilaraskan automatik oleh larasRuang() bila isi pendek */
   }
   .cv-bersih .cvs-foto { position: absolute; left: -3mm; top: 1mm; width: 44mm; height: 51mm; overflow: hidden; }
   .cv-bersih .cvs-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -577,15 +579,15 @@
   .cv-bersih.tanpa-foto .cvs-kepala { min-height: 0; }
   .cv-bersih.tanpa-foto .cvs-identiti { margin-left: 0; }
   .cv-bersih .cvs-nama {
-    margin: 0 0 1.6mm; font-size: 20pt; font-weight: 700; color: #00366d;
+    margin: 0 0 1.6mm; font-size: calc(20pt * var(--teks)); font-weight: 700; color: #00366d;
     letter-spacing: .01em; text-transform: uppercase; line-height: 1.12;
   }
-  .cv-bersih .cvs-jawatan { margin: 0 0 4mm; font-size: 11pt; font-weight: 600; color: #00366d; }
+  .cv-bersih .cvs-jawatan { margin: 0 0 4mm; font-size: calc(11pt * var(--teks)); font-weight: 600; color: #00366d; }
   .cv-bersih .cvs-kontak { list-style: none; margin: 0; padding: 0; }
-  .cv-bersih .cvs-kontak li { display: flex; gap: 3mm; font-size: 11pt; margin-bottom: calc(2.2mm * var(--renggang)); }
+  .cv-bersih .cvs-kontak li { display: flex; gap: 3mm; font-size: calc(11pt * var(--teks)); margin-bottom: calc(2.2mm * var(--renggang)); }
   .cv-bersih .cvs-label { font-weight: 600; flex: 0 0 20mm; }
   .lembar .cv-bersih h2 {
-    font-size: 12pt; font-weight: 700; color: #00366d; letter-spacing: .02em;
+    font-size: calc(12pt * var(--teks)); font-weight: 700; color: #00366d; letter-spacing: .02em;
     text-transform: uppercase; margin: calc(4.2mm * var(--renggang)) 0 0; padding-bottom: 2.1mm;
     border-bottom: 1pt solid #00366d;
   }
@@ -594,9 +596,9 @@
   .cv-bersih .cvs-inline { margin: calc(2.4mm * var(--renggang)) 0 0; }
   .cv-bersih .cvs-item { margin-top: calc(2.4mm * var(--renggang)); break-inside: avoid; page-break-inside: avoid; }
   .cv-bersih .cvs-item-kepala { display: flex; justify-content: space-between; gap: 8mm; align-items: baseline; }
-  .cv-bersih .cvs-item-kepala strong { font-size: 10.5pt; font-weight: 600; }
-  .cv-bersih .cvs-item-kepala span { font-size: 10.5pt; font-weight: 600; white-space: nowrap; }
-  .cv-bersih .cvs-item-sub { font-size: 10.5pt; }
+  .cv-bersih .cvs-item-kepala strong { font-size: calc(10.5pt * var(--teks)); font-weight: 600; }
+  .cv-bersih .cvs-item-kepala span { font-size: calc(10.5pt * var(--teks)); font-weight: 600; white-space: nowrap; }
+  .cv-bersih .cvs-item-sub { font-size: calc(10.5pt * var(--teks)); }
   .cv-bersih .cvs-senarai { list-style: none; margin: 1.6mm 0 0; padding: 0; }
   .cv-bersih .cvs-senarai li { position: relative; padding-left: 6.3mm; margin-bottom: calc(.9mm * var(--renggang)); }
   .cv-bersih .cvs-senarai li::before {
@@ -1067,6 +1069,8 @@
   /* ---------- pratonton ---------- */
   var RENGGANG = 1;              // faktor jarak templat satu lajur (1 = padat)
   var PENUH = 1;                 // berapa penuh halaman selepas direnggangkan (0-1)
+  var TEKS = 1;                  // skala fon templat satu lajur (0.93-1)
+  var LEBIH = false;             // isi melebihi satu halaman (akan dicetak 2 halaman)
   var TINGGI_KERTAS = 1123;      // px: tinggi A4 pada 96dpi (794 x 1123)
 
   /* Templat satu lajur: kalau isi pendek, renggangkan jarak supaya halaman tidak lopong.
@@ -1079,12 +1083,28 @@
       var q = kertas[i] ? kertas[i].querySelector('.cv-bersih') : null;
       if (q && q.offsetHeight > 0) lembar = q;        // ambil helaian yang sedang kelihatan
     }
-    if (!lembar || !tmp().satuLajur) {
-      kertas.forEach(function (k) {
-        var q = k ? k.querySelector('.cv-bersih') : null;
-        if (q) q.style.removeProperty('--renggang');
-      });
-      PENUH = 1;
+    if (!tmp().satuLajur) {
+      // templat dua lajur: ukur sahaja (tidak ubah jarak) supaya nota "cetak 2 halaman" tetap betul
+      if (lembar) { lembar.style.removeProperty('--renggang'); lembar.style.removeProperty('--teks'); }
+      var dua = null;
+      for (var t = 0; t < kertas.length && !dua; t++) {
+        var qd = kertas[t] ? kertas[t].querySelector('.cv-biru') : null;
+        if (qd && qd.offsetHeight > 0) dua = qd;
+      }
+      if (dua) {
+        var ban = dua.querySelector('.cvb-banner'), ki = dua.querySelector('.cvb-kiri'), ka = dua.querySelector('.cvb-kanan');
+        var hd = (ban ? ban.offsetHeight : 0) + Math.max(ki ? ki.offsetHeight : 0, ka ? ka.offsetHeight : 0) + 20;
+        PENUH = hd / TINGGI_KERTAS;
+        LEBIH = hd > TINGGI_KERTAS - 10;
+      } else {
+        PENUH = 1; LEBIH = false;
+      }
+      TEKS = 1; RENGGANG = 1;
+      tandaLapang();
+      return RENGGANG;
+    }
+    if (!lembar) {
+      PENUH = 1; TEKS = 1; LEBIH = false;
       tandaLapang();
       return RENGGANG;
     }
@@ -1096,7 +1116,9 @@
       });
       return bawah + 40;                                   // + sedikit ruang bawah
     }
+    TEKS = 1; LEBIH = false;
     lembar.style.setProperty('--renggang', '1');
+    lembar.style.setProperty('--teks', '1');
     var tinggi = tinggiIsi();
     var sasaran = TINGGI_KERTAS * 0.86;                    // isi sepatutnya ~86% halaman
     var siling = TINGGI_KERTAS - 10;                       // jangan sampai melimpah ke halaman 2
@@ -1111,12 +1133,31 @@
         if (tinggi >= sasaran * 0.98) break;
       }
     }
-    PENUH = tinggi / TINGGI_KERTAS;
-    var nilai = RENGGANG.toFixed(3);
+    // terlalu banyak isi: cuba padatkan (jarak rapat + fon kecil sedikit) supaya muat satu halaman
+    if (tinggi > siling) {
+      var TAHAP = [[0.86, 0.97], [0.78, 0.94], [0.72, 0.93]];
+      for (var k = 0; k < TAHAP.length; k++) {
+        lembar.style.setProperty('--renggang', TAHAP[k][0].toFixed(3));
+        lembar.style.setProperty('--teks', TAHAP[k][1].toFixed(3));
+        var t2 = tinggiIsi();
+        RENGGANG = TAHAP[k][0]; TEKS = TAHAP[k][1]; tinggi = t2;
+        if (t2 <= siling) break;
+        if (k === TAHAP.length - 1) {          // masih tidak muat: balik ke saiz biasa (jangan kecilkan sia-sia)
+          lembar.style.setProperty('--renggang', '1');
+          lembar.style.setProperty('--teks', '1');
+          RENGGANG = 1; TEKS = 1; tinggi = tinggiIsi();
+        }
+      }
+    }
+    var nilai = RENGGANG.toFixed(3), nilaiFon = TEKS.toFixed(3);
     kertas.forEach(function (k) {
       var q = k ? k.querySelector('.cv-bersih') : null;
-      if (q) q.style.setProperty('--renggang', nilai);
+      if (!q) return;
+      q.style.setProperty('--renggang', nilai);
+      q.style.setProperty('--teks', nilaiFon);
     });
+    PENUH = tinggi / TINGGI_KERTAS;
+    LEBIH = tinggi > siling;
     tandaLapang();
     return RENGGANG;
   }
@@ -1125,6 +1166,14 @@
   function tandaLapang() {
     var nota = el('nota-lapang');
     if (!nota) return;
+    if (LEBIH) {
+      nota.hidden = false;
+      nota.innerHTML = '<strong>Resume melebihi satu halaman.</strong> Ia akan dicetak sebagai 2 halaman '
+        + '(tidak salah untuk jawatan berpengalaman, tetapi penjual boleh bantu rapatkan). Kalau anda mahu '
+        + '<strong>1 halaman</strong>: padam poin yang kurang penting (butang <strong>&times;</strong> pada baris poin), '
+        + 'pendekkan <strong>Ringkasan</strong>, atau buang bahagian yang tidak perlu.';
+      return;
+    }
     if (tmp().satuLajur && PENUH < 0.55) {
       nota.hidden = false;
       nota.innerHTML = '<strong>Halaman masih lapang.</strong> Jarak sudah direnggangkan automatik, '
@@ -1615,6 +1664,10 @@
     if (!d.nama && !d.telefon) return { mesej: 'Belum ada apa-apa diisi. ' + bahagian + ' akan masuk ke resume.', jenis: '' };
     if (p === 0) return { mesej: 'AMARAN: resume akan keluar tanpa bahagian Pengalaman. ' + bahagian + ' setakat ini.', jenis: 'amaran' };
     // templat satu lajur: beritahu kalau jarak sudah direnggangkan maksimum (halaman masih lapang)
+    if (LEBIH) {
+      return { mesej: 'OK - ' + bahagian + ' akan masuk ke resume. Isi sudah melebihi satu halaman '
+        + '(akan dicetak 2 halaman) - padam poin yang kurang penting kalau mahu 1 halaman.', jenis: 'amaran' };
+    }
     if (tmp().satuLajur && PENUH < 0.55) {
       return { mesej: 'OK - ' + bahagian + ' akan masuk ke resume. Ruang halaman masih lapang '
         + '(jarak direnggangkan automatik) - tambah kemahiran, bahasa atau bahagian tambahan supaya resume nampak penuh.',
@@ -2113,7 +2166,8 @@
   }
   window.ResumeMV = { kod: kodDari, dariKod: borangDariKod, isi: isiBorang, kumpul: kumpul,
     templat: function () { return KUNCI_TEMPLAT; }, renggang: function () { return RENGGANG; },
-    penuh: function () { return PENUH; },
+    penuh: function () { return PENUH; }, teks: function () { return TEKS; },
+    lebih: function () { return LEBIH; },
     tempat: function () { return Object.keys(TEMPLAT); }, urutan: urutan, pindah: pindahBlok };
   kemasSemula();
   kemasSek();

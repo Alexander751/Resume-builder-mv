@@ -195,6 +195,26 @@ Masalah yang dilaporkan: "kalau info sikit sangat letak, nanti pdf resume akan j
   nota **dipaparkan**, cetakan kekal **1 halaman**.
 - **Ujian** — blok 25 (13 ujian baharu). Jumlah **339 lulus, 0 gagal**.
 
+**Fasa 18 — Isi terlalu banyak: auto-padat + nota 2 halaman**
+
+Masalah pasangan kepada Fasa 17: "macam mana kalau pelanggan isi terlalu banyak info" (melimpah ke halaman 2
+dengan halaman terakhir hampir kosong).
+
+- **Auto-padat** — `larasRuang()` kini dua hala. Kalau isi melebihi halaman, ia cuba tiga tahap berturut-turut
+  (`--renggang`/`--teks` = 0.86/0.97 lalu 0.78/0.94 lalu 0.72/0.93) dan berhenti sebaik muat satu halaman.
+  Kalau ketiga-tiganya gagal, saiz **dikembalikan kepada 1.0** - tidak guna mengecilkan teks kalau ia tetap
+  2 halaman (kebolehbacaan diutamakan).
+- **--teks** (skala fon 0.93-1) ditambah pada semua saiz fon templat (nama, tajuk, badan, tempoh, sub);
+  `--renggang` kini dibenarkan turun bawah 1 untuk mod padat.
+- **Nota & mesej status** — bila isi melebihi satu halaman, pelanggan diberitahu terus: akan dicetak 2 halaman,
+  dan cara untuk kembali ke 1 halaman (padam poin kurang penting, pendekkan Ringkasan, buang bahagian).
+  Kini berfungsi untuk **kedua-dua** templat: templat dua lajur diukur melalui tinggi banner + lajur tertinggi.
+- **Disahkan Chrome** (templat Biru Bersih): 2 pengalaman x 3 poin → 92% halaman, 1 halaman cetak;
+  3 x 3 → auto-padat 0.86/0.97, 96%, **1 halaman**; 3 x 4 → 0.78/0.94, 98%, **1 halaman**;
+  5 x 4 → 128% (tidak boleh dipadatkan lagi) → saiz normal, nota dipaparkan, cetak **2 halaman**
+  (halaman 1 penuh sehingga y=795/842). Templat Biru & Kelabu dengan 5 x 4 → 165%, nota tetap dipaparkan.
+- **Ujian** — blok 26 (12 ujian baharu). Jumlah **351 lulus, 0 gagal**.
+
 **Fasa 13** — muat naik resume lama **dibuang** (keputusan pengguna):
 
 - Ciri muat naik resume (PDF / Word / teks) dengan auto-isi telah dibangunkan penuh, diuji, dan **kemudian dibuang atas permintaan pengguna** kerana bacaan fail tidak cukup boleh dipercayai untuk pelanggan awam
@@ -253,7 +273,7 @@ cd test && npm install        # sekali sahaja (jsdom)
 "$LOCALAPPDATA/hermes/node/node.exe" test/test_ui.js
 ```
 
-Keputusan semasa: **339 lulus, 0 gagal**.
+Keputusan semasa: **351 lulus, 0 gagal**.
 
 ## Aliran jualan melalui WhatsApp (tanpa gerbang bayaran)
 

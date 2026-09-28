@@ -814,6 +814,22 @@ el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
 ok(el('nota-lapang').hidden === true, 'nota tersembunyi bila isi penuh/dalam templat dua lajur');
 ok(w.ResumeMV.tempat().length === 2 && w.ResumeMV.tempat().indexOf('bersih') >= 0, 'daftar templat boleh dibaca dari luar');
 
+console.log('== 26. Isi terlalu banyak: auto-padat + nota melebihi halaman ==');
+ok(/--teks: 1;/.test(html), 'pemboleh --teks (skala fon) wujud');
+ok(/calc\(10\.5pt \* var\(--teks\)\)/.test(html), 'saiz fon badan guna --teks');
+ok(/calc\(20pt \* var\(--teks\)\)/.test(html) && /calc\(12pt \* var\(--teks\)\)/.test(html),
+   'nama & tajuk bahagian pun guna --teks');
+ok(/var TAHAP = \[\[0\.86, 0\.97\], \[0\.78, 0\.94\], \[0\.72, 0\.93\]\]/.test(html),
+   'tiga tahap pemadatan (jarak + fon) disediakan');
+ok(/t2 <= siling/.test(html), 'pemadatan berhenti sebaik muat satu halaman');
+ok(/balik ke saiz biasa/.test(html), 'kalau masih tidak muat, saiz dikembalikan (tidak kecil sia-sia)');
+ok(/LEBIH = tinggi > siling/.test(html), 'isyarat melebihi halaman dikira');
+ok(/Resume melebihi satu halaman/.test(html), 'nota melebihi halaman disediakan untuk pelanggan');
+ok(/dicetak 2 halaman/.test(html), 'nota menyatakan kesan sebenar (2 halaman)');
+ok(typeof w.ResumeMV.teks === 'function' && w.ResumeMV.teks() === 1, 'skala fon boleh dibaca (lalai 1)');
+ok(typeof w.ResumeMV.lebih === 'function' && w.ResumeMV.lebih() === false, 'isyarat melebihi halaman lalai false');
+ok(html.indexOf('auto-padat') >= 0 || /padatkan \(jarak rapat/.test(html), 'kod pemadatan berkomentar jelas');
+
   Promise.resolve().then(function () {
     console.log('\n' + pass + ' lulus, ' + fail + ' gagal, ' + skip + ' dilangkau');
     process.exit(fail ? 1 : 0);
