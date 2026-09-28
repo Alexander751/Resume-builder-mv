@@ -238,6 +238,28 @@ ditengahkan menegak), (3) kalau isi terlalu banyak, halaman kedua mesti berdesig
   (piksel x=30, y=300 dan y=600 = (227,227,227)) + kaki nama pada kedua-dua halaman.
 - **Ujian** — blok 27 (24 ujian baharu). Jumlah **379 lulus, 0 gagal**.
 
+**Fasa 20 - Skala tahap penguasaan 1-5 (Bahasa & Kemahiran)**
+
+- **Borang** - medan berkoma dibuang. Setiap kemahiran/bahasa ialah satu baris: **nama** + butang **1-5**
+  (sasaran sentuh 42x40px). Teks bawah butang menunjukkan tahap: "Tahap 4 / 5 - Sangat mahir"
+  (1 Asas, 2 Sederhana, 3 Mahir, 4 Sangat mahir, 5 Pakar). Butang **+ Tambah** dan **Hapus** setiap baris.
+- **Resume** - setiap item dirender dengan **lima titik**: titik penuh ikut tahap, titik kosong selebihnya
+  (cth. AutoCAD tahap 5 = lima titik penuh, MS Excel tahap 4 = empat penuh). Titik dilukis dengan CSS
+  (`border-radius: 50%`, 3.4pt) supaya cetak konsisten - bukan aksara Unicode.
+  - Templat Biru & Kelabu: titik penuh `#323b4c`, kosong `#c2c9d3` (rel kelabu).
+  - Templat Biru Bersih: titik penuh `#00366d`, kosong `#d3dae4`.
+  - Setiap skala ada `aria-label="Tahap N daripada 5"` untuk pembaca skrin.
+- **Keserasian kod lama** - kod pesanan lama menyimpan kemahiran/bahasa sebagai teks berkoma. Ia tetap dibaca,
+  tetapi **tidak direka tahap**: borang menunjukkan "Belum dipilih" dan resume dirender **tanpa titik skala**.
+- **Kod pesanan** - `k: [{n,p}]`, `b: [{n,p}]` (nama + tahap). Data lama (teks) mempunyai panjang berbeza tetapi
+  kod pesanan kekal di bawah had URL.
+- **Disahkan Chrome** (ukur gaya sebenar dalam pelayar): templat dua lajur - AutoCAD (5) = lima titik `rgb(50,59,76)`,
+  MS Excel (3) = tiga penuh + dua `rgb(194,201,211)`; templat satu lajur - titik penuh `rgb(0,54,109)`.
+  Cetakan kedua-dua templat dengan 5 kemahiran + 3 bahasa kekal **1 halaman A4**.
+  *Bug ditemui semasa pengesahan:* titik penuh templat dua lajur tiada warna sendiri (skala kelihatan sama
+  dengan titik kosong) - dibetulkan sebelum dikomit.
+- **Ujian** - blok 28 (34 ujian baharu). Jumlah **421 lulus, 0 gagal**.
+
 **Fasa 13** — muat naik resume lama **dibuang** (keputusan pengguna):
 
 - Ciri muat naik resume (PDF / Word / teks) dengan auto-isi telah dibangunkan penuh, diuji, dan **kemudian dibuang atas permintaan pengguna** kerana bacaan fail tidak cukup boleh dipercayai untuk pelanggan awam
@@ -296,7 +318,7 @@ cd test && npm install        # sekali sahaja (jsdom)
 "$LOCALAPPDATA/hermes/node/node.exe" test/test_ui.js
 ```
 
-Keputusan semasa: **379 lulus, 0 gagal**.
+Keputusan semasa: **421 lulus, 0 gagal**.
 
 ## Aliran jualan melalui WhatsApp (tanpa gerbang bayaran)
 

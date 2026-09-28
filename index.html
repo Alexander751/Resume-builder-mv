@@ -346,6 +346,24 @@
     font-weight: 700; color: var(--brand); cursor: pointer; text-decoration: underline;
   }
   .sek-hint { margin: 0 0 8px; font-size: 12.7px; line-height: 1.55; color: var(--muted); }
+  /* pemilih tahap penguasaan 1-5 */
+  .tahap { display: inline-flex; gap: 7px; margin: 2px 0 2px; }
+  .tahap-btn {
+    width: 42px; height: 40px; border-radius: 11px; border: 1.5px solid var(--line);
+    background: #fff; font: inherit; font-size: 14.5px; font-weight: 700; color: var(--muted);
+    cursor: pointer; padding: 0;
+  }
+  .tahap-btn:hover { border-color: #bcd4ee; color: var(--brand); }
+  .tahap-btn.aktif { background: var(--brand); border-color: var(--brand); color: #fff; }
+  .tahap-teks { margin: 2px 0 6px; font-size: 12.6px; color: var(--muted); }
+  .tahap-teks strong { color: var(--brand); }
+  /* titik tahap pada resume (berfungsi untuk kedua-dua reka bentuk) */
+  .titik-tahap { display: inline-flex; gap: 2.2pt; align-items: center; flex: 0 0 auto; }
+  .titik-tahap i { display: block; width: 3.4pt; height: 3.4pt; border-radius: 50%; background: #c2c9d3; }
+  .cvb-tahap .titik-tahap i.penuh { background: #323b4c; }
+  .cv-bersih .titik-tahap i.penuh { background: #00366d; }
+  .cv-bersih .titik-tahap i { background: #d3dae4; }
+  .cvb-tahap li { display: flex; align-items: center; justify-content: space-between; gap: 4pt; }
   /* ---------- elemen berulang ketika cetak (halaman 2+ berdesign sama) ---------- */
   .cetak-berulang { display: none; }
   .cb-rel { display: none; }
@@ -600,6 +618,11 @@
   .cv-bersih .cvs-badan > .blok:first-child h2 { margin-top: 0; }
   .cv-bersih .cvs-teks { margin: calc(2.4mm * var(--renggang)) 0 0; text-align: justify; }
   .cv-bersih .cvs-inline { margin: calc(2.4mm * var(--renggang)) 0 0; }
+  .cv-bersih .cvs-tahap { list-style: none; margin: calc(2.4mm * var(--renggang)) 0 0; padding: 0; }
+  .cv-bersih .cvs-tahap li {
+    display: flex; align-items: center; justify-content: space-between; gap: 5mm;
+    margin-bottom: calc(1.1mm * var(--renggang));
+  }
   .cv-bersih .cvs-item { margin-top: calc(2.4mm * var(--renggang)); break-inside: avoid; page-break-inside: avoid; }
   .cv-bersih .cvs-item-kepala { display: flex; justify-content: space-between; gap: 8mm; align-items: baseline; }
   .cv-bersih .cvs-item-kepala strong { font-size: calc(10.5pt * var(--teks)); font-weight: 600; }
@@ -801,16 +824,18 @@
     <fieldset class="sek" data-sek="kemahiran">
       <legend>Kemahiran</legend>
       <button type="button" class="sek-buang" data-sek="kemahiran">Buang bahagian ini</button>
-      <label for="kemahiran">Pisahkan dengan koma</label>
-      <input id="kemahiran" type="text" placeholder="cth. AutoCAD, Pengukuran Kuantiti, MS Excel, BIM">
+      <p class="sek-hint">Satu kemahiran satu baris. Tekan <strong>1&#8211;5</strong> untuk tahap penguasaan (1 = asas, 5 = pakar).</p>
+      <div id="senarai-kemahiran"></div>
+      <button type="button" class="btn-tambah" id="tambah-kemahiran">+ Tambah kemahiran</button>
       <p class="sek-nota">Bahagian <strong>Kemahiran</strong> dibuang dari resume. <button type="button" data-sek-batal="kemahiran">Tambah balik</button></p>
     </fieldset>
 
     <fieldset class="sek" data-sek="bahasa">
       <legend>Bahasa</legend>
       <button type="button" class="sek-buang" data-sek="bahasa">Buang bahagian ini</button>
-      <label for="bahasa">Bahasa (pisahkan dengan koma)</label>
-      <input id="bahasa" type="text" placeholder="cth. Bahasa Melayu (Fasih), English (Fluent)">
+      <p class="sek-hint">Satu bahasa satu baris. Tekan <strong>1&#8211;5</strong> untuk tahap penguasaan (1 = asas, 5 = fasih sepenuhnya).</p>
+      <div id="senarai-bahasa"></div>
+      <button type="button" class="btn-tambah" id="tambah-bahasa">+ Tambah bahasa</button>
       <p class="sek-nota">Bahagian <strong>Bahasa</strong> dibuang dari resume. <button type="button" data-sek-batal="bahasa">Tambah balik</button></p>
     </fieldset>
 
@@ -938,6 +963,8 @@
 
   var KUNCI = 'resume-mv-v1';
   var bilPengalaman = 0, bilPendidikan = 0, bilTambahan = 0, bilRujukan = 0;
+  var bilTahap = { kemahiran: 0, bahasa: 0 };
+  var TAHAP_NAMA = ['', 'Asas', 'Sederhana', 'Mahir', 'Sangat mahir', 'Pakar'];
   var BUANG = [];   // bahagian piawai yang pelanggan pilih untuk dibuang
 
   /* ============================================================
@@ -1022,6 +1049,78 @@
     return b;
   }
 
+  /* satu kemahiran / bahasa = satu baris + tahap penguasaan 1-5 */
+  function barisTahap(kunci, data) {
+    data = data || {};
+    bilTahap[kunci] = (bilTahap[kunci] || 0) + 1;
+    var n = bilTahap[kunci];
+    var tajuk = kunci === 'bahasa' ? 'Bahasa' : 'Kemahiran';
+    var cth = kunci === 'bahasa' ? 'cth. Bahasa Melayu' : 'cth. AutoCAD';
+    // baris baharu bermula di 3; data yang memang tiada tahap (kod lama) kekal "belum dipilih"
+    var nilai = (data.tahap === undefined || data.tahap === null) ? 3 : (parseInt(data.tahap, 10) || 0);
+    var b = document.createElement('div');
+    b.className = 'baris';
+    b.innerHTML =
+      '<div class="kepala"><strong>' + tajuk + ' ' + n + '</strong>' +
+      '<button type="button" class="btn-hapus">Hapus</button></div>' +
+      '<label>' + tajuk + '</label><input class="t-nama" type="text" placeholder="' + cth + '">' +
+      '<label>Tahap penguasaan</label>' +
+      '<div class="tahap" data-tahap="' + nilai + '">' +
+        [1, 2, 3, 4, 5].map(function (i) {
+          return '<button type="button" class="tahap-btn" data-nilai="' + i + '">' + i + '</button>';
+        }).join('') +
+      '</div>' +
+      '<p class="tahap-teks"></p>';
+    b.querySelector('.t-nama').value = data.nama || '';
+    b.querySelector('.btn-hapus').addEventListener('click', function () {
+      b.remove();
+      kemasSemula();
+    });
+    kemasTahap(b);
+    return b;
+  }
+
+  /* selaraskan butang 1-5 yang menonjol dengan nilai dalam data-tahap */
+  function kemasTahap(bekas) {
+    var kotak = bekas && bekas.querySelector ? bekas.querySelector('.tahap') : null;
+    if (!kotak) return;
+    var nilai = parseInt(kotak.getAttribute('data-tahap'), 10) || 0;
+    Array.prototype.forEach.call(kotak.querySelectorAll('.tahap-btn'), function (btn) {
+      var n = parseInt(btn.getAttribute('data-nilai'), 10);
+      btn.classList.toggle('aktif', n === nilai);
+      btn.setAttribute('aria-pressed', n === nilai ? 'true' : 'false');
+    });
+    var teks = bekas.querySelector('.tahap-teks');
+    if (teks) {
+      teks.innerHTML = nilai ? 'Tahap <strong>' + nilai + ' / 5</strong> &#8212; ' + TAHAP_NAMA[nilai] : 'Belum dipilih';
+    }
+  }
+
+  /* terima format baharu (senarai {nama, tahap}) atau kod lama (teks berkoma) */
+  function senaraiTahap(d, kunci) {
+    var v = d ? d[kunci] : null;
+    if (Array.isArray(v)) {
+      return v.map(function (o) {
+        var nama = String((o && (o.nama || o.n)) || '').trim();
+        var tahap = parseInt(o && (o.tahap || o.p), 10) || 0;
+        return { nama: nama, tahap: Math.max(0, Math.min(5, tahap)) };
+      }).filter(function (o) { return o.nama; });
+    }
+    if (typeof v === 'string' && v.trim()) {          // kod lama: teks dipisah koma, tiada skala
+      return v.split(',').map(function (x) { return x.trim(); }).filter(Boolean)
+        .map(function (x) { return { nama: x, tahap: 0 }; });
+    }
+    return [];
+  }
+
+  /* titik skala 1-5 untuk cetakan */
+  function titikTahap(tahap) {
+    if (!tahap) return '';
+    var h = '<span class="titik-tahap" role="img" aria-label="Tahap ' + tahap + ' daripada 5">';
+    for (var i = 1; i <= 5; i++) h += '<i class="' + (i <= tahap ? 'penuh' : '') + '"></i>';
+    return h + '</span>';
+  }
+
   /* satu rujukan = satu baris (nama / jawatan+syarikat / telefon) - tiada tanda koma */
   function barisRujukan(data) {
     data = data || {};
@@ -1090,8 +1189,7 @@
       lokasi: el('lokasi').value.trim(),
       jawatan: el('jawatan').value.trim(),
       ringkasan: el('ringkasan').value.trim(),
-      kemahiran: el('kemahiran').value.trim(),
-      bahasa: el('bahasa').value.trim(),
+      kemahiran: [], bahasa: [],
       rujukan: [],
       foto: foto,
       pengalaman: [],
@@ -1124,6 +1222,14 @@
         b: b.querySelector('.t-isi').value.split('\n').map(function (x) { return x.trim(); }).filter(Boolean).join('\n')
       };
       if (o.t || o.b) d.tambahan.push(o);
+    });
+    ['kemahiran', 'bahasa'].forEach(function (kunci) {
+      Array.prototype.forEach.call(document.querySelectorAll('#senarai-' + kunci + ' .baris'), function (b) {
+        var nama = b.querySelector('.t-nama').value.trim();
+        if (!nama) return;
+        var kotak = b.querySelector('.tahap');
+        d[kunci].push({ nama: nama, tahap: parseInt(kotak ? kotak.getAttribute('data-tahap') : '', 10) || 0 });
+      });
     });
     Array.prototype.forEach.call(document.querySelectorAll('#senarai-rujukan .baris'), function (b) {
       var o = {
@@ -1414,8 +1520,17 @@
     if (d.emel) kontak += '<li>' + ikon('emel') + '<span>' + esc(d.emel) + '</span></li>';
     if (d.lokasi) kontak += '<li>' + ikon('lokasi') + '<span>' + esc(d.lokasi) + '</span></li>';
     if (kontak) blok.kontak = '<h2>Kontak</h2><ul class="cvb-kontak">' + kontak + '</ul>';
-    if (d.kemahiran && !dibuang(d, 'kemahiran')) blok.kemahiran = '<h2>Kemahiran</h2><ul class="cvb-titik">' + senaraiTitik(d.kemahiran) + '</ul>';
-    if (d.bahasa && !dibuang(d, 'bahasa')) blok.bahasa = '<h2>Bahasa</h2><ul class="cvb-titik padat">' + senaraiTitik(d.bahasa) + '</ul>';
+    var kemBiru = senaraiTahap(d, 'kemahiran'), bahBiru = senaraiTahap(d, 'bahasa');
+    if (kemBiru.length && !dibuang(d, 'kemahiran')) {
+      blok.kemahiran = '<h2>Kemahiran</h2><ul class="cvb-titik cvb-tahap">' + kemBiru.map(function (o) {
+        return '<li><span>' + esc(o.nama) + '</span>' + titikTahap(o.tahap) + '</li>';
+      }).join('') + '</ul>';
+    }
+    if (bahBiru.length && !dibuang(d, 'bahasa')) {
+      blok.bahasa = '<h2>Bahasa</h2><ul class="cvb-titik cvb-tahap padat">' + bahBiru.map(function (o) {
+        return '<li><span>' + esc(o.nama) + '</span>' + titikTahap(o.tahap) + '</li>';
+      }).join('') + '</ul>';
+    }
 
     if (d.ringkasan && !dibuang(d, 'ringkasan')) blok.profil = '<h2>' + ikonLencana('orang') + 'Profil</h2><p class="cvb-teks">' + esc(d.ringkasan) + '</p>';
 
@@ -1509,8 +1624,17 @@
         return x + '</div>';
       }).join('');
     }
-    if (d.kemahiran && !dibuang(d, 'kemahiran')) blok.kemahiran = '<h2>Kemahiran</h2><p class="cvs-inline">' + esc(d.kemahiran) + '</p>';
-    if (d.bahasa && !dibuang(d, 'bahasa')) blok.bahasa = '<h2>Bahasa</h2><p class="cvs-inline">' + esc(d.bahasa) + '</p>';
+    var kemBersih = senaraiTahap(d, 'kemahiran'), bahBersih = senaraiTahap(d, 'bahasa');
+    if (kemBersih.length && !dibuang(d, 'kemahiran')) {
+      blok.kemahiran = '<h2>Kemahiran</h2><ul class="cvs-tahap">' + kemBersih.map(function (o) {
+        return '<li><span>' + esc(o.nama) + '</span>' + titikTahap(o.tahap) + '</li>';
+      }).join('') + '</ul>';
+    }
+    if (bahBersih.length && !dibuang(d, 'bahasa')) {
+      blok.bahasa = '<h2>Bahasa</h2><ul class="cvs-tahap">' + bahBersih.map(function (o) {
+        return '<li><span>' + esc(o.nama) + '</span>' + titikTahap(o.tahap) + '</li>';
+      }).join('') + '</ul>';
+    }
     var rujBersih = senaraiRujukan(d);
     if (rujBersih.length && !dibuang(d, 'rujukan')) {
       blok.rujukan = '<h2>Rujukan</h2>' + rujBersih.map(function (o) {
@@ -1555,7 +1679,9 @@
   function kodDari(d) {
     var ringkas = {
       s: KUNCI_TEMPLAT, n: d.nama, t: d.telefon, e: d.emel, l: d.lokasi, j: d.jawatan,
-      g: d.ringkasan, k: d.kemahiran, b: d.bahasa,
+      g: d.ringkasan,
+      k: senaraiTahap(d, 'kemahiran').map(function (o) { return { n: o.nama, p: o.tahap }; }),
+      b: senaraiTahap(d, 'bahasa').map(function (o) { return { n: o.nama, p: o.tahap }; }),
       u: senaraiRujukan(d).map(function (o) { return { n: o.nama, j: o.jawatan, t: o.telefon }; }),
       p: d.pengalaman, d: d.pendidikan,
       a: (d.tambahan || []).filter(function (o) { return String(o.t || '').trim(); }),   // bahagian tambahan
@@ -1575,8 +1701,9 @@
       return {
         templat: (TEMPLAT[o.s] ? o.s : 'biru'),
         nama: o.n || '', telefon: o.t || '', emel: o.e || '', lokasi: o.l || '',
-        jawatan: o.j || '', ringkasan: o.g || '', kemahiran: o.k || '',
-        bahasa: o.b || '',
+        jawatan: o.j || '', ringkasan: o.g || '',
+        kemahiran: senaraiTahap({ kemahiran: o.k }, 'kemahiran'),
+        bahasa: senaraiTahap({ bahasa: o.b }, 'bahasa'),
         rujukan: (Array.isArray(o.u)
           ? o.u.map(function (x) { return { nama: x.n || x.nama || '', jawatan: x.j || x.jawatan || '', telefon: x.t || x.telefon || '' }; })
           : senaraiRujukan({ rujukan: o.u })),
@@ -1794,6 +1921,12 @@
     el('senarai-rujukan').innerHTML = '';
     bilRujukan = 0;
     el('senarai-rujukan').appendChild(barisRujukan());
+    ['kemahiran', 'bahasa'].forEach(function (kunci) {
+      var kotak = el('senarai-' + kunci);
+      kotak.innerHTML = '';
+      bilTahap[kunci] = 0;
+      kotak.appendChild(barisTahap(kunci));
+    });
     BUANG = [];
     SUSUN = null;
     kemasSek();
@@ -1810,8 +1943,13 @@
     el('lokasi').value = d.lokasi || '';
     el('jawatan').value = d.jawatan || '';
     el('ringkasan').value = d.ringkasan || '';
-    el('kemahiran').value = d.kemahiran || '';
-    el('bahasa').value = d.bahasa || '';
+    ['kemahiran', 'bahasa'].forEach(function (kunci) {
+      var kotak = el('senarai-' + kunci);
+      kotak.innerHTML = '';
+      bilTahap[kunci] = 0;
+      senaraiTahap(d, kunci).forEach(function (o) { kotak.appendChild(barisTahap(kunci, o)); });
+      if (!kotak.children.length) kotak.appendChild(barisTahap(kunci));
+    });
     el('senarai-rujukan').innerHTML = '';
     bilRujukan = 0;
     senaraiRujukan(d).forEach(function (o) { el('senarai-rujukan').appendChild(barisRujukan(o)); });
@@ -1911,6 +2049,14 @@
     el('senarai-pengalaman').appendChild(barisPengalaman());
     kemasSemula();
   });
+  ['kemahiran', 'bahasa'].forEach(function (kunci) {
+    el('tambah-' + kunci).addEventListener('click', function () {
+      el('senarai-' + kunci).appendChild(barisTahap(kunci));
+      kemasSemula();
+      var baris = el('senarai-' + kunci).lastElementChild;
+      if (baris) baris.querySelector('.t-nama').focus();
+    });
+  });
   el('tambah-rujukan').addEventListener('click', function () {
     el('senarai-rujukan').appendChild(barisRujukan());
     kemasSemula();
@@ -1948,6 +2094,16 @@
     }
   }
   el('tambah-bahagian').addEventListener('click', function () { tambahBahagian(''); });
+  // butang tahap 1-5
+  el('borang').addEventListener('click', function (e) {
+    var btn = (e.target && e.target.closest) ? e.target.closest('.tahap-btn') : null;
+    if (!btn) return;
+    var kotak = btn.closest('.tahap');
+    if (!kotak) return;
+    kotak.setAttribute('data-tahap', btn.getAttribute('data-nilai'));
+    kemasTahap(kotak.parentNode);
+    kemasSemula();
+  });
   // cadangan satu klik (cth. Kemahiran Profesional)
   el('borang').addEventListener('click', function (e) {
     var c = (e.target && e.target.closest) ? e.target.closest('.cip[data-tajuk]') : null;
@@ -2198,8 +2354,9 @@
     emel: 'nurul.ain@gmail.com',
     lokasi: 'Kuantan, Pahang',
     ringkasan: 'Graduan Sarjana Muda Ukur Bahan dengan 2 tahun pengalaman dalam projek perumahan mampu milik. Berpengalaman menyediakan BQ dan menyemak tuntutan kontraktor.',
-    kemahiran: 'Pengukuran Kuantiti, AutoCAD, MS Excel, BIM Revit, Pengurusan Kontrak',
-    bahasa: 'Bahasa Melayu (Fasih), English (Fluent)',
+    kemahiran: [{ nama: 'Pengukuran Kuantiti (BQ)', tahap: 5 }, { nama: 'AutoCAD', tahap: 4 },
+                { nama: 'MS Excel', tahap: 4 }, { nama: 'Pengurusan Kontrak', tahap: 3 }],
+    bahasa: [{ nama: 'Bahasa Melayu', tahap: 5 }, { nama: 'Bahasa Inggeris', tahap: 4 }],
     rujukan: [{ nama: 'En. Ahmad Faizal bin Hassan', jawatan: 'Pengurus Projek, EPH Construction Sdn Bhd', telefon: '012-345 6789' }],
     pengalaman: [
       { syarikat: 'EPH Construction Sdn Bhd', jawatan: 'Quantity Surveyor', tempoh: 'Mac 2024 - Kini',

@@ -24,6 +24,16 @@ const dom = new JSDOM(html, {
 const w = dom.window, d = w.document;
 const el = (id) => d.getElementById(id);
 const isi = (sel, val) => { d.querySelector(sel).value = val; };
+const isiTahap = (kunci, senarai) => {          // [[nama, tahap], ...]
+  senarai.forEach((ps, i) => {
+    if (i) el('tambah-' + kunci).click();
+    const b = d.querySelectorAll('#senarai-' + kunci + ' .baris')[i];
+    b.querySelector('.t-nama').value = ps[0];
+    b.querySelector('.tahap').setAttribute('data-tahap', String(ps[1]));
+  });
+  const semua = d.querySelectorAll('#senarai-' + kunci + ' .baris');
+  for (let i = senarai.length; i < semua.length; i++) semua[i].remove();
+};
 const resume = () => el('resume').textContent;
 
 console.log('== 1. Fasa 1: elemen asas masih wujud ==');
@@ -38,7 +48,8 @@ ok(labels.some(l => /^Nombor Telefon\b/.test(l)), 'label "Nombor Telefon" ada');
 ok(d.querySelectorAll('label .wajib').length === 2, 'dua medan wajib (Nama, Telefon) ditanda *');
 
 console.log('== 2. Fasa 2: medan baru wujud ==');
-['emel', 'lokasi', 'jawatan', 'ringkasan', 'kemahiran'].forEach(id => ok(!!el(id), 'input #' + id + ' wujud'));
+['emel', 'lokasi', 'jawatan', 'ringkasan'].forEach(id => ok(!!el(id), 'input #' + id + ' wujud'));
+['senarai-kemahiran', 'senarai-bahasa', 'senarai-rujukan'].forEach(id => ok(!!el(id), 'senarai #' + id + ' wujud'));
 ok(!!el('tambah-pengalaman'), 'butang #tambah-pengalaman wujud');
 ok(!!el('tambah-pendidikan'), 'butang #tambah-pendidikan wujud');
 ok(!!el('kosongkan'), 'butang #kosongkan wujud');
@@ -102,7 +113,7 @@ ok(resume().includes('NAMA ANDA'), 'pratonton kembali ke tempat letak (banner na
 console.log('== 6. Kemahiran + keselamatan ==');
 el('tambah-pengalaman').click();
 isi('#senarai-pengalaman .baris:nth-child(1) .p-jawatan', 'QS');
-el('kemahiran').value = 'AutoCAD, BQ, MS Excel, BIM';
+isiTahap('kemahiran', [['AutoCAD', 5], ['BQ', 5], ['MS Excel', 4], ['BIM', 3]]);
 el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
 ok(d.querySelectorAll('#resume .cvb-titik li').length === 4, '4 kemahiran jadi 4 titik rel kiri');
 el('nama').value = '<b>Ali</b>';
@@ -129,13 +140,13 @@ if (simpan) {
   const obj = JSON.parse(simpan);
   ok(obj.nama === 'Ahmad bin Ali', 'nama tersimpan');
   ok(Array.isArray(obj.pengalaman) && obj.pengalaman.length === 1, 'pengalaman tersimpan (1 rekod)');
-  ok(obj.kemahiran.includes('AutoCAD'), 'kemahiran tersimpan');
+  ok(Array.isArray(obj.kemahiran) && obj.kemahiran.some(k => k.nama === 'AutoCAD'), 'kemahiran tersimpan (dengan tahap)');
 } else { skip_('localStorage tidak tersedia dalam jsdom ini'); }
 
 console.log('== 10. Pesanan WhatsApp + Mod Penjual ==');
 // tetapkan data yang diketahui supaya ujian bulat (kod -> pulih) benar-benar berisi
 el('jawatan').value = 'Junior Quantity Surveyor';
-el('kemahiran').value = 'AutoCAD, BQ';
+isiTahap('kemahiran', [['AutoCAD', 5], ['BQ', 4]]);
 isi('#senarai-pengalaman .baris:nth-child(1) .p-syarikat', 'EPH Construction Sdn Bhd');
 el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
 ok(!!el('wa') && !!el('panel-pesanan'), 'panel pesanan + pautan #wa wujud');
@@ -215,7 +226,7 @@ isi('#senarai-pendidikan .baris:nth-child(1) .d-kelulusan', 'Sarjana Muda Ukur B
 isi('#senarai-pendidikan .baris:nth-child(1) .d-institusi', 'UiTM Shah Alam');
 isi('#senarai-pendidikan .baris:nth-child(1) .d-tahun', '2021 - 2024');
 ok(!el('templat'), 'pemilih templat sudah dibuang (satu reka bentuk sahaja)');
-el('bahasa').value = 'Bahasa Melayu (Fasih), English (Fluent)';
+isiTahap('bahasa', [['Bahasa Melayu (Fasih)', 5], ['English (Fluent)', 4]]);
 isi('#senarai-rujukan .baris .rj-nama', 'En. Ahmad Faizal');
 isi('#senarai-rujukan .baris .rj-jawatan', 'Pengurus Projek, EPH Construction');
 isi('#senarai-rujukan .baris .rj-telefon', '012-345 6789');
@@ -236,7 +247,8 @@ ok(kiriTeks.includes('Bahasa Melayu (Fasih)'), 'bahasa masuk rel kiri');
 ok(kananTeks.includes('EPH Construction'), 'pengalaman + rujukan masuk lajur kanan');
 ok(d.querySelectorAll('#resume .cvb-ikon').length === 3, '3 ikon kontak dirender (telefon, emel, lokasi)');
 ok(d.querySelectorAll('#resume .cvb-kontak li').length === 3, '3 baris kontak (telefon, emel, lokasi)');
-ok(d.querySelectorAll('#resume .cvb-titik li').length === 4, 'kemahiran + bahasa jadi 4 titik rel');
+ok(d.querySelectorAll('#resume .cvb-titik li').length === w.ResumeMV.kumpul().kemahiran.length + w.ResumeMV.kumpul().bahasa.length,
+     'setiap kemahiran + bahasa jadi satu baris rel kiri');
 ok(d.querySelectorAll('#resume .cvb-bullet li').length === 2, '2 poin pengalaman jadi bullet di lajur kanan');
 ok(d.querySelectorAll('#resume .cvb-lencana').length === 4, '4 lencana bulat pada garisan pemisah');
 ok(d.querySelectorAll('#resume .cvb-lencana svg').length === 4, 'setiap lencana ada ikon SVG putih');
@@ -271,7 +283,8 @@ ok(html.includes('function htmlBiru') && html.includes('.cv-biru'), 'reka bentuk
 ok(html.includes('.cvb-lencana') && html.includes('.cvb-titik') && html.includes('ikonLencana'),
    'elemen bulat Biru & Kelabu masih ada');
 ok(d.querySelectorAll('#resume .cvb-lencana').length === 4, 'lencana bulat masih dirender selepas pembersihan');
-ok(d.querySelectorAll('#resume .cvb-titik li').length === 4, 'titik bulat rel kiri masih dirender');
+ok(d.querySelectorAll('#resume .cvb-titik li').length === w.ResumeMV.kumpul().kemahiran.length + w.ResumeMV.kumpul().bahasa.length,
+     'titik bulat rel kiri masih dirender');
 const kodBersih = decodeURIComponent(el('wa').href).split('Kod resume saya')[1].split('\n').pop().trim();
 const dom9 = new JSDOM(html, {
   runScripts: 'dangerously',
@@ -549,8 +562,8 @@ console.log('== 21. Builder: tambah bahagian sendiri + buang bahagian tak mahu =
 el('mula-isi').click();
 ok(el('hal-2').hidden === false, 'di halaman butiran');
 isi('#nama', 'Ahmad bin Ali'); isi('#telefon', '012-3456789');
-isi('#jawatan', 'Juruteknik Tapak'); isi('#kemahiran', 'AutoCAD, MS Excel');
-isi('#bahasa', 'Bahasa Melayu, English');
+isi('#jawatan', 'Juruteknik Tapak'); isiTahap('kemahiran', [['AutoCAD', 5], ['MS Excel', 4]]);
+isiTahap('bahasa', [['Bahasa Melayu', 5], ['English', 4]]);
 isi('#senarai-rujukan .baris .rj-nama', 'En. Samad'); isi('#senarai-rujukan .baris .rj-telefon', '019-1112222');
 isi('#ringkasan', 'Juruteknik awam dengan 4 tahun pengalaman.');
 isi('#senarai-pengalaman .p-jawatan', 'Juruteknik Tapak');
@@ -623,7 +636,7 @@ el('mula-isi').click();
 isi('#nama', 'Ahmad bin Ali'); isi('#telefon', '012-3456789'); isi('#emel', 'ahmad@mail.com');
 isi('#lokasi', 'Kemaman'); isi('#jawatan', 'Juruteknik Tapak');
 isi('#ringkasan', 'Juruteknik awam dengan 4 tahun pengalaman.');
-isi('#kemahiran', 'AutoCAD, MS Excel'); isi('#bahasa', 'Bahasa Melayu, English');
+isiTahap('kemahiran', [['AutoCAD', 5], ['MS Excel', 4]]); isiTahap('bahasa', [['Bahasa Melayu', 5], ['English', 4]]);
 isi('#senarai-rujukan .baris .rj-nama', 'En. Samad'); isi('#senarai-rujukan .baris .rj-telefon', '019-1112222');
 isi('#senarai-pengalaman .p-jawatan', 'Juruteknik Tapak');
 isi('#senarai-pengalaman .p-syarikat', 'EPH Construction');
@@ -736,8 +749,8 @@ isi('#telefon', '011-2233 4455');
 isi('#emel', 'irfan@contoh.my');
 isi('#lokasi', 'Kuantan, Pahang');
 isi('#ringkasan', 'Jurutera mekanikal dengan pengalaman penyeliaan tapak dan penyediaan dokumen kontrak.');
-isi('#kemahiran', 'AutoCAD, MS Project, Ukur Kuantiti');
-isi('#bahasa', 'Bahasa Melayu, Bahasa Inggeris');
+isiTahap('kemahiran', [['AutoCAD', 5], ['MS Project', 4], ['Ukur Kuantiti', 5]]);
+isiTahap('bahasa', [['Bahasa Melayu', 5], ['Bahasa Inggeris', 4]]);
 isi('#senarai-pengalaman .baris .p-jawatan', 'Jurutera Tapak');
 isi('#senarai-pengalaman .baris .p-syarikat', 'EPH Construction Sdn Bhd');
 isi('#senarai-pengalaman .baris .p-tempoh', 'Jan 2023 - Kini');
@@ -899,6 +912,87 @@ d.querySelector('.kad-pilih[data-templat="bersih"]').click();
 ok(d.body.getAttribute('data-templat') === 'bersih', 'tanda data-templat bertukar bila reka bentuk ditukar');
 ok(el('cb-nama').textContent.indexOf('Ahmad') >= 0 || el('cb-nama').textContent.length > 0, 'nama dipaparkan pada kaki halaman');
 d.querySelector('.kad-pilih[data-templat="biru"]').click();
+
+console.log('== 28. Skala tahap penguasaan 1-5 (Bahasa & Kemahiran) ==');
+// struktur borang
+ok(!!el('senarai-kemahiran') && !!el('senarai-bahasa'), 'senarai kemahiran & bahasa wujud');
+ok(!!el('tambah-kemahiran') && !!el('tambah-bahasa'), 'butang + Tambah kemahiran / bahasa wujud');
+ok(el('kemahiran') === null && el('bahasa') === null, 'input berkoma yang lama sudah dibuang');
+ok(/Tahap penguasaan/.test(html), 'label "Tahap penguasaan" ada pada borang');
+// bersihkan borang dahulu supaya kiraan baris tepat
+el('kosongkan').click();
+const bTahap = d.querySelector('#senarai-kemahiran .baris .tahap');
+ok(bTahap && bTahap.querySelectorAll('.tahap-btn').length === 5, 'setiap baris ada butang 1 hingga 5');
+ok(bTahap.getAttribute('data-tahap') === '3', 'tahap lalai = 3 (boleh diubah)');
+// tekan butang tahap
+bTahap.querySelectorAll('.tahap-btn')[4].click();
+ok(bTahap.getAttribute('data-tahap') === '5', 'tekan 5 menetapkan tahap 5');
+ok(bTahap.querySelectorAll('.tahap-btn')[4].classList.contains('aktif'), 'butang 5 ditanda aktif');
+ok(!bTahap.querySelectorAll('.tahap-btn')[0].classList.contains('aktif'), 'butang lain tidak aktif');
+ok(/Tahap <strong>5 \/ 5<\/strong>/.test(d.querySelector('#senarai-kemahiran .baris .tahap-teks').innerHTML),
+   'teks tahap dikemas kini ("Tahap 5 / 5 - Pakar")');
+bTahap.querySelectorAll('.tahap-btn')[1].click();
+ok(bTahap.getAttribute('data-tahap') === '2', 'tukar ke 2 berfungsi');
+// butang tambah baris
+el('tambah-kemahiran').click();
+ok(d.querySelectorAll('#senarai-kemahiran .baris').length === 2, 'menambah kemahiran jadi 2 baris');
+ok(d.querySelectorAll('#senarai-kemahiran .baris')[1].querySelectorAll('.tahap-btn').length === 5, 'baris baharu juga ada skala 1-5');
+el('tambah-bahasa').click();
+ok(d.querySelectorAll('#senarai-bahasa .baris').length === 2, 'menambah bahasa jadi 2 baris');
+// isi dan kumpul
+el('kosongkan').click();
+isiTahap('kemahiran', [['AutoCAD', 5], ['MS Excel', 4], ['BIM Revit', 2]]);
+isiTahap('bahasa', [['Bahasa Melayu', 5], ['Bahasa Inggeris', 4]]);
+el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+const dTahap = w.ResumeMV.kumpul();
+ok(Array.isArray(dTahap.kemahiran) && dTahap.kemahiran.length === 3, 'kemahiran disimpan sebagai senarai');
+ok(dTahap.kemahiran[0].nama === 'AutoCAD' && dTahap.kemahiran[0].tahap === 5, 'nama + tahap disimpan berasingan');
+ok(dTahap.kemahiran[2].tahap === 2, 'tahap 2 disimpan (bukan dipaksa 3)');
+d.querySelector('#senarai-kemahiran .baris:nth-child(3) .btn-hapus').click();
+ok(d.querySelectorAll('#senarai-kemahiran .baris').length === 2, 'baris kemahiran boleh dihapus');
+ok(w.ResumeMV.kumpul().kemahiran.length === 2, 'data ikut baris yang tinggal selepas hapus');
+// bina semula untuk ujian render
+el('kosongkan').click();
+isiTahap('kemahiran', [['AutoCAD', 5], ['MS Excel', 4], ['BIM Revit', 2]]);
+isiTahap('bahasa', [['Bahasa Melayu', 5], ['Bahasa Inggeris', 4]]);
+ok(d.querySelectorAll('#senarai-kemahiran .baris').length === 3, 'tiga baris kemahiran dibina');
+el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+// render templat biru (rel kiri): setiap item ada titik skala
+ok(d.querySelectorAll('#resume .cvb-tahap li').length === 5, 'rel kiri: 3 kemahiran + 2 bahasa = 5 baris');
+ok(d.querySelectorAll('#resume .cvb-tahap li .titik-tahap').length === 5, 'setiap baris rel kiri ada titik skala');
+const titikAuto = d.querySelector('#resume .cvb-tahap li');
+ok(titikAuto.querySelectorAll('i.penuh').length === 5, 'AutoCAD (5) = lima titik penuh');
+ok(d.querySelectorAll('#resume .cvb-tahap li')[1].querySelectorAll('i.penuh').length === 4, 'MS Excel (4) = empat titik penuh');
+ok(d.querySelector('#resume .cvb-tahap li').querySelectorAll('.titik-tahap i').length === 5, 'sentiasa lima titik (kosong + penuh)');
+ok(d.querySelector('#resume .titik-tahap').getAttribute('aria-label').includes('5 daripada 5'), 'skala ada label untuk pembaca skrin');
+ok(/\.cvb-tahap \.titik-tahap i\.penuh \{ background: #323b4c; \}/.test(html), 'titik penuh templat dua lajur ada warna sendiri');
+ok(/\.cv-bersih \.titik-tahap i\.penuh \{ background: #00366d; \}/.test(html), 'titik penuh templat bersih ada warna sendiri');
+ok(/\.titik-tahap i \{[\s\S]{0,120}background: #c2c9d3/.test(html), 'titik kosong berbeza warna dari titik penuh');
+// render templat bersih (satu lajur)
+d.querySelector('.kad-pilih[data-templat="bersih"]').click();
+ok(d.querySelectorAll('#resume .cvs-tahap li').length === 5, 'templat Biru Bersih: 5 baris kemahiran/bahasa');
+ok(d.querySelectorAll('#resume .cvs-tahap li .titik-tahap').length === 5, 'templat Biru Bersih juga ada titik skala');
+ok(d.querySelectorAll('#resume .cvs-tahap li')[0].querySelectorAll('i.penuh').length === 5, 'titik penuh ikut tahap dalam templat bersih');
+// kod pesanan menyimpan + memulihkan tahap
+const kodTahap = w.ResumeMV.kod(w.ResumeMV.kumpul());
+ok(kodTahap.length < 4000, 'kod pesanan tidak membengkak (g: ' + kodTahap.length + ' aksara)');
+const balikTahap = w.ResumeMV.dariKod(kodTahap);
+ok(Array.isArray(balikTahap.kemahiran) && balikTahap.kemahiran[0].nama === 'AutoCAD' && balikTahap.kemahiran[0].tahap === 5,
+   'kod pesanan menyimpan kemahiran + tahap');
+ok(balikTahap.bahasa[0].nama === 'Bahasa Melayu' && balikTahap.bahasa[0].tahap === 5, 'kod pesanan menyimpan bahasa + tahap');
+// kod LAMA (teks berkoma) tetap dibaca - tanpa skala
+const kodLamaTahap = 'eyJzIjoiYmlydSIsIm4iOiJVamlhbiIsInQiOiIwMTIiLCJrIjoiQXV0b0NBRCwgTVMgRXhjZWwiLCJiIjoiQmFoYXNhIE1lbGF5dSJ9';
+const lamaTahap = w.ResumeMV.dariKod(kodLamaTahap);
+ok(lamaTahap.kemahiran.length === 2 && lamaTahap.kemahiran[0].nama === 'AutoCAD', 'kod lama: kemahiran berkoma dibaca');
+ok(lamaTahap.kemahiran[0].tahap === 0, 'kod lama: tiada tahap (0) - bukan direka');
+d.querySelector('.kad-pilih[data-templat="biru"]').click();
+w.ResumeMV.isi(lamaTahap);
+el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+ok(d.querySelectorAll('#resume .titik-tahap').length === 0, 'kod lama dirender tanpa titik skala (tidak menipu tahap)');
+ok(d.querySelector('#senarai-kemahiran .baris .tahap').getAttribute('data-tahap') === '0',
+   'kod lama: borang tunjuk "belum dipilih" (tidak direka tahap 3)');
+ok(/Belum dipilih/.test(d.querySelector('#senarai-kemahiran .baris .tahap-teks').textContent),
+   'teks "Belum dipilih" dipaparkan untuk data lama');
 
   Promise.resolve().then(function () {
     console.log('\n' + pass + ' lulus, ' + fail + ' gagal, ' + skip + ' dilangkau');
