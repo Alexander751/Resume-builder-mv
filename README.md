@@ -286,6 +286,29 @@ ditengahkan menegak), (3) kalau isi terlalu banyak, halaman kedua mesti berdesig
   wizard ini kekal **1 halaman A4** dan tiada teks borang masuk ke dalam PDF.
 - **Ujian** - blok 29 (59 ujian baharu, termasuk muatan segar). Jumlah **480 lulus, 0 gagal**.
 
+**Fasa 25 - Pratonton hanya selepas langkah 8 + galeri reka bentuk beranimasi**
+
+- **Satu sahaja jalan ke pratonton**: sebelum ini ada DUA butang pratonton yang sentiasa kelihatan -
+  titik "3 Pratonton" pada bar langkah di atas dan bar "Seterusnya: Pratonton" yang melekat di bawah
+  halaman butiran. Pelanggan yang belum habis mengisi mudah terkena salah satu. Kini:
+  bar langkah hanya 3 titik (Reka bentuk, Butiran, Hantar), dan butang pratonton/kembali lama disimpan
+  sebagai butang **dalaman tersembunyi** yang hanya dicetuskan oleh butang "Seterusnya: Pratonton"
+  pada langkah 8. Hantar tetap terkunci sehingga pratonton dilawati (`HAL_MAKS`).
+- **Galeri reka bentuk baharu**: kad dijana oleh JavaScript daripada senarai `TEMPLAT` (`paparKadTemplat()`),
+  jadi menambah reka bentuk baharu hanya perlu **satu entri** dalam `TEMPLAT` - kad, pratonton mini dan
+  kiraan muncul sendiri. Entri templat kini ada `aksen` (warna kad) dan `ciri` (2-3 ciri tanda centang).
+- **Animasi**: kad masuk berperingkat (`@keyframes kadMasuk`, lewat `--i * 80ms`), terangkat dan bayang
+  mendalam semasa hover (`@media (hover: hover)` supaya tidak melekat di telefon), kilau melintas pada
+  pratonton mini, lencana "Dipilih" muncul dengan `@keyframes pilPop`, dan maklum balas :active semasa ditekan.
+  Semua animasi dimatikan dalam `prefers-reduced-motion`.
+- **Telefon**: galeri bertukar menjadi jalur leret-menjadi (`scroll-snap-type: x mandatory`, satu kad 84%
+  lebar skrin) dengan petunjuk "Leret untuk lihat reka bentuk lain".
+- **Disahkan Chrome**: 2 kad bersebelahan (309x644px), mini dirender (`--skala-mini` 0.35), animasi
+  `kadMasuk 0.5s`, aksen `#323b4c` / `#00366d`, bar langkah 3 titik, butang pratonton lama tersembunyi;
+  pada lebar telefon galeri `display: flex` boleh dileret (472 -> 802px) dengan snap.
+- Cetakan PDF tidak terjejas (1 halaman, galeri tidak masuk PDF).
+- **Ujian** - blok 33 (20 ujian baharu) + kemas kini ujian 18. Jumlah **568 lulus, 0 gagal**.
+
 **Fasa 24 - Mesra telefon: tidak lagi tersalah tekan ke pratonton**
 
 - **Punca utama ditemui**: `#borang` ialah `<form>`, jadi kekunci "Pergi/Next" pada papan kekunci telefon
@@ -404,7 +427,7 @@ cd test && npm install        # sekali sahaja (jsdom)
 "$LOCALAPPDATA/hermes/node/node.exe" test/test_ui.js
 ```
 
-Keputusan semasa: **543 lulus, 0 gagal**.
+Keputusan semasa: **568 lulus, 0 gagal**.
 
 ## Aliran jualan melalui WhatsApp (tanpa gerbang bayaran)
 

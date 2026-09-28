@@ -335,7 +335,7 @@ ok(el('btn-skrin').textContent.trim() === 'Skrin penuh', 'label kembali asal sel
 console.log('== 17. Aliran 4 halaman (wizard) ==');
 ok(!el('hal-1').hidden && el('hal-2').hidden && el('hal-3').hidden && el('hal-4').hidden,
    'halaman 1 (pilih reka bentuk) dipaparkan dahulu');
-ok(d.querySelectorAll('#langkah .dot').length === 4, 'penunjuk 4 langkah ada');
+ok(d.querySelectorAll('#langkah .dot').length === 3, 'penunjuk 3 langkah (pratonton bukan langkah yang boleh diklik)');
 ok(d.querySelector('#langkah .dot').classList.contains('aktif'), 'langkah 1 ditanda aktif');
 ok(d.querySelectorAll('#langkah .dot')[1].disabled, 'langkah 2 belum boleh diklik sebelum mula');
 ok(d.querySelectorAll('#mini-biru .cv-biru').length === 1, 'pratonton mini dirender dengan data contoh');
@@ -360,7 +360,7 @@ el('telefon').value = '012-3456789';
 el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
 el('ke-3').click();
 ok(el('hal-3').hidden === false && el('hal-2').hidden === true, 'butang Seterusnya ke halaman pratonton');
-ok(d.querySelectorAll('#langkah .dot')[3].disabled, 'halaman hantar belum terbuka');
+ok(d.querySelectorAll('#langkah .dot')[2].disabled, 'halaman hantar belum terbuka');
 el('ke-4').click();
 ok(el('hal-4').hidden === false, 'butang Seterusnya ke halaman hantar WhatsApp');
 ok(!!d.querySelector('#hal-4 #wa') && !!d.querySelector('#hal-4 #panel-pesanan'),
@@ -376,7 +376,7 @@ el('balik-2').click();
 ok(el('hal-1').hidden === false, 'Kembali dari butiran ke pemilihan reka bentuk');
 ok(d.body.getAttribute('data-hal') === '1', 'atribut data-hal dikemas kini');
 el('mula-isi').click();
-ok(!d.querySelectorAll('#langkah .dot')[3].disabled, 'langkah yang pernah dilawati kekal boleh diklik');
+ok(!d.querySelectorAll('#langkah .dot')[2].disabled, 'langkah yang pernah dilawati kekal boleh diklik');
 ok(/@media print[\s\S]{0,900}#hal-3 \{ display: block !important/.test(html),
    'cetak: helaian resume dicetak dari mana-mana halaman');
 ok(/@media print[\s\S]{0,300}animation: none !important/.test(html),
@@ -386,14 +386,17 @@ ok(/@media print[\s\S]{0,2000}\.papan \{ display: block !important/.test(html),
 
 console.log('== 18. Antara muka baharu (bersih & mesra pengguna) ==');
 ok(!!d.querySelector('header.top .jenama svg'), 'bar atas ada lencana jenama (SVG)');
-ok(d.querySelectorAll('#langkah .dot').length === 4 && d.querySelectorAll('#langkah .dot b').length === 4,
-   'penunjuk langkah: 4 bulatan bernombor');
-ok(d.querySelectorAll('#langkah .dot span').length === 4, 'setiap langkah ada label teks');
+ok(d.querySelectorAll('#langkah .dot').length === 3 && d.querySelectorAll('#langkah .dot b').length === 3,
+   'penunjuk langkah: 3 bulatan bernombor (reka bentuk, butiran, hantar)');
+ok(d.querySelectorAll('#langkah .dot span').length === 3, 'setiap langkah ada label teks');
+ok(!d.querySelector('#langkah .dot[data-hal="3"]'), 'tiada titik "Pratonton" yang sentiasa kelihatan di bar langkah');
+ok(!!d.querySelector('#ke-3[hidden]') === false || d.getElementById('ke-3').closest('[hidden]') !== null,
+   'butang Pratonton lama disimpan sebagai butang dalaman yang tersembunyi (dicetuskan oleh langkah 8 sahaja)');
 ok(!!el('langkah-teks'), 'teks langkah untuk skrin kecil wujud');
 el('balik-2').click();
-ok(el('langkah-teks').textContent === 'Langkah 1 daripada 4 \u00b7 Reka bentuk', 'teks langkah betul di halaman 1');
+ok(el('langkah-teks').textContent === 'Langkah 1 daripada 3 \u00b7 Pilih reka bentuk', 'teks langkah betul di halaman 1');
 el('mula-isi').click();
-ok(el('langkah-teks').textContent === 'Langkah 2 daripada 4 \u00b7 Butiran', 'teks langkah dikemas kini di halaman 2');
+ok(el('langkah-teks').textContent === 'Langkah 2 daripada 3 \u00b7 Isi butiran', 'teks langkah dikemas kini di halaman 2');
 ok(!!d.querySelector('.kad-pilih[data-templat="biru"] .kad-ciri li'), 'senarai ciri pada kad reka bentuk');
 ok(d.querySelector('#hal-1 .nota-bawah svg') !== null, 'nota halaman 1 ada ikon perisai (kepercayaan)');
 ok(d.querySelectorAll('#hal-2 .grid-2 input').length === 4, 'empat medan pendek disusun dua lajur');
@@ -410,8 +413,10 @@ ok(d.querySelectorAll('#hal-2 .baris').length >= 1, 'baris pengalaman gaya kad')
 ['--brand-soft', '--ok', '--sh2'].forEach(tok => ok(html.includes(tok + ':'), 'token warna ' + tok + ' ada'));
 ok(/\.hal\[hidden\] \{ display: none !important; \}/.test(html), 'halaman tersembunyi benar-benar disembunyikan');
 ok(/@keyframes masuk/.test(html), 'halaman masuk dengan animasi lembut');
-ok(/#hal-2 \.nav-bawah \{[\s\S]{0,120}position: sticky/.test(html),
-   'bar tindakan melekat pada halaman borang (borang panjang)');
+ok(d.getElementById('ke-3').closest('[hidden]') !== null && d.getElementById('balik-2').closest('[hidden]') !== null,
+   'butang Pratonton/Kembali lama tidak kelihatan (butang dalaman sahaja)');
+ok(!/nav-bawah \{[\s\S]{0,120}position: sticky/.test(html), 'tiada lagi bar Pratonton yang melekat di halaman butiran');
+ok(/\.lk-nav \{[\s\S]{0,300}position: sticky/.test(html), 'bar langkah butiran yang melekat');
 ok(/\.kad-pilih \{[\s\S]{0,300}border-radius: 18px/.test(html), 'kad reka bentuk bersudut bulat + bayang');
 ok(/\.langkah \.dot\.siap b::after \{ content: /.test(html), 'langkah siap bertukar tanda centang');
 ok(/\.kad-ciri li::before \{[\s\S]{0,80}content: /.test(html), 'senarai ciri guna tanda centang hijau');
@@ -904,8 +909,10 @@ ok(Array.isArray(balikLama.rujukan) && balikLama.rujukan.length === 1 && balikLa
 // buang baris
 d.querySelector('#senarai-rujukan .baris:nth-child(2) .btn-hapus').click();
 ok(d.querySelectorAll('#senarai-rujukan .baris').length === 1, 'baris rujukan boleh dihapus');
-// kad templat rata atas (tidak ditengahkan menegak)
-ok(/\.kad-pilih \{[\s\S]{0,260}align-items: start/.test(html), 'kad reka bentuk: pratonton mini duduk di atas (tidak ditengahkan)');
+// kad templat: mini di atas, teks di bawah (susunan menegak, tidak ditengahkan)
+ok(/\.kad-pilih \{[\s\S]{0,180}flex-direction: column/.test(html), 'kad reka bentuk: pratonton mini di atas, teks di bawah');
+ok(d.querySelector('#galeri .kad-pilih .mini') === d.querySelector('#galeri .kad-pilih').firstElementChild,
+   'mini ialah elemen pertama dalam kad (duduk di atas)');
 // elemen cetak berulang (halaman 2 berdesign sama)
 ok(!!el('cetak-berulang') && !!el('cb-nama'), 'elemen cetak berulang wujud (jalur atas + kaki halaman)');
 ok(/\.cb-jalur \{[\s\S]{0,200}position: fixed/.test(html) && /\.cb-kaki \{[\s\S]{0,200}position: fixed/.test(html),
@@ -1252,6 +1259,42 @@ ok(el('lk-nav').classList.contains('dikecilkan'), 'pindah ke medan lain: bar kek
 d.querySelector('#lk-bulat .lk-b[data-lk="5"]').click();
 ok(!el('lk-nav').classList.contains('dikecilkan'), 'tukar langkah: bar kembali besar');
 ok(/function medanBorang\(e\)/.test(html) && /closest\('#borang'\)/.test(html), 'hanya medan dalam borang yang mengaktifkan pengecilan');
+
+console.log('== 33. Galeri reka bentuk: dijana daripada TEMPLAT + animasi ==');
+// kad dijana daripada senarai TEMPLAT (senang tambah reka bentuk baharu)
+var senaraiTempat = w.ResumeMV.tempat();
+ok(senaraiTempat.length >= 2, 'senarai TEMPLAT boleh dibaca daripada API');
+ok(d.querySelectorAll('#galeri .kad-pilih[data-templat]').length === senaraiTempat.length,
+   'setiap reka bentuk dalam TEMPLAT dapat satu kad (tambah templat = kad muncul sendiri)');
+ok(senaraiTempat.every(function (k) { return !!d.querySelector('#galeri .kad-pilih[data-templat="' + k + '"]'); }),
+   'semua kunci templat ada kadnya');
+ok(d.querySelector('#galeri .kad-pilih').style.getPropertyValue('--i') === '0', 'kad pertama --i=0 (animasi berperingkat)');
+ok(d.querySelectorAll('#galeri .kad-pilih')[1].style.getPropertyValue('--i') === '1', 'kad kedua --i=1 (masuk kemudian sedikit)');
+ok(/--aksen:/.test(d.querySelector('#galeri .kad-pilih').getAttribute('style')), 'kad bawa warna aksen reka bentuk (--aksen)');
+ok(el('galeri-kira').textContent === senaraiTempat.length + ' reka bentuk', 'kiraan reka bentuk pada kepala galeri betul');
+ok(d.querySelector('#galeri .kad-pilih .mini-kertas .cv-biru') !== null ||
+   d.querySelector('#galeri .kad-pilih .mini-kertas .cv-bersih') !== null, 'pratonton mini dirender dalam kad');
+// animasi + interaksi
+ok(/@keyframes kadMasuk \{[\s\S]{0,200}translateY\(16px\)/.test(html), 'kad masuk dengan animasi naik + pudar');
+ok(/animation-delay: calc\(var\(--i, 0\) \* 80ms\)/.test(html), 'animasi masuk berperingkat antara kad');
+ok(/@keyframes pilPop/.test(html), 'lencana "Dipilih" muncul dengan animasi');
+ok(/@media \(hover: hover\) \{[\s\S]{0,300}\.kad-pilih:hover \{[\s\S]{0,200}translateY\(-5px\)/.test(html),
+   'kad terangkat hanya pada peranti yang ada hover (tidak melekat di telefon)');
+ok(/@media \(hover: hover\)[\s\S]{0,400}\.kad-pilih:hover \.mini::after/.test(html), 'kilau melintas pada kad semasa ditunjuk');
+ok(/@media \(prefers-reduced-motion: reduce\) \{[\s\S]{0,400}\.kad-pilih, \.kad-pilih\[aria-pressed="true"\] \.pil-pilih \{ animation: none; \}/.test(html),
+   'animasi dimatikan bila pengguna tetapkan kurangkan gerakan');
+// telefon: galeri jadi leret-menjadi
+ok(/@media screen and \(max-width: 620px\) \{[\s\S]{0,900}\.galeri \{[\s\S]{0,200}overflow-x: auto; scroll-snap-type: x mandatory/.test(html),
+   'telefon: galeri boleh dileret dengan snap');
+ok(/\.galeri \.kad-pilih \{ flex: 0 0 84%; scroll-snap-align: center; \}/.test(html), 'telefon: satu kad satu skrin');
+ok(!!el('galeri-hint'), 'ada petunjuk leret untuk telefon');
+// pilih reka bentuk masih berfungsi
+d.querySelector('#galeri .kad-pilih[data-templat="bersih"]').click();
+ok(d.querySelector('#galeri .kad-pilih[data-templat="bersih"]').getAttribute('aria-pressed') === 'true',
+   'tekan kad: reka bentuk bertukar');
+ok(w.ResumeMV.templat() === 'bersih', 'pilihan reka bentuk disimpan dalam app');
+d.querySelector('#galeri .kad-pilih[data-templat="biru"]').click();
+ok(w.ResumeMV.templat() === 'biru', 'boleh tukar balik ke reka bentuk pertama');
 
   Promise.resolve().then(function () {
     console.log('\n' + pass + ' lulus, ' + fail + ' gagal, ' + skip + ' dilangkau');
