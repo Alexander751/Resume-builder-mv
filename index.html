@@ -942,6 +942,13 @@
        Item pengalaman sendiri DIBENARKAN mengalir (kalau tidak, satu jawatan panjang berpindah
        bulat-bulat ke halaman 2 dan halaman 1 jadi berlubang), tetapi tajuk item mesti kekal
        bersama kandungannya. */
+    /* Item pengalaman BOLEH dipecah antara halaman (sebahagian di halaman 1, sebahagian di
+       halaman 2). Peraturan `.cvb-item { break-inside: avoid }` di bahagian skrin di atas
+       terpakai juga semasa cetak, jadi ia WAJIB dinyahsetkan di sini - kalau tidak satu
+       jawatan panjang berpindah bulat-bulat ke halaman 2 dan halaman 1 jadi berlubang. */
+    .lembar .cvb-item, .lembar .cvs-item {
+      break-inside: auto !important; page-break-inside: auto !important;
+    }
     .lembar li { break-inside: avoid; page-break-inside: avoid; }
     .lembar .cvb-item-kepala, .lembar .cvb-item-sub,
     .lembar .cvs-item-kepala, .lembar .cvs-item-sub { break-after: avoid; page-break-after: avoid; }
@@ -1621,22 +1628,42 @@
     function atas(e) { return (e.getBoundingClientRect().top - lr.top) / sk; }
     function bawah(e) { return (e.getBoundingClientRect().bottom - lr.top) / sk; }
     var potong = had;
-    var calon = lembar.querySelectorAll('li, .cvb-item, .cvs-item, h2');
+    /* Apa yang TIDAK BOLEH dipecah (sama seperti peraturan cetakan):
+       - LI: satu bulet/poin mesti kekal satu ayat penuh
+       - tajuk bahagian (H2) dan tajuk item (.cvb-item-kepala/.cvs-item-kepala dsb):
+         mesti kekal bersama baris pertama kandungannya
+       ITEM PENGALAMAN SENDIRI pula BOLEH dipecah - sebahagian di halaman 1, sebahagian di
+       halaman 2 - jadi ia sengaja tidak disenaraikan di sini. */
+    function bawa(e) {
+      var c = e.className ? String(e.className) : '';
+      if (e.tagName === 'H2') return true;
+      return /\b(cvb|cvs)-item-kepala\b/.test(c) || /\b(cvb|cvs)-item-sub\b/.test(c);
+    }
+    function kandunganPertama(e) {
+      var n = e.nextElementSibling;
+      if (!n) return null;
+      if (n.tagName === 'UL') return n.firstElementChild || n;      // bulet pertama
+      var k = n.querySelector ? n.querySelector('.cvb-item-kepala, .cvs-item-kepala') : null;
+      return k || n;
+    }
+    var calon = lembar.querySelectorAll('li, h2, .cvb-item-kepala, .cvb-item-sub, .cvs-item-kepala, .cvs-item-sub');
     Array.prototype.forEach.call(calon, function (e) {
       var a = atas(e), b = bawah(e);
-      if (b - a > TINGGI_KERTAS) return;              // terlalu tinggi: mesti dipecah
-      if (a < had && b > had + 0.5) {
+      if (b - a > TINGGI_KERTAS) return;              // terlalu tinggi: pelayar pun akan memecahnya
+      if (a < had && b > had + 0.5) {                 // elemen ini sendiri merentasi sempadan
         if (a < potong) potong = a;
         return;
       }
-      // tajuk bahagian: jangan tinggal keseorangan - kalau kandungan selepasnya jatuh ke
-      // halaman berikutnya, tajuk itu dibawa sekali (break-after: avoid)
-      if (e.tagName === 'H2') {
-        var nxt = e.nextElementSibling;
-        if (nxt && a < had && atas(nxt) < had && bawah(nxt) > had && a < potong) potong = a;
+      // tajuk: jangan tinggal keseorangan - kalau baris pertama kandungannya jatuh ke halaman
+      // berikutnya (break-after: avoid), bawa tajuk itu sekali
+      if (bawa(e) && a < had) {
+        var k = kandunganPertama(e);
+        if (k && atas(k) < had && bawah(k) > had + 0.5 && a < potong) potong = a;
       }
     });
-    return Math.max(0, Math.round(potong));
+    /* Math.floor (bukan round): titik potong tidak boleh melebihi bahagian atas elemen yang
+       tidak boleh dipecah - jika tidak elemen itu terkeluar 1px di hujung halaman 1. */
+    return Math.max(0, Math.floor(potong));
   }
 
   function kiraPotong() {
