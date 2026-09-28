@@ -339,7 +339,13 @@
     background: none; border: 0; padding: 0; margin: 0; font: inherit; font-size: 12.7px;
     font-weight: 700; color: var(--brand); cursor: pointer; text-decoration: underline;
   }
-  .nota-tambah { margin: 0 0 4px; font-size: 12.7px; line-height: 1.55; color: var(--muted); }
+  .nota-tambah { margin: 0 0 8px; font-size: 12.7px; line-height: 1.55; color: var(--muted); }
+  .cepat-tambah { display: flex; flex-wrap: wrap; gap: 7px; margin: 0 0 4px; }
+  .cip {
+    background: #fff; border: 1px solid #cfe0f3; color: var(--brand); border-radius: 999px;
+    padding: 7px 13px; font: inherit; font-size: 12.4px; font-weight: 700; cursor: pointer;
+  }
+  .cip:hover { background: var(--brand-soft); }
   .nota-tambah strong { color: var(--ink); }
   .btn-tambah {
     width: 100%; margin-top: 12px; background: var(--brand-soft); border: 1px dashed #a9c9e8;
@@ -715,7 +721,13 @@
 
     <fieldset class="sek-bahagian">
       <legend>Bahagian Tambahan (pilihan)</legend>
-      <p class="nota-tambah">Nak masukkan bahagian yang tiada di atas — cth. <strong>Projek</strong>, <strong>Sijil</strong>, <strong>Aktiviti</strong>, <strong>Latihan</strong>?</p>
+      <p class="nota-tambah">Nak masukkan bahagian yang tiada di atas? Tekan cadangan di bawah, atau tulis tajuk anda sendiri (cth. <strong>Kemahiran Profesional</strong>, <strong>Projek</strong>, <strong>Sijil</strong>).</p>
+      <div class="cepat-tambah">
+        <button type="button" class="cip" data-tajuk="Kemahiran Profesional">+ Kemahiran Profesional</button>
+        <button type="button" class="cip" data-tajuk="Sijil &amp; Latihan">+ Sijil &amp; Latihan</button>
+        <button type="button" class="cip" data-tajuk="Projek">+ Projek</button>
+        <button type="button" class="cip" data-tajuk="Aktiviti">+ Aktiviti</button>
+      </div>
       <div id="senarai-tambahan"></div>
       <button type="button" class="btn-tambah" id="tambah-bahagian">+ Tambah bahagian sendiri</button>
     </fieldset>
@@ -1500,12 +1512,27 @@
     el('sisi').classList.remove('buka');
     susunSkalaSisi();
   });
-  el('tambah-bahagian').addEventListener('click', function () {
-    el('senarai-tambahan').appendChild(barisTambahan());
+  function tambahBahagian(tajuk) {
+    el('senarai-tambahan').appendChild(barisTambahan({ t: tajuk || '' }));
     kemasSemula();
-    tulisLog('Bahagian tambahan ditambah — isi tajuk dan isinya.', 'info');
     var baris = el('senarai-tambahan').lastElementChild;
-    if (baris) { var inp = baris.querySelector('.t-tajuk'); if (inp) inp.focus(); }
+    if (!baris) return;
+    if (tajuk) {
+      var isi = baris.querySelector('.t-isi');
+      if (isi) isi.focus();
+      tulisLog('Bahagian "' + tajuk + '" ditambah — tulis satu item satu baris.', 'info');
+    } else {
+      var inp = baris.querySelector('.t-tajuk');
+      if (inp) inp.focus();
+      tulisLog('Bahagian tambahan ditambah — isi tajuk dan isinya.', 'info');
+    }
+  }
+  el('tambah-bahagian').addEventListener('click', function () { tambahBahagian(''); });
+  // cadangan satu klik (cth. Kemahiran Profesional)
+  el('borang').addEventListener('click', function (e) {
+    var c = (e.target && e.target.closest) ? e.target.closest('.cip[data-tajuk]') : null;
+    if (!c) return;
+    tambahBahagian(c.getAttribute('data-tajuk'));
   });
   // buang / tambah balik bahagian piawai (delegasi: butang ada dalam setiap fieldset)
   el('borang').addEventListener('click', function (e) {

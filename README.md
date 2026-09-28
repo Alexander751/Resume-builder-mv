@@ -143,13 +143,15 @@ Data disimpan automatik dalam pelayar (localStorage) — pelanggan ulangan akan 
 
 **Fasa 14** — builder: tambah bahagian sendiri + buang bahagian yang tak mahu:
 
-- **Tambah bahagian sendiri** — butang **+ Tambah bahagian sendiri** di hujung borang: setiap bahagian ada **tajuk** (cth. Projek, Sijil, Aktiviti, Latihan) + **isi satu baris satu item**. Ia muncul dalam resume sebagai bahagian baharu di hujung lajur kanan — satu item jadi perenggan, dua item ke atas jadi senarai bulet (gaya sama seperti Pengalaman Kerja)
+- **Tambah bahagian sendiri** — butang **+ Tambah bahagian sendiri** di hujung borang: setiap bahagian ada **tajuk** (cth. Kemahiran Profesional, Projek, Sijil, Aktiviti) + **isi satu baris satu item**.
+- **Cadangan satu klik** — empat cip siap: **+ Kemahiran Profesional**, **+ Sijil & Latihan**, **+ Projek**, **+ Aktiviti**. Satu klik terus mencipta baris dengan **tajuk sudah diisi** dan kursor di ruang isi — jalan pantas menjawab "template tiada kawasan kemahiran profesional" (terutama di telefon) Ia muncul dalam resume sebagai bahagian baharu di hujung lajur kanan — satu item jadi perenggan, dua item ke atas jadi senarai bulet (gaya sama seperti Pengalaman Kerja)
 - **Buang bahagian** — butang **Buang bahagian ini** di penjuru kanan 7 bahagian borang: Jawatan Disasarkan, Ringkasan Profil, Pengalaman Kerja, Pendidikan, Kemahiran, Bahasa, Rujukan. Bahagian yang dibuang **hilang dari pratonton dan PDF cetakan**, tetapi datanya **tidak dipadam** — kotak borang berubah jadi nota *"Bahagian X dibuang dari resume. Tambah balik"*, jadi pelanggan boleh ubah fikiran tanpa mengisi semula
 - **Hapus baris** — setiap baris Pengalaman / Pendidikan / bahagian tambahan sudah ada butang **Hapus**
 - Bahagian tambahan dan senarai dibuang **disimpan dalam kod pesanan WhatsApp** (kunci ringkas `a` = tambahan, `x` = dibuang) — jadi Mod Penjual boleh buka semula resume pelanggan dan sambung kerja
 - Disahkan dalam Chrome sebenar: bahagian **Projek** (2 item) masuk pratonton + **Bahasa dibuang** hilang dari pratonton; **cetakan kekal 1 halaman A4** dengan bahagian tambahan dimasukkan
 - **Nota ujian**: `closest()` pada `#borang` mesti dihadkan kepada `button[data-sek]` — jika tidak, klik pada butang **+ Tambah Pengalaman** (yang berada DALAM fieldset boleh buang) akan tersalah dianggap sebagai "buang bahagian Pengalaman"
 - Ujian bertambah kepada **262 lulus, 0 gagal**
+- Tambahan kemudian (cip cadangan satu klik): blok **Kemahiran Profesional** dengan 4 item dirender sebagai senarai bulet di lajur kanan dan **cetakan kekal 1 halaman A4** (disahkan dalam Chrome); blok itu juga boleh dialih (cth. ke rel kiri); ujian **298 lulus, 0 gagal**
 
 **Fasa 13** — muat naik resume lama **dibuang** (keputusan pengguna):
 
@@ -209,7 +211,7 @@ cd test && npm install        # sekali sahaja (jsdom)
 "$LOCALAPPDATA/hermes/node/node.exe" test/test_ui.js
 ```
 
-Keputusan semasa: **288 lulus, 0 gagal**.
+Keputusan semasa: **298 lulus, 0 gagal**.
 
 ## Aliran jualan melalui WhatsApp (tanpa gerbang bayaran)
 

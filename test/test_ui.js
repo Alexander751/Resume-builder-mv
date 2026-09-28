@@ -692,6 +692,36 @@ el('togol-susun-3').click();
 ok(d.body.classList.contains('mod-susun') === false, 'mod susun dimatikan semula dari halaman pratonton');
 el('balik-3').click();
 
+console.log('== 23. Bahagian siap-pakai: Kemahiran Profesional / Sijil / Projek / Aktiviti ==');
+el('mula-isi').click();
+el('kosongkan').click();          // mula bersih supaya bahagian baharu jadi t0
+isi('#nama', 'Nurul Ain'); isi('#telefon', '012-3456789');
+el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+ok(d.querySelectorAll('.cepat-tambah .cip').length === 4, 'empat cadangan satu klik disediakan');
+ok(d.querySelector('.cip[data-tajuk="Kemahiran Profesional"]') !== null, 'cadangan "Kemahiran Profesional" ada');
+const bilSebelum = d.querySelectorAll('#senarai-tambahan .baris').length;
+d.querySelector('.cip[data-tajuk="Kemahiran Profesional"]').click();
+ok(d.querySelectorAll('#senarai-tambahan .baris').length === bilSebelum + 1, 'satu klik menambah baris bahagian baharu');
+const barisKP = d.querySelector('#senarai-tambahan .baris:last-child');
+ok(barisKP.querySelector('.t-tajuk').value === 'Kemahiran Profesional', 'tajuk sudah diisi automatik (tak perlu taip)');
+isi('#senarai-tambahan .baris:last-child .t-isi', 'AutoCAD - penyediaan pelan kerja\nMS Project - jadual projek\nPengurusan kontrak (PAM 2018)');
+el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+ok(resume().includes('Kemahiran Profesional'), 'tajuk "Kemahiran Profesional" muncul dalam resume');
+ok(resume().includes('Pengurusan kontrak (PAM 2018)'), 'senarai kemahiran profesional muncul dalam resume');
+ok(d.querySelectorAll('#resume .cvb-kanan .blok[data-blok="t0"] .cvb-bullet li').length === 3,
+   'tiga item dipaparkan sebagai senarai bulet');
+// boleh dialih ke rel kiri seperti blok lain
+el('togol-susun').click();
+d.querySelector('#sisi-kertas [data-blok="t0"] [data-gerak="kiri"]').click();
+ok(d.querySelector('#sisi-kertas .cvb-kiri [data-blok="t0"]') !== null, 'bahagian kemahiran profesional boleh dialih ke rel kiri');
+el('susun-reset').click();
+el('togol-susun').click();
+// cadangan lain masih kosong tajuknya? (hanya Kemahiran Profesional diisi)
+d.querySelector('.cip[data-tajuk="Projek"]').click();
+ok(d.querySelector('#senarai-tambahan .baris:last-child .t-tajuk').value === 'Projek', 'cadangan "Projek" mengisi tajuknya');
+d.querySelector('#senarai-tambahan .baris:last-child .btn-hapus').click();
+ok(d.querySelectorAll('#senarai-tambahan .baris').length === bilSebelum + 1, 'baris cadangan boleh dihapus');
+
   Promise.resolve().then(function () {
     console.log('\n' + pass + ' lulus, ' + fail + ' gagal, ' + skip + ' dilangkau');
     process.exit(fail ? 1 : 0);
