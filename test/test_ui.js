@@ -1390,6 +1390,42 @@ ok(fotoPratonton() === '', 'kod pelanggan LAIN pada peranti penjual: foto pelang
 ok(/var fotoKekal = !!fotoLama && !!namaLama && namaLama === namaBaru;/.test(html),
    'syarat nama jelas dalam kod (elak foto salah masuk ke resume pelanggan lain)');
 
+console.log('== 38. Email resume automatik (Mod Penjual) ==');
+ok(/<input id="email-api"/.test(html) && /<input id="email-token"/.test(html) && /id="simpan-email"/.test(html),
+   'Mod Penjual ada medan URL email, token dan butang simpan');
+ok(/id="email-nota"/.test(html), 'ada nota status tetapan email');
+ok(/var KUNCI_EMAIL = 'resume-mv-email-api';/.test(html) && /var KUNCI_TOKEN = 'resume-mv-email-token';/.test(html),
+   'tetapan email disimpan dalam localStorage (bukan dalam kod app)');
+ok(/mode: 'no-cors'/.test(html), 'posting guna no-cors (Apps Script tidak memberi CORS)');
+ok(/action: 'hantar', token: EMAIL_TOKEN/.test(html), 'badan POST membawa action=hantar dan token');
+ok(/if \(EMAIL_DIHANTAR === kod\) return;/.test(html), 'resume yang sama tidak diemail dua kali');
+var dipanggil = [];
+w.fetch = function (url, opt) { dipanggil.push({ url: url, opt: opt }); return w.Promise.resolve({ ok: true }); };
+// tetapan email diisi melalui Mod Penjual (disimpan dalam localStorage pelayar)
+el('email-api').value = 'https://script.google.com/macros/s/TEST/exec';
+el('email-token').value = 'TOKEN-UJIAN';
+el('simpan-email').click();
+ok(/Sedia/.test(el('email-nota').textContent), 'nota email bertukar kepada "Sedia" selepas tetapan disimpan');
+w.ResumeMV.isi(DFOTO);
+el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+el('ke-3').click();
+el('wa').click();
+ok(dipanggil.length === 1, 'klik butang WhatsApp menghantar sekali ke endpoint email');
+var badan = dipanggil.length ? JSON.parse(dipanggil[0].opt.body) : {};
+ok(dipanggil.length && dipanggil[0].url.indexOf('/exec') > 0, 'POST pergi ke URL Apps Script yang disimpan');
+ok(badan.action === 'hantar' && badan.token === 'TOKEN-UJIAN', 'badan POST ada action dan token yang betul');
+ok(badan.nama === 'Che Ku Ahmad Ridzuan' && !!badan.telefon, 'badan POST membawa nama dan telefon pelanggan');
+ok(typeof badan.kod === 'string' && badan.kod.length > 50, 'badan POST membawa kod resume penuh');
+ok(typeof badan.foto === 'string' && badan.foto.indexOf('data:image') === 0, 'badan POST membawa foto pelanggan');
+ok(typeof badan.halaman === 'number' && badan.halaman >= 1, 'badan POST melaporkan bilangan halaman');
+el('wa').click();
+ok(dipanggil.length === 1, 'klik kedua untuk resume yang sama tidak dihantar berulang');
+w.ResumeMV.isi(DFOTO);
+el('nama').value = 'Nama Lain';
+el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+el('wa').click();
+ok(dipanggil.length === 2, 'resume yang berubah dihantar semula (kod berbeza)');
+
   Promise.resolve().then(function () {
     console.log('\n' + pass + ' lulus, ' + fail + ' gagal, ' + skip + ' dilangkau');
     process.exit(fail ? 1 : 0);

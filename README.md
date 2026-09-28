@@ -298,6 +298,32 @@ ditengahkan menegak), (3) kalau isi terlalu banyak, halaman kedua mesti berdesig
   dikira betul. Cetakan PDF kekal 1 halaman (borang tidak dicetak).
 - **Ujian** - blok 35. Jumlah **583 lulus, 0 gagal**.
 
+**Fasa 33 - Hantar resume ke email penjual secara automatik (bahagian app)**
+
+- **Permintaan pengguna**: "bila pelanggan tekan butang WhatsApp, sistem terus email PDF resume ke saya".
+- **Kekangan jujur**: app ini halaman statik di GitHub Pages - ia tidak boleh menghantar email dan tidak boleh
+  menghasilkan fail PDF sendiri. Pembahagian kerja: app hanya **menghantar data resume** ke Apps Script;
+  Apps Script menghantar email; PDF dirender oleh helper di PC penjual (Chrome headless) kerana PC itu satu-satunya
+  mesin yang sudah ada pelayar sebenar. Ini juga bermakna tiada pakej baru dan tiada pelayan dibayar.
+- **Bahagian app (Fasa 33, sudah siap dan disahkan)**:
+  - Mod Penjual dapat medan baharu: **URL Apps Script** + **Token email** + butang **Simpan tetapan email**.
+    Disimpan dalam `localStorage` (`resume-mv-email-api`, `resume-mv-email-token`) - jadi penjual boleh tukar
+    tanpa edit kod dan tanpa push semula.
+  - Bila pelanggan menekan butang WhatsApp (dan nomor telefon sudah diisi), app menghantar POST
+    `{action:'hantar', token, nama, telefon, emel, kod, foto, halaman, tarikh}` ke URL itu dengan
+    `mode:'no-cors'` (Apps Script tidak memberi CORS - hantar dan lupakan).
+  - Butang WhatsApp terbuka di tab baru, jadi permintaan itu **tidak terbatal** oleh navigasi; ia juga tidak
+    perlu `keepalive` (yang akan menghadkan badan kepada 64KB sedangkan foto pelanggan boleh lebih besar).
+  - Resume yang sama tidak diemail dua kali (`EMAIL_DIHANTAR` menyimpan kod terakhir); kalau resume berubah,
+    kod berubah dan hantar baru berlaku.
+  - Kalau URL/token belum diisi, butang WhatsApp berfungsi seperti biasa (kod sahaja) - tiada apa yang rosak.
+- **Ujian** - blok 38 (17 semakan statik + fungsi). Jumlah **630 lulus, 0 gagal**.
+- **Ujian hujung-ke-hujung sebenar**: Chrome headless + pelayan tiruan - tekan butang WhatsApp, endpoint
+  menerima tepat **1 POST** dengan nama, telefon, emel, kod (759 huruf), foto (data URL) dan halaman=2.
+- **Fail sokongan (fasa berikutnya)**: `EmailResume.gs` (Apps Script: simpan ke sheet + email),
+  `PANDUAN-EMAIL-RESUME.md` (panduan pemasangan), `backend_email/resume_pdf_helper.py` +
+  `backend_email/mula-email-resume.bat` (helper PC yang poll Apps Script, render PDF dengan Chrome, hantar balik).
+
 **Fasa 32 - Foto pelanggan tidak lagi hilang apabila kod pesanan dibuka**
 
 - **Soalan pengguna**: "kenapa gambar customer hilang bila saya masukkan kod?"

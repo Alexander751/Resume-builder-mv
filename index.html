@@ -657,6 +657,9 @@
   }
   #mod-penjual .harga { margin: 0 0 10px; font-size: 13.5px; }
   #mod-penjual textarea { min-height: 78px; font-size: 12.5px; margin-bottom: 10px; }
+#mod-penjual input { margin-bottom: 10px; font-size: 12.5px; }
+#mod-penjual .garis-penjual { border: 0; border-top: 1px solid var(--line); margin: 16px 0 14px; }
+#email-nota { margin: 6px 0 0; }
   #buka-kod {
     background: #92400e; color: #fff; border: 0; border-radius: 9px;
     padding: 11px 16px; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
@@ -1195,6 +1198,15 @@
       Kalau pelanggan ada foto, minta dia hantar gambar dalam WhatsApp, kemudian muat naik di ruang
       <strong>Foto</strong> sebelum cetak PDF. Kalau pelanggan membuka kod ini <strong>di peranti dia sendiri</strong>,
       fotonya kekal &mdash; tidak perlu muat naik semula.</p>
+
+      <hr class="garis-penjual">
+      <p class="harga"><strong>Email resume automatik</strong> &mdash; tampal sekali sahaja. Selepas ini, setiap
+      pelanggan yang menekan butang WhatsApp akan menghantar resume (bersama data dan kod) ke email anda
+      secara automatik.</p>
+      <input id="email-api" type="url" placeholder="URL Apps Script (berakhir dengan /exec)">
+      <input id="email-token" type="text" placeholder="Token email">
+      <button type="button" id="simpan-email">Simpan tetapan email</button>
+      <p class="nota" id="email-nota"></p>
     </div>
 
     <div id="log"></div>
@@ -2731,8 +2743,18 @@
     if (!el('nama').value.trim() || !el('telefon').value.trim()) {
       e.preventDefault();
       tulisLog('Isi Nama dan Nombor Telefon dahulu sebelum hantar pesanan.', 'ralat');
+      return;
+    }
+    /* Hantar resume ke email penjual (kalau tetapan email sudah diisi). Butang WhatsApp
+       terbuka di tab baru, jadi muat naik ini tidak terbatal. */
+    try {
+      var dEmail = kumpul();
+      hantarEmailResume(dEmail, kodDari(dEmail));
+    } catch (err) {
+      tulisLog('Email tidak dapat dihantar: ' + err.message, 'ralat');
     }
   });
+  if (el('simpan-email')) el('simpan-email').addEventListener('click', simpanTetapanEmail);
   el('buka-kod').addEventListener('click', function () {
     var d = borangDariKod(el('kod-masuk').value.trim());
     if (!d) {
@@ -2771,6 +2793,80 @@
     kosongkanBorang();
     semakSimpanan();
   });
+
+  /* ---------- email resume automatik (Mod Penjual) ----------
+     App ini halaman statik: ia tidak boleh menghantar email sendiri. Jadi ia hanya
+     MENGHANTAR data resume ke Apps Script (URL yang penjual tampal di Mod Penjual), dan
+     Apps Script yang menghantar email. Posting itu 'no-cors' (Apps Script tidak memberi
+     CORS) dan tidak perlu membaca jawapan - hantar sekali sahaja, kemudian lupakan. */
+  var KUNCI_EMAIL = 'resume-mv-email-api';
+  var KUNCI_TOKEN = 'resume-mv-email-token';
+  var EMAIL_API = '';
+  var EMAIL_TOKEN = '';
+  var EMAIL_DIHANTAR = '';        // kod resume terakhir yang sudah dihantar (elak hantar berganda)
+
+  function tulisNotaEmail() {
+    var kotak = el('email-nota');
+    if (!kotak) return;
+    if (!EMAIL_API || !EMAIL_TOKEN) {
+      kotak.textContent = 'Belum diset. Isi URL Apps Script dan token, kemudian tekan Simpan. '
+        + 'Tanpa ini, butang WhatsApp berfungsi seperti biasa (kod sahaja).';
+      return;
+    }
+    kotak.textContent = 'Sedia. Resume pelanggan akan diemail ke alamat dalam Apps Script.';
+  }
+
+  function bacaTetapanEmail() {
+    try {
+      EMAIL_API = localStorage.getItem(KUNCI_EMAIL) || '';
+      EMAIL_TOKEN = localStorage.getItem(KUNCI_TOKEN) || '';
+    } catch (e) { /* storan dihalang - bukan ralat maut */ }
+    if (el('email-api')) el('email-api').value = EMAIL_API;
+    if (el('email-token')) el('email-token').value = EMAIL_TOKEN;
+    tulisNotaEmail();
+  }
+
+  function simpanTetapanEmail() {
+    EMAIL_API = (el('email-api').value || '').trim();
+    EMAIL_TOKEN = (el('email-token').value || '').trim();
+    try {
+      localStorage.setItem(KUNCI_EMAIL, EMAIL_API);
+      localStorage.setItem(KUNCI_TOKEN, EMAIL_TOKEN);
+    } catch (e) { /* abaikan */ }
+    tulisNotaEmail();
+    tulisLog(EMAIL_API && EMAIL_TOKEN
+      ? 'Tetapan email disimpan. Resume pelanggan akan diemail secara automatik.'
+      : 'Tetapan email dikosongkan - resume tidak akan diemail.',
+      EMAIL_API && EMAIL_TOKEN ? 'info' : 'ralat');
+  }
+
+  function hantarEmailResume(d, kod) {
+    if (!EMAIL_API || !EMAIL_TOKEN || !window.fetch) return;
+    if (!d || !d.nama || !d.telefon) return;
+    if (EMAIL_DIHANTAR === kod) return;                  // resume yang sama - jangan email dua kali
+    EMAIL_DIHANTAR = kod;
+    var isi = {
+      action: 'hantar', token: EMAIL_TOKEN,
+      nama: d.nama, telefon: d.telefon, emel: d.emel || '',
+      kod: kod, foto: d.foto || '',
+      halaman: (typeof HALAMAN === 'number' ? HALAMAN : 1),
+      tarikh: new Date().toISOString()
+    };
+    try {
+      window.fetch(EMAIL_API, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(isi)
+      }).then(function () {
+        tulisLog('Resume dihantar ke email anda.', 'info');
+      }).catch(function () {
+        tulisLog('Email tidak dapat dihantar (semak URL dan token). Kod resume tetap ada di WhatsApp.', 'ralat');
+      });
+    } catch (e) {
+      tulisLog('Email tidak dapat dihantar: ' + e.message, 'ralat');
+    }
+  }
 
   /* ---------- mod penjual ---------- */
   function hidupkanModPenjual(awal) {
@@ -3163,6 +3259,7 @@
   kemasSek();
   susunSkalaSisi();
   tunjukLangkah(1);
+  bacaTetapanEmail();
   semakSimpanan();
   pergiHal(halAwal || 1, true);
   susunSkala();
