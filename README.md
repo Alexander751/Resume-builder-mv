@@ -298,6 +298,29 @@ ditengahkan menegak), (3) kalau isi terlalu banyak, halaman kedua mesti berdesig
   dikira betul. Cetakan PDF kekal 1 halaman (borang tidak dicetak).
 - **Ujian** - blok 35. Jumlah **583 lulus, 0 gagal**.
 
+**Fasa 31 - Pengalaman kerja boleh dipecah antara halaman (sebahagian halaman 1, sebahagian halaman 2)**
+
+- **Maklum balas pengguna**: jangan kunci satu pengalaman kerja supaya berpindah bulat-bulat ke halaman 2.
+  Kalau satu pengalaman panjang, ia mesti mengalir - sebahagian di halaman 1, sebahagian di halaman 2.
+- **Punca sebenar (dua tempat)**:
+  1. Peraturan `.cvb-item { break-inside: avoid; page-break-inside: avoid }` berada di bahagian **skrin**
+     tanpa `@media`. Peraturan sedemikian **terpakai juga semasa cetak** - jadi pelayar memindahkan seluruh
+     item ke halaman berikutnya. Kini dinyahset di dalam `@media print` dengan
+     `.lembar .cvb-item, .lembar .cvs-item { break-inside: auto !important; page-break-inside: auto !important; }`.
+  2. `titikPotong()` menyenaraikan `.cvb-item`/`.cvs-item` sebagai elemen yang tidak boleh dipecah, jadi
+     pratonton memotong di atas item itu. Senarai calon kini hanya `li` (bulet), `h2` dan tajuk item
+     (`.cvb-item-kepala`, `.cvb-item-sub`, `.cvs-item-kepala`, `.cvs-item-sub`) - itulah yang benar-benar
+     dikunci oleh peraturan cetakan.
+- **Tajuk tidak keseorangan**: tajuk bahagian dan tajuk item membawa baris pertama kandungannya (fungsi
+  `kandunganPertama()`), sama seperti `break-after: avoid` dalam cetakan.
+- **`Math.floor` pada titik potong** (bukan `Math.round`) supaya titik potong tidak melebihi bahagian atas
+  elemen terkunci - jika tidak elemen itu terkeluar ~1px di hujung halaman 1.
+- **Pengesahan (resume 24 bulet pengalaman)**: pratonton = 17 bulet di halaman 1, 7 di halaman 2; cetakan PDF
+  juga memecah item yang sama; **0 bulet terpecah** dan pembahagian pratonton == pembahagian cetakan.
+  Untuk resume biasa (10 bulet), halaman 1 kini penuh hingga ~1093px daripada 1123px (dahulu terpotong awal),
+  dan cetakan kekal 2 halaman dengan 0 bulet terpecah.
+- **Ujian** - **608 lulus, 0 gagal**.
+
 **Fasa 30 - Titik potong pratonton mesti diukur pada skala sebenar**
 
 - **Gejala dilaporkan**: halaman 1 pratonton terpotong awal (kandungan berhenti selepas RUJUKAN, separuh
