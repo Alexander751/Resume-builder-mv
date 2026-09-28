@@ -19,6 +19,7 @@ Semua berlaku dalam pelayar — **tiada data dihantar ke mana-mana pelayan**.
 Buka `index.html` (klik dua kali) atau laman awam di atas. Aliran **4 halaman**:
 
 1. **Pilih reka bentuk** — kad *Biru & Kelabu* dengan **pratonton mini sebenar** (bukan gambar) → **Mula Isi Butiran**
+2. **Isi butiran** — pelanggan boleh **tambah bahagian sendiri** (cth. Projek, Sijil, Aktiviti) dan **buang mana-mana bahagian** yang tidak mahu dimasukkan (boleh tambah balik bila-bila)
 2. **Isi butiran** — Nama + Nombor Telefon wajib; foto, jawatan, ringkasan, pengalaman, pendidikan, kemahiran, bahasa, rujukan → **Seterusnya: Pratonton**
 3. **Pratonton** — desktop: helaian A4 penuh + butang **Skrin penuh** + senarai semak "Semak sebelum hantar"; telefon: pratonton **sepenuh skrin** tanpa skrol → **Seterusnya: Hantar**
 4. **Hantar** — tekan butang WhatsApp; mesej pesanan + kod resume sudah siap diisi, anda cuma tekan hantar
@@ -126,6 +127,16 @@ Data disimpan automatik dalam pelayar (localStorage) — pelanggan ulangan akan 
 - Cetakan penjual dari halaman pratonton masih **1 halaman A4, 595×842 pt, tanpa tanda air** (bbox sama seperti sebelum ini)
 - Ujian bertambah kepada **219 lulus, 0 gagal**
 
+**Fasa 14** — builder: tambah bahagian sendiri + buang bahagian yang tak mahu:
+
+- **Tambah bahagian sendiri** — butang **+ Tambah bahagian sendiri** di hujung borang: setiap bahagian ada **tajuk** (cth. Projek, Sijil, Aktiviti, Latihan) + **isi satu baris satu item**. Ia muncul dalam resume sebagai bahagian baharu di hujung lajur kanan — satu item jadi perenggan, dua item ke atas jadi senarai bulet (gaya sama seperti Pengalaman Kerja)
+- **Buang bahagian** — butang **Buang bahagian ini** di penjuru kanan 7 bahagian borang: Jawatan Disasarkan, Ringkasan Profil, Pengalaman Kerja, Pendidikan, Kemahiran, Bahasa, Rujukan. Bahagian yang dibuang **hilang dari pratonton dan PDF cetakan**, tetapi datanya **tidak dipadam** — kotak borang berubah jadi nota *"Bahagian X dibuang dari resume. Tambah balik"*, jadi pelanggan boleh ubah fikiran tanpa mengisi semula
+- **Hapus baris** — setiap baris Pengalaman / Pendidikan / bahagian tambahan sudah ada butang **Hapus**
+- Bahagian tambahan dan senarai dibuang **disimpan dalam kod pesanan WhatsApp** (kunci ringkas `a` = tambahan, `x` = dibuang) — jadi Mod Penjual boleh buka semula resume pelanggan dan sambung kerja
+- Disahkan dalam Chrome sebenar: bahagian **Projek** (2 item) masuk pratonton + **Bahasa dibuang** hilang dari pratonton; **cetakan kekal 1 halaman A4** dengan bahagian tambahan dimasukkan
+- **Nota ujian**: `closest()` pada `#borang` mesti dihadkan kepada `button[data-sek]` — jika tidak, klik pada butang **+ Tambah Pengalaman** (yang berada DALAM fieldset boleh buang) akan tersalah dianggap sebagai "buang bahagian Pengalaman"
+- Ujian bertambah kepada **262 lulus, 0 gagal**
+
 **Fasa 13** — muat naik resume lama **dibuang** (keputusan pengguna):
 
 - Ciri muat naik resume (PDF / Word / teks) dengan auto-isi telah dibangunkan penuh, diuji, dan **kemudian dibuang atas permintaan pengguna** kerana bacaan fail tidak cukup boleh dipercayai untuk pelanggan awam
@@ -184,7 +195,7 @@ cd test && npm install        # sekali sahaja (jsdom)
 "$LOCALAPPDATA/hermes/node/node.exe" test/test_ui.js
 ```
 
-Keputusan semasa: **236 lulus, 0 gagal**.
+Keputusan semasa: **262 lulus, 0 gagal**.
 
 ## Aliran jualan melalui WhatsApp (tanpa gerbang bayaran)
 

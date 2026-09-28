@@ -539,6 +539,78 @@ console.log('== 13. Muat naik foto (Image + kanvas dipalsukan) ==');
   ok(d7.querySelector('#resume .cvb-foto') === null, 'butang Buang foto mengeluarkan foto dari pratonton');
   ok(d7.querySelector('#resume .cv-biru').className.includes('tanpa-foto'), 'kelas tanpa-foto kembali selepas buang');
 
+console.log('== 21. Builder: tambah bahagian sendiri + buang bahagian tak mahu ==');
+el('mula-isi').click();
+ok(el('hal-2').hidden === false, 'di halaman butiran');
+isi('#nama', 'Ahmad bin Ali'); isi('#telefon', '012-3456789');
+isi('#jawatan', 'Juruteknik Tapak'); isi('#kemahiran', 'AutoCAD, MS Excel');
+isi('#bahasa', 'Bahasa Melayu, English'); isi('#rujukan', 'En. Samad - 019-1112222');
+isi('#ringkasan', 'Juruteknik awam dengan 4 tahun pengalaman.');
+isi('#senarai-pengalaman .p-jawatan', 'Juruteknik Tapak');
+isi('#senarai-pengalaman .p-syarikat', 'EPH Construction');
+isi('#senarai-pengalaman .p-tempoh', 'Mac 2024 - Kini');
+isi('#senarai-pendidikan .d-kelulusan', 'Diploma Kejuruteraan Awam');
+isi('#senarai-pendidikan .d-institusi', 'Politeknik Kuantan');
+isi('#senarai-pendidikan .d-tahun', '2018 - 2021');
+el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+ok(resume().includes('Kemahiran') && resume().includes('Bahasa') && resume().includes('Rujukan'),
+   'pratonton bermula dengan semua bahagian');
+ok(d.querySelectorAll('fieldset.sek').length === 7, '7 bahagian boleh dibuang (jawatan, ringkasan, pengalaman, pendidikan, kemahiran, bahasa, rujukan)');
+
+// 1) buang satu bahagian
+d.querySelector('fieldset[data-sek="bahasa"] .sek-buang').click();
+ok(!resume().includes('Bahasa'), 'Bahasa dibuang dari pratonton');
+ok(resume().includes('Kemahiran') && resume().includes('Rujukan'), 'bahagian lain tidak terjejas');
+ok(d.querySelector('fieldset[data-sek="bahasa"]').className.includes('dibuang'), 'kotak borang Bahasa ditanda dibuang');
+d.querySelector('[data-sek-batal="bahasa"]').click();
+ok(resume().includes('Bahasa'), 'Bahasa kembali selepas tekan "Tambah balik"');
+
+// 2) buang seluruh bahagian Pengalaman Kerja
+d.querySelector('fieldset[data-sek="pengalaman"] .sek-buang').click();
+ok(!resume().includes('Pengalaman Kerja'), 'Pengalaman Kerja dibuang dari pratonton');
+ok(resume().includes('Pendidikan'), 'bahagian Pendidikan kekal');
+d.querySelector('[data-sek-batal="pengalaman"]').click();
+ok(resume().includes('Pengalaman Kerja'), 'Pengalaman Kerja kembali');
+
+// 3) tambah bahagian sendiri
+el('tambah-bahagian').click();
+ok(d.querySelectorAll('#senarai-tambahan .baris').length === 1, 'satu baris bahagian tambahan ditambah');
+isi('#senarai-tambahan .t-tajuk', 'Projek');
+isi('#senarai-tambahan .t-isi', 'Projek Perumahan Mampu Milik Kemaman (2024)\nSijil AutoCAD Asas (2023)');
+el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+ok(resume().includes('Projek'), 'tajuk bahagian tambahan muncul dalam pratonton');
+ok(resume().includes('Projek Perumahan Mampu Milik Kemaman'), 'isi bahagian tambahan muncul dalam pratonton');
+ok(d.querySelectorAll('#resume .cvb-bullet li').length >= 2, 'dua baris isi dipaparkan sebagai senarai bulet');
+
+// 4) hapus bahagian tambahan
+d.querySelector('#senarai-tambahan .btn-hapus').click();
+ok(d.querySelectorAll('#senarai-tambahan .baris').length === 0, 'baris bahagian tambahan boleh dihapus');
+ok(!resume().includes('Projek Perumahan Mampu Milik Kemaman'), 'bahagian tambahan hilang dari pratonton selepas dihapus');
+
+// 5) kod pesanan (Mod Penjual) menyimpan bahagian tambahan + senarai dibuang
+el('tambah-bahagian').click();
+isi('#senarai-tambahan .t-tajuk', 'Sijil');
+isi('#senarai-tambahan .t-isi', 'Sijil AutoCAD Asas (2023)');
+d.querySelector('fieldset[data-sek="rujukan"] .sek-buang').click();
+el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+const kodB = w.ResumeMV.kod(w.ResumeMV.kumpul());
+const balikB = w.ResumeMV.dariKod(kodB);
+ok(balikB.tambahan.length === 1 && balikB.tambahan[0].t === 'Sijil', 'kod pesanan menyimpan bahagian tambahan');
+ok(balikB.buang.indexOf('rujukan') >= 0, 'kod pesanan menyimpan senarai bahagian dibuang');
+ok(balikB.tambahan[0].b === 'Sijil AutoCAD Asas (2023)', 'isi bahagian tambahan tersimpan dalam kod');
+
+// 6) buka semula kod pelanggan (Mod Penjual) memulihkan borang
+w.ResumeMV.isi(balikB);
+ok(d.querySelector('fieldset[data-sek="rujukan"]').className.includes('dibuang'), 'isi dari kod memulihkan keadaan "dibuang"');
+ok(d.querySelectorAll('#senarai-tambahan .baris').length === 1, 'isi dari kod memulihkan bahagian tambahan ke borang');
+ok(d.querySelector('#senarai-tambahan .t-tajuk').value === 'Sijil', 'tajuk bahagian tambahan diisi');
+ok(!resume().includes('Rujukan'), 'pratonton mengikut keadaan dibuang selepas kod dibuka');
+d.querySelector('[data-sek-batal="rujukan"]').click();
+ok(resume().includes('Rujukan'), 'Rujukan boleh dikembalikan selepas kod dibuka');
+el('kosongkan').click();
+ok(d.querySelectorAll('#senarai-tambahan .baris').length === 0, '"Kosongkan" membuang bahagian tambahan');
+ok(d.querySelectorAll('fieldset.sek.dibuang').length === 0, '"Kosongkan" memulihkan semua bahagian');
+
   Promise.resolve().then(function () {
     console.log('\n' + pass + ' lulus, ' + fail + ' gagal, ' + skip + ' dilangkau');
     process.exit(fail ? 1 : 0);

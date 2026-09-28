@@ -276,6 +276,21 @@
     cursor: pointer; padding: 4px 7px; border-radius: 6px;
   }
   .btn-hapus:hover { background: #fdecea; }
+  fieldset.sek { position: relative; }
+  .sek-buang {
+    position: absolute; top: 8px; right: 10px; background: none; border: 0; cursor: pointer;
+    color: var(--danger); font: inherit; font-size: 12.3px; font-weight: 700; padding: 5px 8px; border-radius: 6px;
+  }
+  .sek-buang:hover { background: #fdecea; }
+  .sek.dibuang > *:not(.sek-nota) { display: none !important; }
+  .sek:not(.dibuang) > .sek-nota { display: none !important; }
+  .sek-nota { margin: 2px 0 0; font-size: 12.7px; line-height: 1.5; color: var(--muted); }
+  .sek-nota button {
+    background: none; border: 0; padding: 0; margin: 0; font: inherit; font-size: 12.7px;
+    font-weight: 700; color: var(--brand); cursor: pointer; text-decoration: underline;
+  }
+  .nota-tambah { margin: 0 0 4px; font-size: 12.7px; line-height: 1.55; color: var(--muted); }
+  .nota-tambah strong { color: var(--ink); }
   .btn-tambah {
     width: 100%; margin-top: 12px; background: var(--brand-soft); border: 1px dashed #a9c9e8;
     color: var(--brand); border-radius: 10px; padding: 12px 14px; font: inherit;
@@ -588,43 +603,69 @@
       <button type="button" id="buang-foto">Buang foto</button>
     </fieldset>
 
-    <fieldset>
+    <fieldset class="sek" data-sek="jawatan">
       <legend>Jawatan Disasarkan</legend>
+      <button type="button" class="sek-buang" data-sek="jawatan">Buang bahagian ini</button>
       <label for="jawatan">Jawatan / Posisi</label>
       <input id="jawatan" type="text" placeholder="cth. Junior Quantity Surveyor">
+      <p class="sek-nota">Bahagian <strong>Jawatan Disasarkan</strong> dibuang dari resume. <button type="button" data-sek-batal="jawatan">Tambah balik</button></p>
     </fieldset>
 
-    <fieldset>
+    <fieldset class="sek" data-sek="ringkasan">
       <legend>Ringkasan Profil</legend>
+      <button type="button" class="sek-buang" data-sek="ringkasan">Buang bahagian ini</button>
       <label for="ringkasan">Ringkasan (2–4 ayat)</label>
       <textarea id="ringkasan" placeholder="cth. Graduan Sarjana Muda Ukur Bahan dengan 2 tahun pengalaman..."></textarea>
+      <p class="sek-nota">Bahagian <strong>Ringkasan Profil</strong> dibuang dari resume. <button type="button" data-sek-batal="ringkasan">Tambah balik</button></p>
     </fieldset>
 
-    <fieldset>
+    <fieldset class="sek" data-sek="pengalaman">
       <legend>Pengalaman Kerja</legend>
+      <button type="button" class="sek-buang" data-sek="pengalaman">Buang bahagian ini</button>
       <div id="senarai-pengalaman"></div>
       <button type="button" class="btn-tambah" id="tambah-pengalaman">+ Tambah Pengalaman</button>
+      <p class="sek-nota">Bahagian <strong>Pengalaman Kerja</strong> dibuang dari resume. <button type="button" data-sek-batal="pengalaman">Tambah balik</button></p>
     </fieldset>
 
-    <fieldset>
+    <fieldset class="sek" data-sek="pendidikan">
       <legend>Pendidikan</legend>
+      <button type="button" class="sek-buang" data-sek="pendidikan">Buang bahagian ini</button>
       <div id="senarai-pendidikan"></div>
       <button type="button" class="btn-tambah" id="tambah-pendidikan">+ Tambah Pendidikan</button>
+      <p class="sek-nota">Bahagian <strong>Pendidikan</strong> dibuang dari resume. <button type="button" data-sek-batal="pendidikan">Tambah balik</button></p>
     </fieldset>
 
-    <fieldset>
+    <fieldset class="sek" data-sek="kemahiran">
       <legend>Kemahiran</legend>
+      <button type="button" class="sek-buang" data-sek="kemahiran">Buang bahagian ini</button>
       <label for="kemahiran">Pisahkan dengan koma</label>
       <input id="kemahiran" type="text" placeholder="cth. AutoCAD, Pengukuran Kuantiti, MS Excel, BIM">
+      <p class="sek-nota">Bahagian <strong>Kemahiran</strong> dibuang dari resume. <button type="button" data-sek-batal="kemahiran">Tambah balik</button></p>
     </fieldset>
 
-    <fieldset>
-      <legend>Bahasa &amp; Rujukan</legend>
+    <fieldset class="sek" data-sek="bahasa">
+      <legend>Bahasa</legend>
+      <button type="button" class="sek-buang" data-sek="bahasa">Buang bahagian ini</button>
       <label for="bahasa">Bahasa (pisahkan dengan koma)</label>
       <input id="bahasa" type="text" placeholder="cth. Bahasa Melayu (Fasih), English (Fluent)">
+      <p class="sek-nota">Bahagian <strong>Bahasa</strong> dibuang dari resume. <button type="button" data-sek-batal="bahasa">Tambah balik</button></p>
+    </fieldset>
 
+    <fieldset class="sek" data-sek="rujukan">
+      <legend>Rujukan</legend>
+      <button type="button" class="sek-buang" data-sek="rujukan">Buang bahagian ini</button>
+    <fieldset>
+      <legend>Rujukan</legend>
       <label for="rujukan">Rujukan (satu baris satu orang)</label>
       <textarea id="rujukan" placeholder="cth. En. Ahmad — Pengurus Projek, EPH Construction, 012-3456789"></textarea>
+    </fieldset>      <p class="sek-nota">Bahagian <strong>Rujukan</strong> dibuang dari resume. <button type="button" data-sek-batal="rujukan">Tambah balik</button></p>
+    </fieldset>
+
+    <fieldset class="sek-bahagian">
+      <legend>Bahagian Tambahan (pilihan)</legend>
+      <p class="nota-tambah">Nak masukkan bahagian yang tiada di atas — cth. <strong>Projek</strong>, <strong>Sijil</strong>, <strong>Aktiviti</strong>, <strong>Latihan</strong>?</p>
+      <div id="senarai-tambahan"></div>
+      <button type="button" class="btn-tambah" id="tambah-bahagian">+ Tambah bahagian sendiri</button>
     </fieldset>
 
     <div class="aksi">
@@ -704,7 +745,8 @@
   'use strict';
 
   var KUNCI = 'resume-mv-v1';
-  var bilPengalaman = 0, bilPendidikan = 0;
+  var bilPengalaman = 0, bilPendidikan = 0, bilTambahan = 0;
+  var BUANG = [];   // bahagian piawai yang pelanggan pilih untuk dibuang
 
   /* ============================================================
      TETAPAN PENJUAL — tukar dua baris ini sahaja
@@ -731,6 +773,38 @@
   }
 
   /* ---------- baris berulang ---------- */
+  // bahagian piawai yang dibuang daripada resume (boleh ditambah balik)
+  function dibuang(d, kunci) {
+    return ((d && d.buang) || []).indexOf(kunci) >= 0;
+  }
+
+  function kemasSek() {
+    Array.prototype.forEach.call(document.querySelectorAll('fieldset.sek'), function (fs) {
+      fs.classList.toggle('dibuang', BUANG.indexOf(fs.getAttribute('data-sek')) >= 0);
+    });
+  }
+
+  function barisTambahan(data) {
+    data = data || {};
+    bilTambahan++;
+    var b = document.createElement('div');
+    b.className = 'baris';
+    b.innerHTML =
+      '<div class="kepala"><strong>Bahagian ' + bilTambahan + '</strong>' +
+      '<button type="button" class="btn-hapus">Hapus</button></div>' +
+      '<label>Tajuk bahagian</label>' +
+      '<input class="t-tajuk" type="text" placeholder="cth. Projek, Sijil, Aktiviti, Latihan">' +
+      '<label>Isi (satu baris satu item)</label>' +
+      '<textarea class="t-isi" placeholder="cth. Projek Perumahan Mampu Milik Kemaman (2024)&#10;Sijil AutoCAD Asas (2023)"></textarea>';
+    b.querySelector('.t-tajuk').value = data.t || '';
+    b.querySelector('.t-isi').value = data.b || '';
+    b.querySelector('.btn-hapus').addEventListener('click', function () {
+      b.remove();
+      kemasSemula();
+    });
+    return b;
+  }
+
   function barisPengalaman(data) {
     data = data || {};
     bilPengalaman++;
@@ -792,7 +866,9 @@
       rujukan: el('rujukan').value.trim(),
       foto: foto,
       pengalaman: [],
-      pendidikan: []
+      pendidikan: [],
+      tambahan: [],          // bahagian yang pelanggan tambah sendiri (tajuk + isi)
+      buang: BUANG.slice()   // bahagian piawai yang pelanggan buang
     };
     Array.prototype.forEach.call(document.querySelectorAll('#senarai-pengalaman .baris'), function (b) {
       var o = {
@@ -811,6 +887,13 @@
         tahun: b.querySelector('.d-tahun').value.trim()
       };
       if (o.kelulusan || o.institusi || o.tahun) d.pendidikan.push(o);
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('#senarai-tambahan .baris'), function (b) {
+      var o = {
+        t: b.querySelector('.t-tajuk').value.trim(),
+        b: b.querySelector('.t-isi').value.split('\n').map(function (x) { return x.trim(); }).filter(Boolean).join('\n')
+      };
+      if (o.t || o.b) d.tambahan.push(o);
     });
     return d;
   }
@@ -855,7 +938,7 @@
     h += '<div class="cvb-banner">';
     if (d.foto) h += '<div class="cvb-foto"><img src="' + esc(d.foto) + '" alt=""></div>';
     h += '<div class="cvb-nama"><h1>' + esc(d.nama || 'NAMA ANDA') + '</h1>';
-    if (d.jawatan) h += '<p>' + esc(d.jawatan) + '</p>';
+    if (d.jawatan && !dibuang(d, 'jawatan')) h += '<p>' + esc(d.jawatan) + '</p>';
     h += '</div></div>';
 
     var kiri = '';
@@ -864,13 +947,13 @@
     if (d.emel) kontak += '<li>' + ikon('emel') + '<span>' + esc(d.emel) + '</span></li>';
     if (d.lokasi) kontak += '<li>' + ikon('lokasi') + '<span>' + esc(d.lokasi) + '</span></li>';
     if (kontak) kiri += '<h2>Kontak</h2><ul class="cvb-kontak">' + kontak + '</ul>';
-    if (d.kemahiran) kiri += '<h2>Kemahiran</h2><ul class="cvb-titik">' + senaraiTitik(d.kemahiran) + '</ul>';
-    if (d.bahasa) kiri += '<h2>Bahasa</h2><ul class="cvb-titik padat">' + senaraiTitik(d.bahasa) + '</ul>';
+    if (d.kemahiran && !dibuang(d, 'kemahiran')) kiri += '<h2>Kemahiran</h2><ul class="cvb-titik">' + senaraiTitik(d.kemahiran) + '</ul>';
+    if (d.bahasa && !dibuang(d, 'bahasa')) kiri += '<h2>Bahasa</h2><ul class="cvb-titik padat">' + senaraiTitik(d.bahasa) + '</ul>';
 
     var kanan = '';
-    if (d.ringkasan) kanan += '<h2>' + ikonLencana('orang') + 'Profil</h2><p class="cvb-teks">' + esc(d.ringkasan) + '</p>';
+    if (d.ringkasan && !dibuang(d, 'ringkasan')) kanan += '<h2>' + ikonLencana('orang') + 'Profil</h2><p class="cvb-teks">' + esc(d.ringkasan) + '</p>';
 
-    if (d.pengalaman.length) {
+    if (d.pengalaman.length && !dibuang(d, 'pengalaman')) {
       kanan += '<h2>' + ikonLencana('beg') + 'Pengalaman Kerja</h2>' + d.pengalaman.map(function (o) {
         var tajuk = o.syarikat || o.jawatan || '(Syarikat)';
         var s = '<div class="cvb-item"><div class="cvb-item-kepala"><strong>' + esc(tajuk) + '</strong>' +
@@ -883,7 +966,7 @@
       }).join('');
     }
 
-    if (d.pendidikan.length) {
+    if (d.pendidikan.length && !dibuang(d, 'pendidikan')) {
       kanan += '<h2>' + ikonLencana('topi') + 'Pendidikan</h2>' + d.pendidikan.map(function (o) {
         var s = '<div class="cvb-item"><div class="cvb-item-kepala"><strong>' + esc(o.kelulusan || '(Kelulusan)') + '</strong>' +
                 '<span>' + esc(o.tahun) + '</span></div>';
@@ -892,10 +975,20 @@
       }).join('');
     }
 
-    if (d.rujukan) {
+    if (d.rujukan && !dibuang(d, 'rujukan')) {
       kanan += '<h2>' + ikonLencana('orangRamai') + 'Rujukan</h2>' + d.rujukan.split('\n').map(function (s) { return s.trim(); }).filter(Boolean)
         .map(function (s) { return '<div class="cvb-teks">' + esc(s) + '</div>'; }).join('');
     }
+
+    // bahagian yang pelanggan tambah sendiri (Projek, Sijil, Aktiviti, ...)
+    (d.tambahan || []).forEach(function (o) {
+      var tajuk = String(o.t || '').trim();
+      var item = String(o.b || '').split('\n').map(function (x) { return x.trim(); }).filter(Boolean);
+      if (!tajuk || !item.length) return;
+      kanan += '<h2>' + esc(tajuk) + '</h2>' + (item.length === 1
+        ? '<p class="cvb-teks">' + esc(item[0]) + '</p>'
+        : '<ul class="cvb-bullet">' + item.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>');
+    });
 
     h += '<div class="cvb-badan"><aside class="cvb-kiri">' + kiri + '</aside>';
     h += '<div class="cvb-kanan">' + kanan + '</div></div></div>';
@@ -922,7 +1015,9 @@
     var ringkas = {
       s: 'biru', n: d.nama, t: d.telefon, e: d.emel, l: d.lokasi, j: d.jawatan,
       g: d.ringkasan, k: d.kemahiran, b: d.bahasa, u: d.rujukan,
-      p: d.pengalaman, d: d.pendidikan
+      p: d.pengalaman, d: d.pendidikan,
+      a: (d.tambahan || []).filter(function (o) { return String(o.t || '').trim(); }),   // bahagian tambahan
+      x: d.buang || []                                                                  // bahagian dibuang
     };
     var b64 = window.btoa(unescape(encodeURIComponent(JSON.stringify(ringkas))));
     return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -939,7 +1034,8 @@
         nama: o.n || '', telefon: o.t || '', emel: o.e || '', lokasi: o.l || '',
         jawatan: o.j || '', ringkasan: o.g || '', kemahiran: o.k || '',
         bahasa: o.b || '', rujukan: o.u || '',
-        pengalaman: Array.isArray(o.p) ? o.p : [], pendidikan: Array.isArray(o.d) ? o.d : []
+        pengalaman: Array.isArray(o.p) ? o.p : [], pendidikan: Array.isArray(o.d) ? o.d : [],
+        tambahan: Array.isArray(o.a) ? o.a : [], buang: Array.isArray(o.x) ? o.x : []
       };
     } catch (e) {
       return null;
@@ -1029,6 +1125,10 @@
     bilPengalaman = 0; bilPendidikan = 0;
     el('senarai-pengalaman').appendChild(barisPengalaman());
     el('senarai-pendidikan').appendChild(barisPendidikan());
+    el('senarai-tambahan').innerHTML = '';
+    bilTambahan = 0;
+    BUANG = [];
+    kemasSek();
     try { localStorage.removeItem(KUNCI); } catch (e) { /* abaikan */ }
     tulisLogFoto();
     kemasSemula();
@@ -1052,6 +1152,11 @@
     bilPendidikan = 0;
     (d.pengalaman || []).forEach(function (o) { el('senarai-pengalaman').appendChild(barisPengalaman(o)); });
     (d.pendidikan || []).forEach(function (o) { el('senarai-pendidikan').appendChild(barisPendidikan(o)); });
+    BUANG = (d.buang || []).slice();
+    kemasSek();
+    el('senarai-tambahan').innerHTML = '';
+    bilTambahan = 0;
+    (d.tambahan || []).forEach(function (o) { el('senarai-tambahan').appendChild(barisTambahan(o)); });
   }
 
   /* ---------- muat data lama ---------- */
@@ -1131,6 +1236,29 @@
   el('borang').addEventListener('change', kemasSemula);
   el('tambah-pengalaman').addEventListener('click', function () {
     el('senarai-pengalaman').appendChild(barisPengalaman());
+    kemasSemula();
+  });
+  el('tambah-bahagian').addEventListener('click', function () {
+    el('senarai-tambahan').appendChild(barisTambahan());
+    kemasSemula();
+    tulisLog('Bahagian tambahan ditambah — isi tajuk dan isinya.', 'info');
+    var baris = el('senarai-tambahan').lastElementChild;
+    if (baris) { var inp = baris.querySelector('.t-tajuk'); if (inp) inp.focus(); }
+  });
+  // buang / tambah balik bahagian piawai (delegasi: butang ada dalam setiap fieldset)
+  el('borang').addEventListener('click', function (e) {
+    // hanya butang buang / butang tambah balik (bukan seluruh fieldset yang memadankan closest)
+    var t = e.target && e.target.closest ? e.target.closest('button[data-sek],button[data-sek-batal]') : null;
+    if (!t) return;
+    var kunci = t.getAttribute('data-sek') || t.getAttribute('data-sek-batal');
+    if (t.hasAttribute('data-sek')) {
+      if (BUANG.indexOf(kunci) < 0) BUANG.push(kunci);
+      tulisLog('Bahagian dibuang dari resume. Boleh tambah balik bila-bila masa.', 'info');
+    } else {
+      BUANG = BUANG.filter(function (x) { return x !== kunci; });
+      tulisLog('Bahagian dikembalikan ke resume.', 'info');
+    }
+    kemasSek();
     kemasSemula();
   });
   el('tambah-pendidikan').addEventListener('click', function () {
@@ -1385,8 +1513,9 @@
   if (!document.querySelectorAll('#senarai-pendidikan .baris').length) {
     el('senarai-pendidikan').appendChild(barisPendidikan());
   }
-  window.ResumeMV = { kod: kodDari, dariKod: borangDariKod };
+  window.ResumeMV = { kod: kodDari, dariKod: borangDariKod, isi: isiBorang, kumpul: kumpul };
   kemasSemula();
+  kemasSek();
   semakSimpanan();
   pergiHal(halAwal || 1, true);
   susunSkala();
