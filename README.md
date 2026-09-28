@@ -18,7 +18,7 @@ Semua berlaku dalam pelayar — **tiada data dihantar ke mana-mana pelayan**.
 
 Buka `index.html` (klik dua kali) atau laman awam di atas. Aliran **4 halaman**:
 
-1. **Pilih reka bentuk + jenis resume** — kad *Biru & Kelabu* dengan **pratonton mini sebenar** (bukan gambar), kemudian pilih **Resume baru** atau **Kemas kini resume lama** → **muat naik fail resume lama** (PDF / Word .docx / teks) → butirannya dibaca dan diisi sendiri → **Mula Isi Butiran**
+1. **Pilih reka bentuk** — kad *Biru & Kelabu* dengan **pratonton mini sebenar** (bukan gambar) → **Mula Isi Butiran**
 2. **Isi butiran** — Nama + Nombor Telefon wajib; foto, jawatan, ringkasan, pengalaman, pendidikan, kemahiran, bahasa, rujukan → **Seterusnya: Pratonton**
 3. **Pratonton** — desktop: helaian A4 penuh + butang **Skrin penuh** + senarai semak "Semak sebelum hantar"; telefon: pratonton **sepenuh skrin** tanpa skrol → **Seterusnya: Hantar**
 4. **Hantar** — tekan butang WhatsApp; mesej pesanan + kod resume sudah siap diisi, anda cuma tekan hantar
@@ -126,6 +126,30 @@ Data disimpan automatik dalam pelayar (localStorage) — pelanggan ulangan akan 
 - Cetakan penjual dari halaman pratonton masih **1 halaman A4, 595×842 pt, tanpa tanda air** (bbox sama seperti sebelum ini)
 - Ujian bertambah kepada **219 lulus, 0 gagal**
 
+**Fasa 13** — muat naik resume lama **dibuang** (keputusan pengguna):
+
+- Ciri muat naik resume (PDF / Word / teks) dengan auto-isi telah dibangunkan penuh, diuji, dan **kemudian dibuang atas permintaan pengguna** kerana bacaan fail tidak cukup boleh dipercayai untuk pelanggan awam
+- Bukti yang mengesahkan keputusan itu: pembaca PDF terbina dalam berjaya membaca PDF eksport **Word** (586 aksara, semua medan betul) tetapi **gagal (0 aksara)** pada **PDF cetakan Chrome/Canva/Google Docs** — iaitu format yang paling kerap pelanggan ada. Punca: PDF jenis itu menyimpan fon subset dalam objek termampat/xref stream, jadi peta ToUnicode tidak dapat dipulihkan
+- Pelajaran: untuk app layan diri, **jangan tawarkan pilihan yang boleh gagal** — pelanggan yang muat naik fail dan dapat hasil kosong akan hilang kepercayaan pada seluruh app
+- Apa yang **kekal** (nilai sebenar tanpa risiko): autosimpan dalam peranti + nota kecil di halaman 1 — "Resume terakhir di peranti ini: **<nama>**. Tekan Mula Isi Butiran untuk sambung, atau *mula kosong (buang dari peranti)*" (dengan pengesahan `confirm`)
+- Dibuang bersama ciri ini: pembaca DOCX (`DecompressionStream`), pembaca PDF terbina dalam (`objekPdf`, CMap/ToUnicode), pdf.js, dan penghurai resume (`huraiTeks`/`huraiPengalaman`/`huraiPendidikan`) — fail kembali daripada 106 KB kepada **66 KB**
+- Ujian: **236 lulus, 0 gagal** (blok ujian muat naik diganti dengan ujian "satu CTA + nota simpanan peranti")
+
+**Fasa 12** — pilihan "resume baru" vs "kemas kini resume lama" **dibuang**:
+
+- Asalnya: pil pilihan + tampal kod (Fasa 12) → kemudian muat naik fail (Fasa 13) → kedua-duanya dibuang
+- Sebab yang sama: jalan pemulihan yang memerlukan input teknikal daripada pelanggan (kod panjang) atau fail yang mungkin gagal dibaca hanya menambah pintu yang boleh tersangkut
+- Halaman 1 kini: **satu kad reka bentuk + satu CTA** (+ nota simpanan peranti bila ada data lama)
+
+**Fasa 11** — buang butang "Jana PDF" untuk pelanggan:
+
+- Butang **Jana PDF** dibuang daripada halaman butiran; pelanggan hanya perlu **pratonton** kemudian **hantar melalui WhatsApp**. Kurang satu jalan yang mengelirukan (dan tiada PDF bertanda air yang tersebar secara tak sengaja)
+- Cetak dipindahkan ke butang **Cetak PDF** (`#cetak-pdf`) yang **hanya muncul dalam Mod Penjual** (`#cetak-pdf { display: none }` + `body.mod-penjual #cetak-pdf { display: inline-flex }`) — penjual masih boleh hasilkan PDF bersih
+- Hantar borang (tekan Enter dalam medan) kini membawa terus ke **halaman pratonton**, bukan mencetak
+- Disemak dalam Chrome: pelanggan → `#cetak-pdf` `display: none` (0×0), penjual → `display: flex` (108×44); tiada `#jana` di mana-mana
+- Cetakan penjual dari halaman pratonton masih **1 halaman A4, 595×842 pt, tanpa tanda air** (bbox sama seperti sebelum ini)
+- Ujian bertambah kepada **219 lulus, 0 gagal**
+
 **Fasa 13** — muat naik resume lama (PDF / Word / teks) dan auto-isi:
 
 - Pilihan "tampal kod" **dibuang**; pelanggan kini **memuat naik fail resume lama**: butang **Pilih fail resume lama** atau **seret & lepas** ke zon putus-putus (terima `.pdf`, `.docx`, `.txt`, `.md`)
@@ -160,7 +184,7 @@ cd test && npm install        # sekali sahaja (jsdom)
 "$LOCALAPPDATA/hermes/node/node.exe" test/test_ui.js
 ```
 
-Keputusan semasa: **282 lulus, 0 gagal**.
+Keputusan semasa: **236 lulus, 0 gagal**.
 
 ## Aliran jualan melalui WhatsApp (tanpa gerbang bayaran)
 
