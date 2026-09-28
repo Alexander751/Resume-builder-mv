@@ -18,7 +18,7 @@ Semua berlaku dalam pelayar — **tiada data dihantar ke mana-mana pelayan**.
 
 Buka `index.html` (klik dua kali) atau laman awam di atas. Aliran **4 halaman**:
 
-1. **Pilih reka bentuk + jenis resume** — kad *Biru & Kelabu* dengan **pratonton mini sebenar** (bukan gambar), kemudian pilih **Resume baru** atau **Kemas kini resume lama** (tampal kod lama → semua detail terus masuk) → **Mula Isi Butiran**
+1. **Pilih reka bentuk + jenis resume** — kad *Biru & Kelabu* dengan **pratonton mini sebenar** (bukan gambar), kemudian pilih **Resume baru** atau **Kemas kini resume lama** → **muat naik fail resume lama** (PDF / Word .docx / teks) → butirannya dibaca dan diisi sendiri → **Mula Isi Butiran**
 2. **Isi butiran** — Nama + Nombor Telefon wajib; foto, jawatan, ringkasan, pengalaman, pendidikan, kemahiran, bahasa, rujukan → **Seterusnya: Pratonton**
 3. **Pratonton** — desktop: helaian A4 penuh + butang **Skrin penuh** + senarai semak "Semak sebelum hantar"; telefon: pratonton **sepenuh skrin** tanpa skrol → **Seterusnya: Hantar**
 4. **Hantar** — tekan butang WhatsApp; mesej pesanan + kod resume sudah siap diisi, anda cuma tekan hantar
@@ -126,10 +126,26 @@ Data disimpan automatik dalam pelayar (localStorage) — pelanggan ulangan akan 
 - Cetakan penjual dari halaman pratonton masih **1 halaman A4, 595×842 pt, tanpa tanda air** (bbox sama seperti sebelum ini)
 - Ujian bertambah kepada **219 lulus, 0 gagal**
 
+**Fasa 13** — muat naik resume lama (PDF / Word / teks) dan auto-isi:
+
+- Pilihan "tampal kod" **dibuang**; pelanggan kini **memuat naik fail resume lama**: butang **Pilih fail resume lama** atau **seret & lepas** ke zon putus-putus (terima `.pdf`, `.docx`, `.txt`, `.md`)
+- **Semua bacaan berlaku dalam pelayar** — fail tidak dimuat naik ke mana-mana pelayan (nota privasi di bawah zon)
+- **Pembaca fail terbina dalam** (tiada pelayan, tiada API, kekal satu fail):
+  - `.docx` → ZIP dibaca sendiri + `DecompressionStream('deflate-raw')` + `word/document.xml` → teks (disahkan pada fail Word sebenar: semua medan betul)
+  - `.pdf` → pdf.js dari CDN (jika ada, had 8 saat) → sandaran **pembaca PDF terbina dalam**: parse objek, nyahmampat Flate (had 2.5s setiap strim), **ToUnicode CMap** (bfchar/bfrange), operator `Tj`/`TJ`/`Tf`/`Td`, peta fon gabungan + sandaran kod mentah
+  - `.txt`/`.md` → terus; `.doc` (Word lama) dan format lain → ditolak dengan arahan jelas (Save As → PDF/.docx)
+- **Penghurai resume** mengisi: nama (pemarkahan baris teratas), telefon (format Malaysia, tahan pemisah berbilang & baris terpecah), e-mel, lokasi (senarai negeri/bandar), jawatan, profil, kemahiran, bahasa, rujukan, **pengalaman** (jawatan/syarikat/tempoh/poin — sauh tarikh) dan **pendidikan** (kelulusan/institusi/tahun)
+- Panel hasil memaparkan apa yang dijumpai (`Nama: … · Telefon: … · 2 pengalaman kerja …`) + butang **Guna butiran ini** / **Pilih fail lain**; log mengingatkan "semak setiap medan"
+- PDF imej/scan dikesan → mesej jujur ("nampaknya imej atau scan"), **tiada data rekaan**
+- Disahkan dalam Chrome sebenar: `.docx` Word → semua medan + poin pengalaman masuk borang; PDF eksport Microsoft Word → 586 aksara dibaca pembaca terbina dalam (tanpa CDN) → nama/telefon/e-mel/jawatan/lokasi/kemahiran/bahasa/2 pengalaman/1 pendidikan diisi; PDF scan → mesej jujur
+- **Had yang diakui**: daripada PDF, **poin pengalaman** kadangkala tidak terbaca (fon subset tanpa ToUnicode) — medan utama tetap masuk, pelanggan boleh tampal poin itu sendiri; pdf.js (bila tersedia) membaca lebih lengkap
+- Pepijat dibetulkan semasa fasa ini: pdf.js **memindahkan ArrayBuffer** (`buf.slice(0)` sebelum ia detach), pdf.js boleh **tergantung** (had masa 8s + `.catch` pada semua laluan baca), strim PDF rosak menyekat bacaan (had 2.5s/strim), slicing guna `/Length` tepat, "BAHASA" dianggap tajuk seksyen (isi hilang), lokasi tersalah ambil nama syarikat, baris poin tanpa bullet, dan baris PDF terpecah (`012` / `-` / `3456789`)
+- Ujian bertambah kepada **282 lulus, 0 gagal**
+
 **Fasa 12** — pilihan "resume baru" vs "kemas kini resume lama" (selepas pilih reka bentuk):
 
-- Halaman 1 kini ada blok pilihan: pil **Resume baru** (isi dari kosong) dan **Kemas kini resume lama** (tampal kod lama)
-- Pilih "kemas kini" → kotak kod terbuka: tampal kod → butang **Muat resume lama** (atau tekan Enter) membawa terus ke halaman butiran dengan **semua detail sudah terisi** (nama, kontak, jawatan, ringkasan, kemahiran, bahasa, rujukan, baris pengalaman & pendidikan dibina semula dari kod)
+- Halaman 1 kini ada blok pilihan: pil **Resume baru** (isi dari kosong) dan **Kemas kini resume lama** (muat naik fail resume lama)
+- Pilih "kemas kini" → kotak muat naik terbuka: fail dibaca dan dihurai, kemudian butang **Guna butiran ini** membawa terus ke halaman butiran dengan **semua detail sudah terisi**
 - **Pelanggan ulangan dikesan automatik**: kalau ada resume dalam `localStorage`, app terus pilih pil "kemas kini", buka kotak kod dan papar nota "Ada resume disimpan dalam peranti ini: <nama>" + butang **Guna resume terakhir: <nama>**
 - Kod tidak sah → mesej merah pada kotak kod (`Kod resume tidak sah atau tidak lengkap…`), kekal di halaman 1, kod yang salah tidak dipadam; kod kosong + tekan CTA → terus ke butiran tanpa ralat
 - Buang data tersimpan hanya melalui pautan eksplisit **"buang dari peranti ini"** (+ `confirm`) — tiada pemadaman senyap
@@ -144,7 +160,7 @@ cd test && npm install        # sekali sahaja (jsdom)
 "$LOCALAPPDATA/hermes/node/node.exe" test/test_ui.js
 ```
 
-Keputusan semasa: **260 lulus, 0 gagal**.
+Keputusan semasa: **282 lulus, 0 gagal**.
 
 ## Aliran jualan melalui WhatsApp (tanpa gerbang bayaran)
 

@@ -174,15 +174,30 @@
   .pil-mula.dipilih strong { color: var(--brand); }
   .kotak-update { margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--line); }
   .kotak-update label { display: block; margin-bottom: 7px; font-size: 13.5px; font-weight: 700; color: var(--ink); }
-  .baris-kod { display: flex; gap: 10px; align-items: stretch; }
-  .baris-kod input {
-    flex: 1 1 auto; min-width: 0; font-family: ui-monospace, Consolas, monospace; font-size: 13px;
-    padding: 11px 13px; border: 1.5px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink);
+  .label-fail { display: block; margin-bottom: 9px; font-size: 13.5px; font-weight: 700; color: var(--ink); }
+  .jatuh {
+    display: flex; align-items: center; gap: 18px; padding: 18px 20px;
+    border: 1.5px dashed #c3d2e4; border-radius: 14px; background: #fbfdff;
+    transition: border-color .15s ease, background .15s ease;
   }
-  .baris-kod input:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(18, 80, 140, .12); }
-  #muat-kod { flex: 0 0 auto; padding: 12px 20px; font-size: 14.5px; }
+  .jatuh.seret { border-color: var(--brand); background: var(--brand-soft); }
+  .jatuh > svg { flex: 0 0 auto; width: 30px; height: 30px; color: var(--brand); opacity: .85; }
+  .jatuh-teks { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; }
+  .jatuh-nota { margin: 0; font-size: 12.6px; line-height: 1.45; color: var(--muted); }
+  #pilih-fail { padding: 12px 20px; font-size: 14.5px; }
+  .hasil-fail {
+    margin-top: 14px; padding: 15px 17px; border: 1px solid #cfe8dc; border-radius: 14px;
+    background: #f4fbf7;
+  }
+  .hasil-tajuk { margin: 0 0 4px; font-size: 14px; font-weight: 700; color: #0f5b41; display: flex; gap: 9px; align-items: baseline; }
+  .bulat-ok {
+    flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
+    width: 19px; height: 19px; border-radius: 50%; background: var(--ok); color: #fff; font-size: 12px; font-weight: 700;
+  }
+  .baris-butang { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
   #guna-terakhir { margin-top: 10px; }
   .nota-kod, .nota-mula { margin: 10px 0 0; font-size: 12.8px; line-height: 1.5; color: var(--muted); }
+  .nota-kod.sibuk { color: var(--brand); font-weight: 600; }
   .nota-mula { margin-top: 16px; }
   .pil-ralat { color: var(--danger); font-weight: 600; }
   .pautan-buang {
@@ -224,6 +239,10 @@
     .hal-tajuk { font-size: 19.5px; }
     .btn-utama, .btn-undur { width: 100%; }
     #cetak-pdf { width: 100%; justify-content: center; }
+    .jatuh { flex-direction: column; align-items: stretch; text-align: center; gap: 12px; padding: 18px 16px; }
+    .jatuh > svg { align-self: center; }
+    .jatuh-teks { align-items: stretch; }
+    .baris-butang { flex-direction: column; }
     .nav-bawah { flex-direction: column-reverse; }
     header.top { padding: 11px 14px; gap: 10px; }
     header.top p { font-size: 12px; }
@@ -588,14 +607,28 @@
       </div>
 
       <div class="kotak-update" id="kotak-update" hidden>
-        <label for="kod-lama">Tampal kod resume lama anda</label>
-        <div class="baris-kod">
-          <input id="kod-lama" type="text" autocomplete="off" spellcheck="false"
-                 placeholder="cth. eyJzIjoiYmlydSIsIm4iOiJBaG1hZCBiYXJpIEFsaSIsInQiOiIwMTItMzQ1Njc4OSIsImUiOiIuLi4i">
-          <button type="button" class="btn-utama" id="muat-kod">Muat resume lama</button>
+        <label class="label-fail" for="fail-lama">Muat naik resume lama anda</label>
+        <div class="jatuh" id="jatuh">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 9l5-5 5 5"/><path d="M12 4v12"/>
+          </svg>
+          <div class="jatuh-teks">
+            <button type="button" class="btn-utama" id="pilih-fail">Pilih fail resume lama</button>
+            <p class="jatuh-nota">atau seret fail ke sini &mdash; <strong>PDF</strong>, <strong>Word (.docx)</strong> atau <strong>teks (.txt)</strong></p>
+          </div>
+          <input id="fail-lama" type="file" hidden
+                 accept=".pdf,.docx,.txt,.md,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain">
         </div>
+        <div class="hasil-fail" id="hasil-fail" hidden>
+          <p class="hasil-tajuk"><span class="bulat-ok">&#10003;</span> <span id="senarai-jumpa"></span></p>
+          <p class="nota-kod" id="nota-hasil">Auto-isi sahaja &mdash; semak dan betulkan setiap medan di halaman seterusnya.</p>
+          <div class="baris-butang">
+            <button type="button" class="btn-utama" id="guna-hasil">Guna butiran ini &rarr;</button>
+            <button type="button" class="btn-undur" id="batal-fail">Pilih fail lain</button>
+          </div>
+        </div>
+        <p class="nota-kod" id="nota-fail">Fail anda dibaca dalam pelayar ini sahaja &mdash; tidak dimuat naik ke mana-mana pelayan.</p>
         <button type="button" class="btn-undur" id="guna-terakhir" hidden>Guna resume terakhir</button>
-        <p class="nota-kod" id="nota-kod">Kod ini ada dalam mesej WhatsApp pesanan anda yang lepas, atau yang disimpan penjual.</p>
       </div>
 
       <p class="nota-mula" id="nota-mula"></p>
@@ -1014,9 +1047,9 @@
     b.setAttribute('aria-pressed', MOD_MULA === 'baru' ? 'true' : 'false');
     u.setAttribute('aria-pressed', MOD_MULA === 'update' ? 'true' : 'false');
     el('kotak-update').hidden = (MOD_MULA !== 'update');
-    var n = el('nota-kod');
-    if (n) n.classList.remove('pil-ralat');
-    if (MOD_MULA === 'update' && !tanpaFokus && el('kod-lama')) el('kod-lama').focus();
+    var n = el('nota-fail');
+    if (n && n.className.indexOf('pil-ralat') >= 0) statusFail('Fail anda dibaca dalam pelayar ini sahaja \u2014 tidak dimuat naik ke mana-mana pelayan.', '');
+    if (MOD_MULA === 'update' && !tanpaFokus && el('jatuh')) el('jatuh').scrollIntoView({ block: 'center', behavior: 'smooth' });
   }
 
   function semakMula() {
@@ -1042,39 +1075,713 @@
       });
       nota.appendChild(b);
     } else {
-      nota.textContent = 'Belum ada resume disimpan dalam peranti ini. Kalau anda pernah buat resume sebelum ini (di peranti lain), pilih "Kemas kini resume lama" dan tampal kod daripada mesej WhatsApp anda.';
+      nota.textContent = 'Belum ada resume disimpan dalam peranti ini. Kalau anda sudah ada resume lama (PDF atau Word), pilih "Kemas kini resume lama" dan muat naik fail itu \u2014 butirannya akan dibaca dan diisi sendiri.';
     }
   }
 
-  function ralatKod(mesej) {
-    var n = el('nota-kod');
-    if (n) { n.classList.add('pil-ralat'); n.textContent = mesej; }
+  /* ---------- baca resume lama dari fail (PDF / Word / teks) ---------- */
+  var HASIL_FAIL = null;
+
+  var TAJUK_SEKSYEN = [
+    ['pengalaman', /^(pengalaman|experience|kerjaya|employment|career|sejarah kerja|jawatan.*kerja|work history)\b/i],
+    ['pendidikan', /^(pendidikan|education|akademik|academic|kelulusan|qualification|kelayakan)\b/i],
+    ['kemahiran', /^(kemahiran|skill|kompetensi|competenc|keupayaan|technical skill|kebolehan)\b/i],
+    ['bahasa', /^(bahasa|language)\b/i],
+    ['ringkasan', /^(profil|ringkasan|summary|objektif|objective|tentang|perihal|about me|profile)\b/i],
+    ['rujukan', /^(rujukan|reference|referen)\b/i]
+  ];
+  var KATA_KERJA = /(jurutera|engineer|juruteknik|technician|penyelia|supervisor|pengurus|manager|eksekutif|executive|kerani|clerk|pembantu|penolong|assistant|pegawai|officer|guru|teacher|jurulatih|trainer|pemandu|driver|penjaga|kaunter|barista|tukang|operator|penyimpan|akauntan|accountant|pereka|designer|pembangun|developer|pemasaran|marketing|jualan|sales|warden|storekeeper|quantity surveyor|qs|admin|setiausaha|secretary|intern|pelatih|tadbir|operasi|operations)/i;
+  var KATA_TEMPAT = /(kuala lumpur|selangor|johor|pulau pinang|penang|perak|kedah|kelantan|terengganu|pahang|melaka|negeri sembilan|sabah|sarawak|putrajaya|labuan|kemaman|kuantan|shah alam|petaling jaya|subang|klang|ipoh|johor bahru|kota kinabalu|kuching|seremban|alor setar|kota bharu|kuala terengganu|george town|bangi|kajang|dungun|kerteh|paka|temerloh|kluang|batu pahat|muar|kulim|sungai petani|butterworth|semenyih|nilai|port dickson|miri|sandakan|tawau|sibu|kangar|gong badak)/i;
+  var KATA_BAHASA = /(melayu|malay|inggeris|english|mandarin|cina|chinese|tamil|arab|jepun|japanese|korea|korean|india|hindi|iban|kadazan)/i;
+  var RE_TEMPOH = /((?:jan|feb|mac|apr|mei|jun|jul|ogo|gos|sep|okt|nov|dis|january|february|march|april|may|june|july|august|september|october|november|december)[a-z]*[\s,]*)?((?:19|20)\d{2})\s*(?:-|\u2013|\u2014|hingga|until|to|\u2013)\s*((?:19|20)\d{2}|kini|present|sekarang|now|current)/i;
+  var RE_TAHUN = /((?:19|20)\d{2}\s*(?:-|\u2013|\u2014|hingga)\s*(?:(?:19|20)\d{2}|kini|present|sekarang))|((?:19|20)\d{2})/;
+  var RE_KELULUSAN = /(diploma|sarjana|ijazah|bachelor|degree|master|phd|doktor|kedoktoran|spm|stpm|sijil|certificate|matrikulasi|foundation|asasi|stam|pt3|upsr|advanced diploma|sijil kemahiran|skm)/i;
+
+  function ext(nama) {
+    var m = String(nama == null ? '' : nama).toLowerCase().match(/\.([a-z0-9]+)$/);
+    return m ? m[1] : '';
+  }
+
+  function bersihkanBaris(teks) {
+    var mentah = String(teks == null ? '' : teks)
+      .replace(/\r\n?/g, '\n').replace(/\u00a0/g, ' ')
+      .split('\n')
+      .map(function (b) { return b.replace(/[\t ]+/g, ' ').trim(); })
+      .filter(function (b) { return b.length > 0; });
+    // PDF sering memecah satu baris kepada beberapa kepingan ("012" / "-" / "3456789")
+    var keluar = [];
+    mentah.forEach(function (b) {
+      var sebelum = keluar.length ? keluar[keluar.length - 1] : null;
+      var sambung = sebelum !== null && (
+        (/^[-\u2013\u2014]\s*\S{0,8}$/.test(b) && b.length <= 10) ||
+        /[-\u2013\u2014]$/.test(sebelum) ||
+        (/^\d{1,4}$/.test(b) && /[-\u2013\u2014]\s*$/.test(sebelum))
+      );
+      if (sambung) {
+        keluar[keluar.length - 1] = (sebelum + ' ' + b).replace(/\s+/g, ' ').trim();
+        return;
+      }
+      keluar.push(b);
+    });
+    return keluar;
+  }
+
+  function buangBullet(b) { return String(b).replace(/^[\s\u2022\u00b7\u25cf\u25aa\u25e6*\-\u2013\u2014>]+/, '').trim(); }
+
+  function koyakSeksyen(baris) {
+    var sek = {}, kini = '';
+    sek[''] = [];
+    baris.forEach(function (b) {
+      var t = buangBullet(b).replace(/[:\uFF1A]+\s*$/, '').trim();
+      var tajuk = '';
+      var calon = t.replace(/\s*\(.*\)\s*$/, '').trim();
+      var calonTajuk = calon.length <= 24 && calon.split(/\s+/).length <= 3 && calon.indexOf(',') < 0;
+      if (calonTajuk) {
+        for (var i = 0; i < TAJUK_SEKSYEN.length; i++) {
+          if (TAJUK_SEKSYEN[i][1].test(calon)) { tajuk = TAJUK_SEKSYEN[i][0]; break; }
+        }
+      }
+      if (tajuk) { kini = tajuk; if (!sek[kini]) sek[kini] = []; return; }
+      var mc = b.match(/^([A-Za-z][A-Za-z \/]{2,26})[:\uFF1A]\s*(.+)$/);
+      if (mc) {
+        for (var j = 0; j < TAJUK_SEKSYEN.length; j++) {
+          if (TAJUK_SEKSYEN[j][1].test(mc[1].trim())) {
+            var kk = TAJUK_SEKSYEN[j][0];
+            if (!sek[kk]) sek[kk] = [];
+            sek[kk].push(mc[2].trim());
+            return;
+          }
+        }
+      }
+      (sek[kini] = sek[kini] || []).push(b);
+    });
+    return sek;
+  }
+
+  function pilihNama(senarai) {
+    var terbaik = '', skor = -99;
+    senarai.slice(0, 10).forEach(function (b, i) {
+      if (/^[\u2022\u00b7\u25cf\u25aa*\->]/.test(b)) return;
+      if (/@|\d|http|www\./i.test(b)) return;
+      var patah = b.split(/\s+/);
+      if (patah.length < 2 || patah.length > 5) return;
+      if (b.length > 48) return;
+      var t = buangBullet(b).replace(/[:：]+\s*$/, '').trim();
+      if (t.length <= 28) {
+        for (var k = 0; k < TAJUK_SEKSYEN.length; k++) if (TAJUK_SEKSYEN[k][1].test(t)) return;
+      }
+      var s2 = Math.max(0, 8 - i);
+      if (/^[A-Z][A-Z\s.'\/-]+$/.test(b)) s2 += 5;
+      if (KATA_KERJA.test(b)) s2 -= 4;
+      if (KATA_TEMPAT.test(b)) s2 -= 2;
+      if (/(resume|curriculum vitae|\bcv\b|no\.|tel|email|e-mel)/i.test(b)) s2 -= 6;
+      if (/^(nama|name)\b/i.test(t)) s2 += 6;
+      if (s2 > skor) { skor = s2; terbaik = b.replace(/^(nama|name)\s*[:\uFF1A]\s*/i, '').trim(); }
+    });
+    return terbaik;
+  }
+
+  function huraiPengalaman(baris) {
+    var sauh = [], guna = {};
+    baris.forEach(function (b, k) {
+      var isi = buangBullet(b);
+      if (isi.length <= 46 && RE_TEMPOH.test(isi)) sauh.push(k);
+    });
+    if (!sauh.length) {
+      var s2 = baris.map(buangBullet).filter(function (x) { return !!x; });
+      if (!s2.length) return [];
+      return [{ jawatan: s2[0].slice(0, 70), syarikat: (s2[1] || '').slice(0, 70), tempoh: '', poin: s2.slice(2, 8) }];
+    }
+    var kepala = {};
+    // langkah 1: klaim baris tajuk (1-2 baris sebelum setiap tarikh) untuk semua entri dahulu
+    sauh.forEach(function (a) {
+      var sebelum = [];
+      for (var i = a - 1; i >= 0 && sebelum.length < 2; i--) {
+        if (guna[i] || sebelum.length >= 2) break;
+        var isi = buangBullet(baris[i]);
+        if (!isi || isi.length > 60) break;
+        if (/^[\u2022\u00b7\u25cf\u25aa\u25e6*\-]/.test(baris[i])) break;
+        sebelum.unshift(isi);
+        guna[i] = true;
+      }
+      kepala[a] = sebelum;
+    });
+    // langkah 2: poin = baris selepas tarikh sehingga baris tajuk entri seterusnya
+    var keluar = [];
+    sauh.forEach(function (a, k) {
+      var tamat = (k + 1 < sauh.length) ? sauh[k + 1] : baris.length;
+      var poin = [];
+      for (var j = a + 1; j < tamat; j++) {
+        if (guna[j]) break;
+        var t = buangBullet(baris[j]);
+        if (!t) continue;
+        poin.push(t);
+        if (poin.length >= 6) break;
+      }
+      var hd = kepala[a] || [];
+      keluar.push({
+        jawatan: (hd[0] || '').slice(0, 70),
+        syarikat: (hd[1] || '').slice(0, 70),
+        tempoh: buangBullet(baris[a]).slice(0, 40),
+        poin: poin
+      });
+    });
+    return keluar.filter(function (o) { return (o.jawatan || o.syarikat || o.poin.length); }).slice(0, 6);
+  }
+
+  function huraiPendidikan(baris) {
+    var keluar = [], semasa = null;
+    baris.forEach(function (b) {
+      var isi = buangBullet(b);
+      if (!isi) return;
+      if (RE_KELULUSAN.test(isi) && isi.length <= 90 && !/^(nama|alamat|no\.)/i.test(isi)) {
+        if (semasa) keluar.push(semasa);
+        semasa = { kelulusan: isi.slice(0, 80), institusi: '', tahun: '' };
+        var m1 = isi.match(RE_TEMPOH) || isi.match(RE_TAHUN);
+        if (m1) { semasa.tahun = m1[0].trim(); semasa.kelulusan = isi.replace(m1[0], '').replace(/[,\u2013-]\s*$/, '').trim().slice(0, 80); }
+        return;
+      }
+      if (!semasa) return;
+      var mt = isi.match(RE_TEMPOH);
+      if (mt && isi.length <= 30) { if (!semasa.tahun) semasa.tahun = mt[0].trim(); return; }
+      if (!semasa.institusi && isi.length <= 80) {
+        var m2 = isi.match(RE_TEMPOH);
+        if (m2 && isi.length <= 26) { semasa.tahun = semasa.tahun || m2[0].trim(); semasa.institusi = isi.replace(m2[0], '').replace(/[,\u2013-]\s*$/, '').trim(); }
+        else semasa.institusi = isi.slice(0, 70);
+        return;
+      }
+      if (!semasa.tahun) { var m3 = isi.match(RE_TEMPOH) || isi.match(RE_TAHUN); if (m3) semasa.tahun = m3[0].trim(); }
+    });
+    if (semasa) keluar.push(semasa);
+    return keluar.filter(function (o) { return !!o.kelulusan; }).slice(0, 5);
+  }
+
+  function huraiTeks(teks) {
+    var baris = bersihkanBaris(teks);
+    var mentah = baris.join(' ');
+    var d = {
+      templat: 'biru', nama: '', telefon: '', emel: '', lokasi: '', jawatan: '',
+      ringkasan: '', kemahiran: '', bahasa: '', rujukan: '', pengalaman: [], pendidikan: [], foto: ''
+    };
+    var me = mentah.match(/[\w.+-]+@[\w-]+(?:\.[\w-]{2,})+/);
+    if (me) d.emel = me[0];
+    var mt = mentah.match(/(?:\+?60|0)\s?1\d[\s.\-]{0,4}\d{3,4}[\s.\-]{0,4}\d{3,4}/)
+      || mentah.match(/\b0\d{1,2}[\s.\-]{0,4}\d{3,4}[\s.\-]{0,4}\d{3,4}\b/)
+      || mentah.match(/\+60[\s.\-]{0,4}\d{1,2}[\s.\-]{0,4}\d{3,4}[\s.\-]{0,4}\d{4}/);
+    if (mt) d.telefon = mt[0].replace(/\s+/g, ' ').trim();
+
+    var sek = koyakSeksyen(baris);
+    var kepala = sek[''] || [];
+    d.nama = pilihNama(kepala) || pilihNama(baris);
+
+    var ij = -1;
+    for (var i = 0; i < kepala.length; i++) { if (kepala[i] === d.nama || (d.nama && kepala[i].indexOf(d.nama) >= 0)) { ij = i; break; } }
+    for (var j = ij + 1; j < Math.min(kepala.length, ij + 4); j++) {
+      var c = buangBullet(kepala[j]).replace(/[:：]+\s*$/, '').trim();
+      if (!c || /@|\d|http/i.test(c) || c.length > 44) continue;
+      if (KATA_TEMPAT.test(c) && c.length <= 34) { if (!d.lokasi) d.lokasi = c; continue; }
+      if (!d.jawatan) { d.jawatan = c.slice(0, 70); }
+    }
+    if (!d.lokasi) {
+      var skorLokasi = -99, lokasi = '';
+      baris.slice(0, 24).forEach(function (b) {
+        if (/@|http/i.test(b)) {
+          // baris kontak: ambil segmen selepas pemisah (cth. "012-3456 | Kemaman, Terengganu")
+          b.split(/[|\u00b7\u2022]/).forEach(function (seg) {
+            var c = seg.replace(/[+]?\d[\d\s()-]{5,}/g, ' ')
+              .replace(/^[\s,;:|\u00b7\u2013-]+|[\s,;:|\u00b7\u2013-]+$/g, '').replace(/\s{2,}/g, ' ').trim();
+            if (c.length > 3 && c.length <= 40 && KATA_TEMPAT.test(c) && skorLokasi < 6) { skorLokasi = 6; lokasi = c; }
+          });
+          return;
+        }
+        var t = buangBullet(b);
+        if (t.length > 40 || !KATA_TEMPAT.test(t)) return;
+        var s2 = 2 + (t.split(',').length > 1 ? 3 : 0);
+        if (/sdn|bhd|enterprise|trading|construction|services|resources|holding|industri|syarikat|workshop|plant|group/i.test(t)) s2 -= 8;
+        if (KATA_KERJA.test(t)) s2 -= 4;
+        if (t.split(/\s+/).length > 5) s2 -= 2;
+        if (s2 > skorLokasi) { skorLokasi = s2; lokasi = t; }
+      });
+      if (skorLokasi > 0) d.lokasi = lokasi.slice(0, 60);
+    }
+
+    function gabung(senarai, pemisah, had) {
+      var keping = (senarai || []).map(function (b) { return buangBullet(b).replace(/[.;]+$/, ''); })
+        .filter(function (b) { return b.length > 0 && b.length < 90; });
+      return keping.join(pemisah).slice(0, had);
+    }
+    d.ringkasan = gabung(sek['ringkasan'], ' ', 600);
+    d.kemahiran = gabung(sek['kemahiran'], ', ', 300);
+    d.bahasa = gabung(sek['bahasa'], ', ', 120);
+    if (d.bahasa && !KATA_BAHASA.test(d.bahasa)) d.bahasa = gabung(sek['bahasa'], ', ', 120);
+    d.rujukan = gabung(sek['rujukan'], ' | ', 200);
+    d.pengalaman = huraiPengalaman(sek['pengalaman'] || []);
+    d.pendidikan = huraiPendidikan(sek['pendidikan'] || []);
+    return d;
+  }
+
+  /* ---------- pembaca fail ---------- */
+  function statusFail(mesej, kelas) {
+    var n = el('nota-fail');
+    if (!n) return;
+    n.className = 'nota-kod' + (kelas ? ' ' + kelas : '');
+    n.textContent = mesej;
+  }
+
+  function ralatFail(mesej) {
+    statusFail(mesej, 'pil-ralat');
+    el('hasil-fail').hidden = true;
+    HASIL_FAIL = null;
     tulisLog(mesej, 'ralat');
   }
 
-  function gunaKodLama(kod) {
-    var bersih = String(kod == null ? '' : kod).trim();
-    if (!bersih) { ralatKod('Tampal dahulu kod resume lama anda.'); return false; }
-    var d = borangDariKod(bersih);
-    if (!d || !d.nama) {
-      ralatKod('Kod resume tidak sah atau tidak lengkap. Salin semula kod itu, atau pilih "Resume baru".');
-      if (el('kod-lama')) el('kod-lama').focus();
-      return false;
+  function xmlKeTeks(xml) {
+    return String(xml)
+      .replace(/<w:tab\b[^>]*\/?>/g, '\t')
+      .replace(/<w:br\b[^>]*\/?>/g, '\n')
+      .replace(/<\/w:p>/g, '\n')
+      .replace(/<\/w:tc>/g, '\t')
+      .replace(/<\/w:tr>/g, '\n')
+      .replace(/<[^>]+>/g, '')
+      .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"')
+      .replace(/&#39;|&apos;/g, "'").replace(/&amp;/g, '&');
+  }
+
+  function ambilTeksDocx(buf) {
+    var u8 = new Uint8Array(buf), dv = new DataView(buf);
+    var eocd = -1;
+    for (var i = u8.length - 22; i >= 0 && i > u8.length - 70000; i--) {
+      if (u8[i] === 0x50 && u8[i + 1] === 0x4b && u8[i + 2] === 0x05 && u8[i + 3] === 0x06) { eocd = i; break; }
     }
-    isiBorang(d);
-    el('kod-lama').value = bersih;
-    kemasSemula();
-    tulisLog('Resume lama dimuatkan (' + d.nama + '). Semak dan kemas kini, kemudian tekan Seterusnya: Pratonton.', 'info');
-    pergiHal(2);
-    return true;
+    if (eocd < 0) throw new Error('bukan fail .docx yang sah');
+    var bil = dv.getUint16(eocd + 10, true), p = dv.getUint32(eocd + 16, true), jumpa = null;
+    for (var k = 0; k < bil && p + 46 <= u8.length; k++) {
+      if (!(u8[p] === 0x50 && u8[p + 1] === 0x4b && u8[p + 2] === 0x01 && u8[p + 3] === 0x02)) break;
+      var kaedah = dv.getUint16(p + 10, true), saizMampat = dv.getUint32(p + 20, true);
+      var nNama = dv.getUint16(p + 28, true), nExtra = dv.getUint16(p + 30, true), nKomen = dv.getUint16(p + 32, true);
+      var nama = '';
+      for (var n = 0; n < nNama; n++) nama += String.fromCharCode(u8[p + 46 + n]);
+      if (nama === 'word/document.xml') {
+        jumpa = { kaedah: kaedah, saiz: saizMampat, tempat: dv.getUint32(p + 42, true) };
+        break;
+      }
+      p += 46 + nNama + nExtra + nKomen;
+    }
+    if (!jumpa) throw new Error('teks dokumen tidak dijumpai');
+    var lp = jumpa.tempat;
+    if (!(u8[lp] === 0x50 && u8[lp + 1] === 0x4b && u8[lp + 2] === 0x03 && u8[lp + 3] === 0x04)) throw new Error('fail .docx rosak');
+    var lNama = dv.getUint16(lp + 26, true), lExtra = dv.getUint16(lp + 28, true);
+    var awal = lp + 30 + lNama + lExtra;
+    var data = u8.subarray(awal, awal + jumpa.saiz);
+    if (jumpa.kaedah === 0) return Promise.resolve(xmlKeTeks(new TextDecoder('utf-8').decode(data)));
+    if (typeof DecompressionStream !== 'function') return Promise.reject(new Error('pelayar ini tidak menyokong nyahmampat'));
+    return new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw')))
+      .text().then(xmlKeTeks);
+  }
+
+  function teksPdfPdfjs(buf) {
+    return window.pdfjsLib.getDocument({ data: new Uint8Array(buf) }).promise.then(function (pdf) {
+      var muka = [], janji = [];
+      for (var i = 1; i <= pdf.numPages; i++) {
+        janji.push(pdf.getPage(i).then(function (p) {
+          return p.getTextContent().then(function (isi) {
+            var baris = [], yl = null, t = '';
+            (isi.items || []).forEach(function (it) {
+              var y = (it.transform && it.transform.length > 5) ? Math.round(it.transform[5]) : null;
+              if (yl !== null && y !== null && Math.abs(y - yl) > 3 && t) { baris.push(t); t = ''; }
+              t += (it.str || '');
+              if (it.hasEOL && t) { baris.push(t); t = ''; }
+              yl = y;
+            });
+            if (t) baris.push(t);
+            muka[i - 1] = baris.join('\n');
+          });
+        }));
+      }
+      return Promise.all(janji).then(function () { return muka.join('\n'); });
+    });
+  }
+
+  function muatPdfJs() {
+    return new Promise(function (selesai, gagal) {
+      if (window.pdfjsLib) { selesai(); return; }
+      var sc = document.createElement('script');
+      sc.src = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
+      sc.onload = function () {
+        try {
+          window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+        } catch (e) { /* biar pdf.js guna tetapan lalai */ }
+        selesai();
+      };
+      sc.onerror = function () { gagal(new Error('pustaka PDF tidak dapat dimuatkan')); };
+      document.head.appendChild(sc);
+    });
+  }
+
+  /* PDF terbina dalam: objek, stream, CMap (ToUnicode), dan operator teks.
+     Berfungsi tanpa CDN. Dipakai bila pdf.js tiada / terlalu lambat. */
+  function objekPdf(latin1) {
+    var peta = {}, re = /(?:^|[^\d])(\d{1,7})\s+\d{1,5}\s+obj\b/g, m;
+    while ((m = re.exec(latin1))) {
+      var no = parseInt(m[1], 10);
+      if (peta[no]) continue;
+      var mula = re.lastIndex;
+      var tengok = latin1.slice(mula, mula + 400);
+      if (tengok.indexOf('<<') < 0 && tengok.indexOf('stream') < 0) continue;
+      var akhir = latin1.indexOf('endobj', mula);
+      if (akhir < 0) continue;
+      var blok = latin1.slice(mula, akhir);
+      var dict = blok, strim = null;
+      var ks = blok.indexOf('stream');
+      if (ks >= 0) {
+        dict = blok.slice(0, ks);
+        var md = mula + ks + 6;
+        if (latin1.substr(md, 2) === '\r\n') md += 2;
+        else if (latin1.charAt(md) === '\n' || latin1.charAt(md) === '\r') md += 1;
+        var td = latin1.indexOf('endstream', md);
+        strim = { mula: md, tamat: td < 0 ? mula + blok.length : td };
+      }
+      peta[no] = { dict: dict, stream: strim };
+    }
+    return peta;
+  }
+
+  function bukaFlatePdf(data) {
+    if (typeof DecompressionStream !== 'function') return Promise.reject(new Error('tiada DecompressionStream'));
+    function cuba(format) {
+      return new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream(format)))
+        .text()['catch'](function () { return null; });
+    }
+    return cuba('deflate').then(function (t) {
+      if (t !== null && t.length) return t;
+      return cuba('deflate-raw').then(function (t2) { return t2 === null ? '' : t2; });
+    });
+  }
+
+  function ambilStreamPdf(u8, peta, no) {
+    var o = peta[no];
+    if (!o || !o.stream) return Promise.resolve('');
+    var mula = o.stream.mula, tamat = o.stream.tamat;
+    // utamakan /Length yang tepat; kalau tidak, buang EOL sebelum 'endstream'
+    var mL = o.dict.match(/\/Length\s+(\d+)(?!\s+0\s+R)/);
+    if (mL) {
+      var n = parseInt(mL[1], 10);
+      if (n > 0 && mula + n <= tamat + 2) tamat = mula + n;
+    } else {
+      while (tamat > mula && (u8[tamat - 1] === 10 || u8[tamat - 1] === 13)) tamat--;
+    }
+    var data = u8.subarray(mula, tamat);
+    var mampat = /\/FlateDecode/.test(o.dict);
+    if (!mampat) {
+      if (/\/Filter/.test(o.dict)) return Promise.resolve('');
+      return Promise.resolve(new TextDecoder('latin1').decode(data));
+    }
+    // strim rosak/terpotong boleh menyebabkan DecompressionStream menunggu selama-lamanya:
+    // beri had masa supaya satu strim bermasalah tidak menyekat seluruh bacaan
+    return janjiHad(bukaFlatePdf(data), 2500)['catch'](function () { return ''; });
+  }
+
+  function hexKeTeksPdf(h) {
+    var keluar = '';
+    for (var i = 0; i + 4 <= h.length; i += 4) {
+      var c = parseInt(h.substr(i, 4), 16);
+      if (c) keluar += String.fromCharCode(c);
+    }
+    if (h.length === 2) {
+      var cc = parseInt(h, 16);
+      if (cc) keluar = String.fromCharCode(cc);
+    }
+    return keluar;
+  }
+
+  function huraiCmap(teks) {
+    var peta = {}, kira = {}, m;
+    var reChar = /beginbfchar([\s\S]*?)endbfchar/g;
+    while ((m = reChar.exec(teks))) {
+      var re = /<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>/g, k;
+      while ((k = re.exec(m[1]))) {
+        var kod = k[1].toUpperCase();
+        peta[kod] = hexKeTeksPdf(k[2]);
+        kira[kod.length] = (kira[kod.length] || 0) + 1;
+      }
+    }
+    var reRange = /beginbfrange([\s\S]*?)endbfrange/g;
+    while ((m = reRange.exec(teks))) {
+      var re2 = /<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>/g, k2;
+      while ((k2 = re2.exec(m[1]))) {
+        var a = parseInt(k2[1], 16), b = parseInt(k2[2], 16), t = parseInt(k2[3], 16), lebar = k2[1].length;
+        for (var i = a; i <= b && i - a < 600; i++) {
+          peta[('00000000' + i.toString(16).toUpperCase()).slice(-lebar)] = String.fromCharCode(t + (i - a));
+          kira[lebar] = (kira[lebar] || 0) + 1;
+        }
+      }
+    }
+    var lebar = 0, tertinggi = 0;
+    Object.keys(kira).forEach(function (k) { if (kira[k] > tertinggi) { tertinggi = kira[k]; lebar = parseInt(k, 10); } });
+    return { peta: peta, lebar: lebar };
+  }
+
+  function kumpulFonPdf(latin1, u8, peta) {
+    var fonKeNo = {}, reRes = /\/Font\s*<<([\s\S]{0,4000}?)>>/g, m;
+    while ((m = reRes.exec(latin1))) {
+      var re = /\/([A-Za-z0-9#+._-]+)\s+(\d+)\s+0\s+R/g, k;
+      while ((k = re.exec(m[1]))) fonKeNo['/' + k[1]] = parseInt(k[2], 10);
+    }
+    var fonKeCmap = {}, janji = [];
+    Object.keys(fonKeNo).forEach(function (nama) {
+      var o = peta[fonKeNo[nama]];
+      if (!o) return;
+      var mc = o.dict.match(/\/ToUnicode\s+(\d+)\s+0\s+R/);
+      if (!mc) return;
+      janji.push(ambilStreamPdf(u8, peta, parseInt(mc[1], 10)).then(function (cm) {
+        if (cm && /beginbfchar|beginbfrange/.test(cm)) fonKeCmap[nama] = huraiCmap(cm);
+      }));
+    });
+    return Promise.all(janji).then(function () {
+      // peta gabungan: fon tanpa ToUnicode (cth fon simbol) boleh cuba peta fon lain
+      var kira = {}, peta2 = {};
+      Object.keys(fonKeCmap).forEach(function (nama) {
+        var cm = fonKeCmap[nama];
+        Object.keys(cm.peta).forEach(function (kod) {
+          var v = cm.peta[kod];
+          kira[kod + '|' + v] = (kira[kod + '|' + v] || 0) + 1;
+        });
+      });
+      Object.keys(kira).forEach(function (kk) {
+        var pisah = kk.split('|');
+        peta2[pisah[0]] = pisah[1];
+      });
+      var lebar = 0;
+      Object.keys(fonKeCmap).forEach(function (nama) { lebar = lebar || fonKeCmap[nama].lebar; });
+      return { fon: fonKeCmap, gabungan: { peta: peta2, lebar: lebar } };
+    });
+  }
+
+  function nyahkodRentetanPdf(s) {
+    return String(s).replace(/\\([nrtbf()\\])/g, function (_, c) {
+      return { n: '\n', r: '\n', t: '\t', b: '\b', f: '\f', '(': '(', ')': ')', '\\': '\\' }[c] || c;
+    }).replace(/\\([0-7]{1,3})/g, function (_, o) { return String.fromCharCode(parseInt(o, 8)); });
+  }
+
+  function nyahkodKepingPdf(tk, namaFon, fonKeCmap, gabungan) {
+    if (!tk) return '';
+    var cmap = (namaFon && fonKeCmap[namaFon]) || gabungan || null;
+    if (tk.charAt(0) === '<') {
+      var h = tk.slice(1, -1).replace(/\s+/g, '').toUpperCase();
+      var keluar = '';
+      if (cmap && cmap.lebar === 2) {
+        for (var i = 0; i + 4 <= h.length; i += 4) {
+          var kode = h.substr(i, 4);
+          var dah = cmap.peta[kode];
+          if (dah === undefined) {
+            var angka = parseInt(kode, 16);
+            dah = (angka >= 32 && angka < 0x3000) ? String.fromCharCode(angka) : '';
+          }
+          keluar += dah;
+        }
+      } else if (cmap) {
+        for (var j = 0; j + 2 <= h.length; j += 2) keluar += (cmap.peta[h.substr(j, 2)] || '');
+      } else {
+        for (var k = 0; k + 4 <= h.length; k += 4) {
+          var c = parseInt(h.substr(k, 4), 16);
+          if (c >= 32 && c < 0x3000) keluar += String.fromCharCode(c);
+        }
+      }
+      return keluar;
+    }
+    if (tk.charAt(0) === '[') {
+      var dalam = tk.slice(1, -1), keluar2 = '';
+      var re = /\((?:\\.|[^\\()])*\)|<[0-9A-Fa-f\s]*>|-?\d+(?:\.\d+)?/g, m;
+      while ((m = re.exec(dalam))) {
+        var t2 = m[0];
+        if (t2.charAt(0) === '(' || t2.charAt(0) === '<') keluar2 += nyahkodKepingPdf(t2, namaFon, fonKeCmap, gabungan);
+        else if (Math.abs(parseFloat(t2)) >= 120) keluar2 += ' ';
+      }
+      return keluar2;
+    }
+    if (tk.charAt(0) === '(') return nyahkodRentetanPdf(tk.slice(1, -1));
+    return '';
+  }
+
+  function teksDariKandunganPdf(t, fonKeCmap, gabungan) {
+    var keluar = [], teks = '', fon = null, timbunan = [];
+    function buang() { if (teks) { keluar.push(teks); teks = ''; } }
+    var re = /\/[A-Za-z0-9#+._-]+|\[(?:\\.|[^\]])*\]|\((?:\\.|[^\\()])*\)|<[0-9A-Fa-f\s]*>|-?\d+(?:\.\d+)?|Tj|TJ|Tf|Td|TD|T\*|ET|BT|'|"/g, m;
+    while ((m = re.exec(t))) {
+      var tk = m[0], c = tk.charAt(0);
+      if (tk === 'Tf') {
+        for (var i = timbunan.length - 1; i >= 0; i--) {
+          if (timbunan[i].charAt(0) === '/') { fon = timbunan[i]; break; }
+        }
+        timbunan = [];
+      } else if (tk === 'Tj' || tk === "'" || tk === '"') {
+        teks += nyahkodKepingPdf(timbunan.length ? timbunan[timbunan.length - 1] : '', fon, fonKeCmap, gabungan);
+        timbunan = [];
+        if (tk !== 'Tj') buang();
+      } else if (tk === 'TJ') {
+        teks += nyahkodKepingPdf(timbunan.length ? timbunan[timbunan.length - 1] : '', fon, fonKeCmap, gabungan);
+        timbunan = [];
+      } else if (tk === 'Td' || tk === 'TD' || tk === 'T*' || tk === 'ET' || tk === 'BT') {
+        buang();
+        timbunan = [];
+      } else if (c === '/' || c === '(' || c === '<' || c === '[' || /^-?\d/.test(tk)) {
+        timbunan.push(tk);
+        if (timbunan.length > 8) timbunan.shift();
+      }
+    }
+    buang();
+    return keluar.join('\n');
+  }
+
+  function ambilTeksPdfAsas(buf) {
+    var u8 = new Uint8Array(buf);
+    var latin1 = new TextDecoder('latin1').decode(u8);
+    var peta = objekPdf(latin1);
+    return kumpulFonPdf(latin1, u8, peta).then(function (hasilFon) {
+      var fonKeCmap = hasilFon.fon, gabungan = hasilFon.gabungan;
+      var janji = [], nombor = Object.keys(peta).map(function (x) { return parseInt(x, 10); })
+        .sort(function (a, b) { return a - b; });
+      nombor.forEach(function (no) {
+        var o = peta[no];
+        if (!o.stream || !/\/Length/.test(o.dict)) return;
+        janji.push(ambilStreamPdf(u8, peta, no).then(function (t) {
+          if (!t || /beginbfchar|beginbfrange/.test(t)) return '';
+          if (!/(?:Tj|TJ)\b/.test(t)) return '';
+          return teksDariKandunganPdf(t, fonKeCmap, gabungan);
+        }));
+      });
+      return Promise.all(janji).then(function (senarai) {
+        return senarai.filter(function (x) { return !!x; }).join('\n');
+      });
+    });
+  }
+
+  function janjiHad(janji, ms) {
+    return new Promise(function (selesai, gagal) {
+      var tamat = false;
+      var jam = setTimeout(function () {
+        if (tamat) return;
+        tamat = true;
+        gagal(new Error('masa tamat membaca PDF'));
+      }, ms);
+      janji.then(function (v) {
+        if (tamat) return;
+        tamat = true; clearTimeout(jam); selesai(v);
+      }, function (e) {
+        if (tamat) return;
+        tamat = true; clearTimeout(jam); gagal(e);
+      });
+    });
+  }
+
+  function bacaPdf(fail) {
+    return fail.arrayBuffer().then(function (buf) {
+      // pdf.js memindahkan (transfer) buffer ke worker-nya, jadi simpan satu salinan untuk laluan sandaran
+      var salinan = buf.slice(0);
+      // cuba pembaca penuh (pdf.js) dahulu, tetapi JANGAN tergantung: had 8 saat
+      return janjiHad(Promise.resolve().then(muatPdfJs).then(function () {
+        return teksPdfPdfjs(buf);
+      }), 8000).then(function (t) {
+        if (String(t).replace(/\s/g, '').length < 40) throw new Error('teks terlalu sedikit');
+        return { teks: t, asas: false };
+      })['catch'](function () {
+        return ambilTeksPdfAsas(salinan).then(function (t) { return { teks: t, asas: true }; });
+      });
+    }).then(function (h) {
+      if (h.asas) tulisLog('Pembaca PDF penuh tidak dapat digunakan (luar talian atau terlalu lambat) — bacaan asas digunakan. Semak setiap medan sebelum hantar.', 'info');
+      if (String(h.teks || '').replace(/\s/g, '').length < 40) {
+        ralatFail('PDF ini nampaknya imej atau scan (tiada teks boleh dibaca). Kalau anda ada versi Word (.docx), guna fail itu — atau isi butiran secara manual.');
+        return;
+      }
+      siapHurai(h.teks, fail.name, h.asas ? 'PDF (bacaan asas)' : 'PDF');
+    });
+  }
+
+  function bacaDocx(fail) {
+    return fail.arrayBuffer().then(ambilTeksDocx).then(function (teks) {
+      if (String(teks || '').replace(/\s/g, '').length < 20) {
+        ralatFail('Dokumen Word itu kosong atau teksnya tidak dapat dibaca.');
+        return;
+      }
+      siapHurai(teks, fail.name, 'Word');
+    })['catch'](function (e) {
+      ralatFail('Fail Word itu tidak boleh dibaca (' + ((e && e.message) || 'ralat') + '). Cuba simpan semula sebagai PDF dari Word.');
+    });
+  }
+
+  function siapHurai(teks, namaFail, jenis) {
+    var d = huraiTeks(teks);
+    var jumpa = [];
+    if (d.nama) jumpa.push('Nama: ' + d.nama);
+    if (d.telefon) jumpa.push('Telefon: ' + d.telefon);
+    if (d.emel) jumpa.push('E-mel: ' + d.emel);
+    if (d.jawatan) jumpa.push('Jawatan: ' + d.jawatan);
+    if (d.lokasi) jumpa.push('Lokasi: ' + d.lokasi);
+    if (d.pengalaman.length) jumpa.push(d.pengalaman.length + ' pengalaman kerja');
+    if (d.pendidikan.length) jumpa.push(d.pendidikan.length + ' pendidikan');
+    if (d.kemahiran) jumpa.push('Kemahiran');
+    if (d.bahasa) jumpa.push('Bahasa');
+    if (!d.nama && !d.telefon && !d.emel && !d.pengalaman.length) {
+      ralatFail('Butiran asas tidak dapat dijumpai dalam fail itu (' + jenis + '). '
+        + 'Kalau ia PDF imej/scan atau guna fon tersuai, cuba versi Word (.docx), atau isi butiran secara manual. '
+        + 'Boleh juga hantar fail itu kepada kami di WhatsApp untuk dibantu.');
+      return;
+    }
+    HASIL_FAIL = d;
+    el('hasil-fail').hidden = false;
+    el('senarai-jumpa').textContent = jumpa.join('  \u00b7  ');
+    statusFail('Fail dibaca: ' + namaFail + ' (' + jenis + '). Semak butiran di atas sebelum guna.', '');
+    tulisLog('Fail dibaca: ' + namaFail + ' — ' + jumpa.length + ' kumpulan butiran dijumpai. Tekan "Guna butiran ini" untuk auto-isi borang.', 'info');
+  }
+
+  function bacaFail(fail) {
+    if (!fail) return;
+    var e = ext(fail.name);
+    if (e === 'doc') {
+      ralatFail('Fail .doc (Word lama) tidak boleh dibaca terus. Buka dalam Word \u2192 Save As \u2192 pilih PDF atau Word (.docx), kemudian pilih fail itu.');
+      return;
+    }
+    if (['pdf', 'docx', 'txt', 'md'].indexOf(e) < 0) {
+      ralatFail('Format .' + (e || '?') + ' tidak disokong. Guna PDF, Word (.docx) atau teks (.txt).');
+      return;
+    }
+    el('hasil-fail').hidden = true;
+    HASIL_FAIL = null;
+    statusFail('Sedang membaca ' + fail.name + ' \u2026', 'sibuk');
+    if (e === 'pdf') {
+      bacaPdf(fail)['catch'](function (err) {
+        ralatFail('PDF itu tidak boleh dibaca (' + ((err && err.message) || 'ralat') + '). Cuba simpan semula sebagai PDF dari komputer, atau guna fail Word (.docx).');
+      });
+      return;
+    }
+    if (e === 'docx') {
+      bacaDocx(fail)['catch'](function (err) {
+        ralatFail('Fail Word itu tidak boleh dibaca (' + ((err && err.message) || 'ralat') + ').');
+      });
+      return;
+    }
+    var baca = fail.text ? fail.text() : Promise.reject(new Error('fail tidak boleh dibaca'));
+    baca.then(function (t) {
+      if (String(t || '').replace(/\s/g, '').length < 20) { ralatFail('Fail itu kosong.'); return; }
+      siapHurai(t, fail.name, 'teks');
+    })['catch'](function () { ralatFail('Fail itu tidak boleh dibaca.'); });
   }
 
   function gunaTerakhir() {
     var d = simpananTerakhir();
-    if (!d) { ralatKod('Tiada resume disimpan dalam peranti ini.'); return; }
+    if (!d) { ralatFail('Tiada resume disimpan dalam peranti ini.'); return; }
     isiBorang(d);
     kemasSemula();
     tulisLog('Resume terakhir di peranti ini dimuatkan (' + d.nama + ').', 'info');
+    pergiHal(2);
+  }
+
+  function gunaHasil() {
+    if (!HASIL_FAIL) { ralatFail('Tiada butiran untuk digunakan. Pilih fail resume lama dahulu.'); return; }
+    var d = HASIL_FAIL;
+    isiBorang(d);
+    kemasSemula();
+    tulisLog('Butiran dari fail lama dimuatkan. Semak setiap medan — auto-isi mungkin perlu dibetulkan — kemudian tekan Seterusnya: Pratonton.', 'info');
     pergiHal(2);
   }
 
@@ -1466,15 +2173,30 @@
 
   el('mula-baru').addEventListener('click', function () { pilihMula('baru'); });
   el('mula-update').addEventListener('click', function () { pilihMula('update'); });
-  el('muat-kod').addEventListener('click', function () { gunaKodLama(el('kod-lama').value); });
-  el('kod-lama').addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') { e.preventDefault(); gunaKodLama(el('kod-lama').value); }
+  el('pilih-fail').addEventListener('click', function () { el('fail-lama').click(); });
+  el('fail-lama').addEventListener('change', function () {
+    var f = el('fail-lama').files && el('fail-lama').files[0];
+    bacaFail(f);
+  });
+  el('guna-hasil').addEventListener('click', gunaHasil);
+  el('batal-fail').addEventListener('click', function () {
+    el('fail-lama').value = '';
+    el('hasil-fail').hidden = true;
+    HASIL_FAIL = null;
+    statusFail('Fail anda dibaca dalam pelayar ini sahaja \u2014 tidak dimuat naik ke mana-mana pelayan.', '');
+  });
+  ['dragenter', 'dragover'].forEach(function (ev) {
+    el('jatuh').addEventListener(ev, function (e) { e.preventDefault(); el('jatuh').classList.add('seret'); });
+  });
+  ['dragleave', 'drop'].forEach(function (ev) {
+    el('jatuh').addEventListener(ev, function (e) { e.preventDefault(); el('jatuh').classList.remove('seret'); });
+  });
+  el('jatuh').addEventListener('drop', function (e) {
+    var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if (f) bacaFail(f);
   });
   el('guna-terakhir').addEventListener('click', gunaTerakhir);
-  el('mula-isi').addEventListener('click', function () {
-    if (MOD_MULA === 'update' && el('kod-lama').value.trim()) { gunaKodLama(el('kod-lama').value); return; }
-    pergiHal(2);
-  });
+  el('mula-isi').addEventListener('click', function () { pergiHal(2); });
   el('balik-2').addEventListener('click', function () { pergiHal(1); });
   el('balik-3').addEventListener('click', function () { pergiHal(2); });
   el('balik-4').addEventListener('click', function () { pergiHal(3); });
@@ -1498,6 +2220,11 @@
   if (!document.querySelectorAll('#senarai-pendidikan .baris').length) {
     el('senarai-pendidikan').appendChild(barisPendidikan());
   }
+  window.ResumeMV = {
+    hurai: huraiTeks, kod: kodDari, dariKod: borangDariKod, baca: bacaFail,
+    teksPdf: ambilTeksPdfAsas, teksDocx: ambilTeksDocx, teksWord: xmlKeTeks,
+    objekPdf: objekPdf, streamPdf: ambilStreamPdf, kandPdf: teksDariKandunganPdf, fonPdf: kumpulFonPdf
+  };
   kemasSemula();
   pilihMula(simpananTerakhir() ? 'update' : 'baru', true);   // ada resume lama? tawarkan kemas kini
   semakMula();

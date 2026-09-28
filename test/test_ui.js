@@ -430,108 +430,173 @@ ok(/@media screen and \(max-width: 760px\), screen and \(max-height: 620px\) \{/
 ok(/#hal-3 \.papan \{[\s\S]{0,160}overflow: auto;/.test(html),
    'kawasan pratonton boleh skrol sendiri kalau skrin terlalu rendah');
 
-console.log('== 20. Halaman 1: resume baru vs kemas kini resume lama ==');
+console.log('== 20. Halaman 1: resume baru vs kemas kini resume lama (muat naik fail) ==');
 el('balik-3').click(); el('balik-2').click();          // ujian 18 tinggalkan kita di halaman pratonton
 ok(el('hal-1').hidden === false && el('hal-2').hidden === true, 'kembali ke halaman pilih reka bentuk');
-ok(!!el('mula-baru') && !!el('mula-update') && !!el('kotak-update'), 'kawalan pilih-mula wujud (dua pil + kotak kod)');
-ok(!!el('nota-mula') && el('nota-mula').textContent.length > 20, 'nota panduan dipaparkan di bawah pil');
+ok(!!el('mula-baru') && !!el('mula-update') && !!el('kotak-update'), 'kawalan pilih-mula wujud (dua pil + kotak muat naik)');
+ok(!el('kod-lama') && !el('muat-kod'), 'kotak tampal kod dibuang sepenuhnya');
+ok(!!el('pilih-fail') && !!el('fail-lama') && !!el('jatuh') && !!el('guna-hasil') && !!el('batal-fail'),
+   'kawalan muat naik wujud (butang, input fail, zon seret, guna/batal)');
+ok(el('fail-lama').getAttribute('accept').indexOf('.pdf') >= 0 && el('fail-lama').getAttribute('accept').indexOf('.docx') >= 0,
+   'input fail terima PDF dan Word (.docx)');
 ok(el('mula-baru').classList.contains('dipilih') && el('kotak-update').hidden === true,
-   'peranti kosong: mod "resume baru" jadi lalai, kotak kod tertutup');
+   'peranti kosong: mod "resume baru" jadi lalai, kotak muat naik tertutup');
 ok(el('mula-isi').textContent.includes('Mula Isi Butiran'), 'CTA tunggal dikekalkan di bawah pilihan');
 
 el('mula-update').click();
-ok(el('mula-update').classList.contains('dipilih') && !el('mula-baru').classList.contains('dipilih'),
-   'tekan pil "kemas kini" memindahkan penanda pilihan');
-ok(el('kotak-update').hidden === false, 'tekan pil "kemas kini" membuka kotak kod');
-ok(el('mula-update').getAttribute('aria-pressed') === 'true' && el('mula-baru').getAttribute('aria-pressed') === 'false',
-   'aria-pressed dikemas kini untuk pembaca skrin');
+ok(el('mula-update').classList.contains('dipilih') && el('kotak-update').hidden === false,
+   'tekan pil "kemas kini" membuka kotak muat naik');
+ok(el('mula-update').getAttribute('aria-pressed') === 'true', 'aria-pressed dikemas kini untuk pembaca skrin');
+ok(el('nota-fail').textContent.includes('pelayar ini sahaja'), 'nota privasi dipaparkan (fail tidak dimuat naik)');
 el('mula-baru').click();
-ok(el('mula-baru').classList.contains('dipilih') && el('kotak-update').hidden === true,
-   'tekan pil "resume baru" menutup kotak kod semula');
+ok(el('mula-baru').classList.contains('dipilih') && el('kotak-update').hidden === true, 'pil "resume baru" menutup kotak muat naik');
 el('mula-update').click();
 
-// kod tidak sah
-el('kod-lama').value = 'ini-bukan-kod';
-el('muat-kod').click();
-ok(el('nota-kod').textContent.includes('tidak sah'), 'mesej ralat untuk kod tidak sah');
-ok(el('nota-kod').classList.contains('pil-ralat'), 'mesej ralat ditanda warna amaran');
-ok(el('hal-1').hidden === false, 'kekal di halaman 1 bila kod tidak sah');
-ok(el('kod-lama').value === 'ini-bukan-kod', 'kod yang salah tidak dipadam (senang dibetulkan)');
+// --- penghurai resume (fungsi tulen) ---
+var teksResume = [
+  'NURUL AIN BINTI HASAN',
+  'Juruteknik Awam',
+  '012-3456789 | nurul.ain@gmail.com | Kemaman, Terengganu',
+  '',
+  'PROFIL',
+  'Juruteknik awam dengan 4 tahun pengalaman dalam projek perumahan mampu milik.',
+  '',
+  'KEMAHIRAN',
+  'AutoCAD, MS Excel, penyediaan BQ, seliaan tapak',
+  '',
+  'PENGALAMAN KERJA',
+  'Juruteknik Tapak',
+  'EPH Construction Sdn Bhd, Kemaman',
+  'Mac 2024 - Kini',
+  'Menyedia BQ untuk 3 projek perumahan',
+  'Menyemak tuntutan kontraktor setiap bulan',
+  '',
+  'Pembantu Ukur',
+  'Syarikat Maju Jaya',
+  '2021 - 2024',
+  'Membantu pengukuran tapak dan rekod kemajuan kerja',
+  '',
+  'PENDIDIKAN',
+  'Diploma Kejuruteraan Awam',
+  'Politeknik Kuantan',
+  '2018 - 2021',
+  '',
+  'BAHASA',
+  'Bahasa Melayu, Bahasa Inggeris',
+  '',
+  'RUJUKAN',
+  'Encik Rahman - 019-1112222'
+].join('\n');
+var h = w.ResumeMV.hurai(teksResume);
+ok(h.nama === 'NURUL AIN BINTI HASAN', 'penghurai: nama dijumpai (' + h.nama + ')');
+ok(h.telefon === '012-3456789', 'penghurai: telefon dijumpai (' + h.telefon + ')');
+ok(h.emel === 'nurul.ain@gmail.com', 'penghurai: e-mel dijumpai');
+ok(h.jawatan === 'Juruteknik Awam', 'penghurai: jawatan dijumpai (' + h.jawatan + ')');
+ok(h.lokasi.indexOf('Kemaman') >= 0, 'penghurai: lokasi dijumpai (' + h.lokasi + ')');
+ok(h.ringkasan.indexOf('4 tahun pengalaman') >= 0, 'penghurai: ringkasan/profil dijumpai');
+ok(h.kemahiran.indexOf('AutoCAD') >= 0 && h.kemahiran.indexOf('BQ') >= 0, 'penghurai: kemahiran dijumpai');
+ok(h.pengalaman.length === 2, 'penghurai: dua pengalaman kerja dijumpai');
+ok(h.pengalaman[0].jawatan === 'Juruteknik Tapak' && h.pengalaman[0].syarikat.indexOf('EPH Construction Sdn Bhd') === 0,
+   'penghurai: jawatan + syarikat pengalaman pertama');
+ok(h.pengalaman[0].tempoh === 'Mac 2024 - Kini', 'penghurai: tempoh pengalaman pertama (' + h.pengalaman[0].tempoh + ')');
+ok(h.pengalaman[0].poin.length === 2 && h.pengalaman[0].poin[0].indexOf('BQ') >= 0, 'penghurai: poin pengalaman dikumpul');
+ok(h.pengalaman[1].syarikat === 'Syarikat Maju Jaya', 'penghurai: pengalaman kedua dijumpai');
+ok(h.pendidikan.length === 1 && h.pendidikan[0].kelulusan.indexOf('Diploma') >= 0, 'penghurai: pendidikan dijumpai');
+ok(h.pendidikan[0].institusi === 'Politeknik Kuantan' && h.pendidikan[0].tahun === '2018 - 2021', 'penghurai: institusi + tahun pendidikan');
+ok(h.bahasa.indexOf('Bahasa Melayu') >= 0, 'penghurai: bahasa dijumpai');
+ok(h.rujukan.indexOf('Encik Rahman') >= 0, 'penghurai: rujukan dijumpai');
 
-// kod lama yang sah (bina sama seperti app: base64url bagi objek ringkas)
-const ringkas = { s: 'biru', n: 'Siti Nurhaliza', t: '013-9998877', e: 'siti@mail.com', l: 'Kuantan',
-                  j: 'Pembantu Tadbir', g: 'Berpengalaman 3 tahun.', k: 'Excel, Fail', b: 'Melayu, Inggeris',
-                  u: 'Encik Rahman - 019-1112222',
-                  p: [{ jawatan: 'Kerani', syarikat: 'Syarikat Maju', tempoh: '2022 - 2024', poin: ['Rekod & fail', 'Kemas kini data'] }],
-                  d: [{ kelulusan: 'Diploma Pengurusan', institusi: 'Politeknik Kuantan', tahun: '2019 - 2021' }] };
-const kodLama = Buffer.from(JSON.stringify(ringkas), 'utf8').toString('base64')
-  .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-el('nama').value = 'Nama Lama Sebelum Ini';
-el('kod-lama').value = kodLama;
-el('muat-kod').click();
-ok(el('nama').value === 'Siti Nurhaliza', 'nama lama dimuatkan dari kod (menimpa data semasa)');
-ok(el('telefon').value === '013-9998877' && el('emel').value === 'siti@mail.com', 'kontak dimuatkan dari kod');
-ok(el('lokasi').value === 'Kuantan' && el('jawatan').value === 'Pembantu Tadbir', 'lokasi & jawatan dimuatkan');
-ok(el('ringkasan').value === 'Berpengalaman 3 tahun.' && el('kemahiran').value === 'Excel, Fail', 'ringkasan & kemahiran dimuatkan');
-ok(el('bahasa').value === 'Melayu, Inggeris' && el('rujukan').value === 'Encik Rahman - 019-1112222', 'bahasa & rujukan dimuatkan');
-ok(d.querySelectorAll('#senarai-pengalaman .baris').length === 1, 'baris pengalaman dibina semula (1)');
-ok(d.querySelector('#senarai-pengalaman .baris .p-syarikat').value === 'Syarikat Maju', 'nilai pengalaman masuk ke baris');
-ok(d.querySelector('#senarai-pengalaman .baris .p-tempoh').value === '2022 - 2024', 'tempoh pengalaman masuk ke baris');
-ok(d.querySelector('#senarai-pengalaman .baris .p-poin').value === 'Rekod & fail\nKemas kini data', 'poin pengalaman masuk sebagai baris baru');
-ok(d.querySelectorAll('#senarai-pendidikan .baris').length === 1, 'baris pendidikan dibina semula (1)');
-ok(d.querySelector('#senarai-pendidikan .baris .d-institusi').value === 'Politeknik Kuantan', 'nilai pendidikan masuk ke baris');
-ok(el('hal-2').hidden === false, 'terus ke halaman butiran selepas kod lama dimuatkan');
-ok(el('log').textContent.includes('Resume lama dimuatkan (Siti Nurhaliza)'), 'log memberitahu resume lama dimuatkan');
-ok(el('log').textContent.includes('Seterusnya: Pratonton'), 'log memberitahu langkah seterusnya');
-ok(resume().includes('Siti Nurhaliza') && resume().includes('Politeknik Kuantan'), 'pratonton dikemas kini dengan data lama');
-el('balik-2').click();
+// teks ringkas: hanya nama + telefon + emel (tiada seksyen)
+var h2 = w.ResumeMV.hurai('Ahmad bin Ali\n012-9876543 | ahmad@mail.com');
+ok(h2.nama === 'Ahmad bin Ali' && h2.telefon === '012-9876543', 'penghurai: resume ringkas pun boleh dibaca');
+ok(h2.pengalaman.length === 0 && h2.pendidikan.length === 0, 'penghurai: tiada pengalaman rekaan bila tiada seksyen');
 
-// kod kosong: CTA tetap bawa ke halaman butiran, tanpa ralat
-el('mula-update').click();
-el('kod-lama').value = '   ';
-el('mula-isi').click();
-ok(el('hal-2').hidden === false, 'tanpa kod, "Mula Isi Butiran" terus ke halaman butiran (tiada ralat)');
-el('balik-2').click();
+// teks PDF yang dipecah kepada kepingan ("012" / "-" / "3456789") mesti dicantum semula
+var h3 = w.ResumeMV.hurai('NURUL AIN BINTI HASAN\n012\n-\n3456789\nMac 2024\n-\nKini\nnurul@mail.com');
+ok(h3.telefon.replace(/[^0-9]/g, '') === '0123456789', 'penghurai: telefon yang dipecah baris dicantum semula (' + h3.telefon + ')');
+var h4 = w.ResumeMV.hurai('ALI BIN ABU\nPENGALAMAN\nJuruteknik\n2021\n-\n2024\nKerja tapak');
+ok(h4.pengalaman.length === 1 && h4.pengalaman[0].tempoh === '2021 - 2024', 'penghurai: tempoh yang dipecah dicantum (' + (h4.pengalaman[0] || {}).tempoh + ')');
+// pembaca PDF terbina dalam didedahkan (dipakai bila pdf.js tiada/lambat)
+ok(typeof w.ResumeMV.teksPdf === 'function' && typeof w.ResumeMV.teksDocx === 'function',
+   'pembaca PDF/DOCX terbina dalam tersedia sebagai sandaran');
+ok(/janjiHad\(Promise\.resolve\(\)\.then\(muatPdfJs\)/.test(html), 'pdf.js dibalut dengan had masa (tidak boleh menggantung UI)');
+ok(/buf\.slice\(0\)/.test(html), 'salinan buffer dibuat sebelum pdf.js memindahkannya ke worker');
+ok(/janjiHad\(bukaFlatePdf\(data\), 2500\)/.test(html), 'setiap strim PDF ada had masa 2.5 saat');
 
-// medan kod: tekan Enter = muat kod
-el('mula-update').click();
-el('kod-lama').value = kodLama;
-el('kod-lama').dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
-ok(el('hal-2').hidden === false, 'tekan Enter dalam medan kod memuatkan resume lama');
-ok(el('kod-lama').value === kodLama, 'kod kekal dalam medan untuk rujukan');
-el('balik-2').click();
+// --- muat naik fail teks melalui UI ---
+function muatFail(nama, isi) {
+  var fail = new w.File([isi], nama, { type: 'text/plain' });
+  Object.defineProperty(el('fail-lama'), 'files', { value: [fail], configurable: true, writable: true });
+  el('fail-lama').dispatchEvent(new w.Event('change', { bubbles: true }));
+  return new Promise(function (siap) { setTimeout(siap, 30); });
+}
+var janjiUjian = muatFail('resume-lama.txt', teksResume).then(function () {
+  ok(el('hasil-fail').hidden === false, 'kotak hasil muncul selepas fail dibaca');
+  ok(el('senarai-jumpa').textContent.indexOf('NURUL AIN BINTI HASAN') >= 0, 'senarai jumpa menunjukkan nama');
+  ok(el('senarai-jumpa').textContent.indexOf('2 pengalaman kerja') >= 0, 'senarai jumpa menunjukkan bilangan pengalaman');
+  ok(el('nota-fail').textContent.indexOf('Fail dibaca') >= 0, 'status menunjukkan fail sudah dibaca');
+  el('guna-hasil').click();
+  ok(el('nama').value === 'NURUL AIN BINTI HASAN', 'borang diisi dengan nama dari fail');
+  ok(el('telefon').value === '012-3456789', 'borang diisi dengan telefon dari fail');
+  ok(d.querySelectorAll('#senarai-pengalaman .baris').length === 2, 'dua baris pengalaman dibina');
+  ok(d.querySelector('#senarai-pengalaman .baris .p-syarikat').value.indexOf('EPH Construction Sdn Bhd') === 0, 'syarikat masuk ke baris pengalaman');
+  ok(d.querySelectorAll('#senarai-pendidikan .baris').length === 1, 'satu baris pendidikan dibina');
+  ok(el('hal-2').hidden === false, 'terus ke halaman butiran selepas guna butiran fail');
+  ok(el('log').textContent.indexOf('Semak setiap medan') >= 0, 'log mengingatkan supaya semak medan');
+  ok(resume().indexOf('NURUL AIN BINTI HASAN') >= 0 && resume().indexOf('AutoCAD') >= 0, 'pratonton dikemas kini dari fail');
+  el('balik-2').click();
 
-// pelanggan ulangan: buka app dengan resume sudah tersimpan dalam peranti
-const domUlang = new JSDOM(html, {
-  runScripts: 'dangerously',
-  url: 'https://alexander751.github.io/Resume-builder-mv/',
-  beforeParse(ww) {
-    ww.print = () => {};
-    ww.confirm = () => true;
-    const simpan = { nama: 'Ahmad bin Ali', telefon: '012-3456789', emel: 'ahmad@mail.com', lokasi: 'Kemaman',
-                     jawatan: 'Juruteknik', ringkasan: 'Lama.', kemahiran: 'AutoCAD', bahasa: 'Melayu',
-                     rujukan: 'En. Samad', pengalaman: [], pendidikan: [] };
-    Object.defineProperty(ww, 'localStorage', {
-      configurable: true,
-      value: {
-        getItem: (k) => (k === 'resume-mv-v1' ? JSON.stringify(simpan) : null),
-        setItem: () => {}, removeItem: () => {}
-      }
-    });
-  }
+  // format tidak disokong
+  return muatFail('resume-lama.doc', 'x');
+}).then(function () {
+  ok(el('nota-fail').textContent.indexOf('.doc (Word lama)') >= 0, 'fail .doc lama ditolak dengan penerangan');
+  ok(el('hasil-fail').hidden === true, 'kotak hasil tidak muncul untuk format yang ditolak');
+  return muatFail('gambar.png', 'x');
+}).then(function () {
+  ok(el('nota-fail').textContent.indexOf('tidak disokong') >= 0, 'format .png ditolak dengan mesej jelas');
+  // fail kosong
+  return muatFail('kosong.txt', '   ');
+}).then(function () {
+  ok(el('nota-fail').textContent.indexOf('kosong') >= 0, 'fail kosong diberitahu kepada pengguna');
+  // butang "pilih fail lain" menetapkan semula
+  return muatFail('resume-lama.txt', teksResume);
+}).then(function () {
+  el('batal-fail').click();
+  ok(el('hasil-fail').hidden === true, 'tekan "Pilih fail lain" menutup kotak hasil');
+  ok(el('nota-fail').textContent.indexOf('pelayar ini sahaja') >= 0, 'nota privasi kembali selepas batal');
+  el('mula-update').click();
+  el('guna-hasil').click();
+  ok(el('nota-fail').textContent.indexOf('Tiada butiran') >= 0, 'tekan "Guna butiran ini" tanpa fail memberi mesej jelas');
+
+  // pelanggan ulangan: app dibuka dengan resume tersimpan dalam peranti
+  const domUlang = new JSDOM(html, {
+    runScripts: 'dangerously',
+    url: 'https://alexander751.github.io/Resume-builder-mv/',
+    beforeParse(ww) {
+      ww.print = () => {};
+      ww.confirm = () => true;
+      const simpan = { nama: 'Ahmad bin Ali', telefon: '012-3456789', emel: 'ahmad@mail.com', lokasi: 'Kemaman',
+                       jawatan: 'Juruteknik', ringkasan: 'Lama.', kemahiran: 'AutoCAD', bahasa: 'Melayu',
+                       rujukan: 'En. Samad', pengalaman: [], pendidikan: [] };
+      Object.defineProperty(ww, 'localStorage', {
+        configurable: true,
+        value: { getItem: (k) => (k === 'resume-mv-v1' ? JSON.stringify(simpan) : null), setItem: () => {}, removeItem: () => {} }
+      });
+    }
+  });
+  const wU = domUlang.window, dU = wU.document, elU = (i) => dU.getElementById(i);
+  ok(elU('mula-update').classList.contains('dipilih'), 'pelanggan ulangan: pil "kemas kini" dipilih automatik');
+  ok(elU('kotak-update').hidden === false, 'pelanggan ulangan: kotak muat naik terus terbuka');
+  ok(elU('nota-mula').textContent.includes('Ahmad bin Ali'), 'nota sebut nama resume tersimpan');
+  ok(elU('guna-terakhir').hidden === false && elU('guna-terakhir').textContent.includes('Ahmad bin Ali'),
+     'butang "guna resume terakhir" kelihatan bersama nama');
+  ok(elU('nama').value === 'Ahmad bin Ali', 'borang sudah berisi detail lama (autosimpan peranti)');
+  elU('guna-terakhir').click();
+  ok(elU('hal-2').hidden === false, 'tekan "guna resume terakhir" terus ke halaman butiran');
+  ok(elU('log').textContent.includes('dimuatkan'), 'log memberitahu resume terakhir dimuatkan');
 });
-const wU = domUlang.window, dU = wU.document, elU = (i) => dU.getElementById(i);
-ok(elU('mula-update').classList.contains('dipilih'), 'pelanggan ulangan: pil "kemas kini" dipilih automatik');
-ok(elU('kotak-update').hidden === false, 'pelanggan ulangan: kotak kod terus terbuka');
-ok(elU('nota-mula').textContent.includes('Ahmad bin Ali'), 'nota sebut nama resume tersimpan');
-ok(elU('guna-terakhir').hidden === false && elU('guna-terakhir').textContent.includes('Ahmad bin Ali'),
-   'butang "guna resume terakhir" kelihatan bersama nama');
-ok(elU('nama').value === 'Ahmad bin Ali', 'borang sudah berisi detail lama (autosimpan peranti)');
-elU('guna-terakhir').click();
-ok(elU('hal-2').hidden === false, 'tekan "guna resume terakhir" terus ke halaman butiran');
-ok(elU('log').textContent.includes('dimuatkan'), 'log memberitahu resume terakhir dimuatkan');
-ok(elU('hal-1').hidden === true, 'halaman pilih reka bentuk ditutup selepas itu');
 
+console.log('== 21. Ujian berasaskan fail (dijalankan selepas semua ujian segerak) ==');
 console.log('== 11. Semakan statik pada HTML ==');
 ok(html.includes('@page { size: A4'), 'ada tetapan cetak A4 (@page size A4)');
 ok(/@media print/.test(html), 'ada @media print');
@@ -601,6 +666,11 @@ console.log('== 13. Muat naik foto (Image + kanvas dipalsukan) ==');
   ok(d7.querySelector('#resume .cvb-foto') === null, 'butang Buang foto mengeluarkan foto dari pratonton');
   ok(d7.querySelector('#resume .cv-biru').className.includes('tanpa-foto'), 'kelas tanpa-foto kembali selepas buang');
 
-  console.log('\n' + pass + ' lulus, ' + fail + ' gagal, ' + skip + ' dilangkau');
-  process.exit(fail ? 1 : 0);
+  janjiUjian.then(function () {
+    console.log('\n' + pass + ' lulus, ' + fail + ' gagal, ' + skip + ' dilangkau');
+    process.exit(fail ? 1 : 0);
+  }).catch(function (e) {
+    console.log('RALAT UJIAN: ' + (e && e.stack || e));
+    process.exit(1);
+  });
 })();
