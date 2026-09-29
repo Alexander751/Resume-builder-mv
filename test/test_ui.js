@@ -1438,18 +1438,42 @@ ok(/\.lembar \.cvb-kiri, \.lembar \.cvb-kanan \{ position: relative; z-index: 1;
    'lajur kekal z-index 1 (di atas rel kelabu, di bawah hiasan berulang)');
 
 console.log('== 40. Templat Korporat Moden (rel kelabu) ==');
+/* Tajuk bahagian templat ketiga mesti sama ejaan dengan fail rujukan (BI), bukan terjemahan BM. */
+var TAJUK_KORP_BI = /TAJUK_KORP = \{[\s\S]{0,260}?kontak: 'Contact'[\s\S]{0,140}?pendidikan: 'Education'[\s\S]{0,160}?kemahiran: 'Key Skills'[\s\S]{0,140}?bahasa: 'Language'[\s\S]{0,160}?profil: 'Summary'[\s\S]{0,160}?pengalaman: 'Work Experience'/;
 ok(/korporat: \{[\s\S]{0,320}?kelas: 'cv-korporat'/.test(html), 'templat ketiga didaftar dengan kelasnya sendiri');
 ok(/\.lembar \.cv-korporat \{[\s\S]{0,420}?--renggang: 1; --teks: 1;/.test(html),
    'REGRESI: --teks/--renggang mesti ditakrif pada templat ini, jika tidak setiap calc(... * var(--teks)) jatuh ke saiz warisan');
 ok(/flex: 0 0 71\.3mm; width: 71\.3mm; background: #dae3e3;/.test(html), 'rel kiri 71.3mm warna #dae3e3 (ukur dari piksel rujukan)');
-ok(/margin: 0 0 0 -4\.2mm; padding-top: 3\.1mm; min-height: 36mm;/.test(html),
-   'kepala kolum kanan: nama pada 21.1mm dan tajuk pertama pada 58.8mm (diukur dari PDF rujukan)');
+ok(/margin: 0 0 0 -4\.2mm; padding-top: 3\.1mm; min-height: 36\.9mm;/.test(html),
+    'kepala kolum kanan 36.9mm: nama 21.1mm dan tajuk pertama 58.8mm (kedua-duanya dari lapisan teks rujukan)');
 ok(/font-size: calc\(34pt \* var\(--teks\)\)/.test(html) && /calc\(16pt \* var\(--teks\)\)/.test(html), 'nama 34pt dan jawatan 16pt');
 ok(/\.ck-kanan h2::after \{[\s\S]{0,160}?bottom: 0;[\s\S]{0,60}?height: \.53mm;/.test(html), 'garis .53mm di BAWAH teks tajuk kolum kanan');
 ok(/border-radius: 50%; \}/.test(html) || /border-radius: 50%;/.test(html), 'ikon tajuk dan foto bulat');
 ok(/color: #91a6a6/.test(html), 'nama kelabu-hijau #91a6a6 (warna sebenar dari lapisan teks PDF, bukan #90a6a6)');
 ok(/width: 1\.35mm; height: 1\.35mm; border-radius: 50%/.test(html), 'bulet kolum kiri bulat 1.35mm');
-ok(/\.blok\[data-blok="pengalaman"\] \{ color: #313131; \}/.test(html), 'blok pengalaman #313131 seperti rujukan');
+ok(/data-blok="pengalaman"\] \{[\s\S]{0,120}?color: #313131;[\s\S]{0,160}?font-family: "Arial Nova"/.test(html),
+    'blok pengalaman: dakwat #313131 DAN keluarga Arial Nova (rujukan mencampur Poppins + Arial Nova; dengan Poppins sahaja, kandungan rujukan melimpah ke halaman 2)');
+  ok(/data-blok="pengalaman"\] .ck-item-kepala strong \{ font-weight: 700; \}/.test(html),
+    'tajuk kerja ArialNova-Bold 11pt (font-weight 700, bukan 600)');
+  ok(/data-blok="pengalaman"\] .ck-item-kepala span \{ font-weight: 400; \}/.test(html),
+    'tarikh ArialNova 10pt reguler (rujukan menulis tarikh dengan ArialNova, bukan Poppins-Light)');
+  ok(/data-blok="pengalaman"\] .ck-senarai-item li \{ font-weight: 400; line-height: 4\.5mm; \}/.test(html),
+    'bulet pengalaman ArialNova 9.5pt dengan irama baris 4.5mm seperti rujukan');
+  ok(/left: 1\.85mm; top: 1\.7mm;[\s\S]{0,60}?width: 1\.06mm; height: 1\.06mm/.test(html),
+    'bulet pengalaman bulat 1.06mm pada x=85.55mm (nilai vektor rujukan, bukan 1.32mm)');
+  ok(/height: 1\.35mm; border-radius: 50%; background: #414042;/.test(html),
+    'bulet rel kiri #414042 (nilai lapisan teks/vektor rujukan, bukan #404041)');
+  ok(/background: #403f41; color: #fff; box-sizing: border-box; border-radius: 50%;/.test(html),
+    'ikon tajuk #403f41 dan ikon kontak #403f41 seperti rujukan');
+  ok(/left: 11\.9mm; right: 0; bottom: 0;[\s\S]{0,60}?height: \.53mm; background: #403f41;/.test(html),
+    'garis bawah tajuk lajur kanan bermula x=91.4mm, .53mm, #403f41');
+  ok(TAJUK_KORP_BI.test(html), 'tajuk bahagian templat ketiga diambil verbatim daripada rujukan (CONTACT/SUMMARY/EDUCATION/KEY SKILLS/WORK EXPERIENCE/LANGUAGE)');
+  ok(/\.cv-korporat\.tanpa-foto \.ck-kiri \{ padding-top: 58\.8mm; \}/.test(html),
+    'tanpa foto, rel kiri tetap mula 58.8mm supaya tajuk pertama sejajar dengan lajur kanan');
+  ok(/ck-pendidikan strong \{[\s\S]{0,120}?font-weight: 700; line-height: 4\.4mm/.test(html),
+    'pendidikan: institusi Poppins-Bold 8pt, baris 4.4mm (irama rujukan 5.1/4.4/7.8mm)');
+  ok(/body\[data-templat="korporat"\] \.cb-kaki \{ display: none; \}/.test(html),
+    'kaki halaman dimatikan untuk templat ketiga (rujukan tiada kaki)');
 ok(/\.ck-item-kepala strong \{ font-size: calc\(11pt \* var\(--teks\)\); font-weight: 600; color: #333132; \}/.test(html),
    'tajuk kerja 11pt #333132: rujukan memakai DUA dakwat berbeza (#333132 tajuk, #313131 tarikh/bulet)');
 ok(/color: #414042/.test(html), 'dakwat teks #414042 (nilai lapisan teks PDF, bukan #403f41)');
@@ -1476,7 +1500,7 @@ var k0 = korp[0];
 ok(k0.querySelector('.ck-kiri') && k0.querySelector('.ck-kanan'), 'dua kolum (rel kiri + lajur kanan) wujud');
 var namaKorp = [].map.call(d.querySelectorAll('.ck-nama'), function (x) { return (x.textContent || '').toUpperCase(); }).join(' | ');
 ok(/UJIAN KORPORAT/.test(namaKorp), 'nama pelanggan muncul dalam lajur kanan (dijumpai: ' + namaKorp.slice(0, 60) + ')');
-ok(k0.querySelector('.ck-kiri h2') && /KONTAK/i.test(k0.querySelector('.ck-kiri h2').textContent), 'tajuk Kontak dalam rel kiri');
+ok(k0.querySelector('.ck-kiri h2') && /^CONTACT$/i.test(k0.querySelector('.ck-kiri h2').textContent.trim()), 'tajuk bahagian rel kiri = CONTACT (verbatim dari rujukan, bukan KONTAK)');
 ok(k0.querySelectorAll('.ck-kiri .blok[data-blok]').length >= 2, 'blok rel kiri boleh disusun semula');
 ok(k0.querySelectorAll('.ck-kanan .blok[data-blok]').length >= 2, 'blok lajur kanan boleh disusun semula');
 ok(w.ResumeMV.templat() === 'korporat' && isFinite(w.ResumeMV.halaman()) && isFinite(w.ResumeMV.renggang()),

@@ -946,16 +946,19 @@
     flex: 0 0 71.3mm; width: 71.3mm; background: #dae3e3;
     padding: 14.1mm 8mm 12mm 10mm;
   }
-  .lembar .cv-korporat .ck-kanan { flex: 1 1 auto; min-width: 0; padding: 21.1mm 10.4mm 12mm 12.4mm; }
+  .lembar .cv-korporat .ck-kanan { flex: 1 1 auto; min-width: 0; padding: 21.1mm 10.4mm 7mm 12.4mm; }
   .lembar .cv-korporat .ck-foto {
     width: 36.7mm; height: 36.7mm; margin: 0 auto calc(8mm * var(--renggang));
     overflow: hidden; background: #fff; border-radius: 50%;
   }
   .lembar .cv-korporat .ck-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .lembar .cv-korporat.tanpa-foto .ck-foto { display: none; }
+   /* Tanpa foto, rel kiri mesti tetap mula pada 58.8mm (14.1 + 36.7 foto + 8mm jarak) supaya
+      tajuk pertama rel sejajar mendatar dengan tajuk pertama lajur kanan - seperti rujukan. */
+   .lembar .cv-korporat.tanpa-foto .ck-kiri { padding-top: 58.8mm; }
   /* Kepala kolum kanan: tinggi minimum 36.9mm (rujukan: mula teks 21.1mm -> tajuk SUMMARY 58.0mm)
      supaya RINGKASAN sejajar mendatar dengan KONTAK dalam rel kiri. */
-  .lembar .cv-korporat .ck-kepala { margin: 0 0 0 -4.2mm; padding-top: 3.1mm; min-height: 36mm; }
+  .lembar .cv-korporat .ck-kepala { margin: 0 0 0 -4.2mm; padding-top: 3.1mm; min-height: 36.9mm; }
   .lembar .cv-korporat .ck-nama {
     margin: 0; font-size: calc(34pt * var(--teks)); font-weight: 300; line-height: .9;
     font-family: "Poppins", "Inter", "Segoe UI", Arial, sans-serif;
@@ -968,20 +971,26 @@
   /* tajuk bahagian: huruf besar, TANPA jarak huruf (rujukan tidak bertracking). Garis nipis berada
      DI BAWAH teks tajuk kolum kanan dan bermula selepas ikon (12.3mm), bukan mengiringi teks. */
   .lembar .cv-korporat h2 {
-    display: flex; align-items: center; gap: 3.6mm; margin: 0 0 calc(2.8mm * var(--renggang));
+    display: flex; align-items: center; gap: 3.6mm; line-height: 1.35; margin: 0 0 calc(2.8mm * var(--renggang));
     font-size: calc(13pt * var(--teks)); font-weight: 500;
     font-family: "Poppins", "Inter", "Segoe UI", Arial, sans-serif;
     text-transform: uppercase; color: #414042; break-after: avoid; page-break-after: avoid;
   }
   .lembar .cv-korporat .ck-kanan h2 { position: relative; padding-bottom: 1.5mm; margin-left: -4.2mm; }
+  /* rujukan: tajuk rel -> kandungan pertama 12.1mm (CONTACT), 11.0mm (KEY SKILLS) - lebih
+     lapang daripada lajur kanan (11.1mm), jadi jarak bawah tajuk rel diasingkan. */
+  .lembar .cv-korporat .ck-kiri .blok > h2 { margin-bottom: calc(5.1mm * var(--renggang)); }
   .lembar .cv-korporat .ck-kanan h2::after {
-    content: ''; position: absolute; left: 12.3mm; right: 0; bottom: 0;
-    height: .53mm; background: #403f40;
+    content: ''; position: absolute; left: 11.9mm; right: 0; bottom: 0;
+         height: .53mm; background: #403f41;
   }
   .lembar .cv-korporat .ck-ikon { width: 8.3mm; height: 8.3mm; flex: 0 0 8.3mm; padding: 1.9mm;
-    background: #403f40; color: #fff; box-sizing: border-box; border-radius: 50%; }
+    background: #403f41; color: #fff; box-sizing: border-box; border-radius: 50%; }
   .lembar .cv-korporat .ck-kiri .blok + .blok > h2,
-  .lembar .cv-korporat .ck-kanan .blok + .blok > h2 { margin-top: calc(6.6mm * var(--renggang)); }
+  .lembar .cv-korporat .ck-kanan .blok + .blok > h2 { margin-top: calc(8.6mm * var(--renggang)); }
+  /* rujukan: jarak antara bahagian dalam rel kiri 7.0-17.7mm (tidak seragam - direka tangan),
+     lajur kanan 9.0mm. Templat ini mengalir, jadi rel memakai min rujukan ~13.8mm. */
+  .lembar .cv-korporat .ck-kiri .blok + .blok > h2 { margin-top: calc(9.6mm * var(--renggang)); }
   .lembar .cv-korporat .ck-kiri .blok:first-child > h2,
   .lembar .cv-korporat .ck-kanan .blok:first-child > h2 { margin-top: 0; }
   /* kontak: ikon kecil + teks menjorok */
@@ -1003,38 +1012,53 @@
   .lembar .cv-korporat .titik-tahap { display: none; }
   .lembar .cv-korporat .titik-tahap { gap: 1.6pt; }
   .lembar .cv-korporat .titik-tahap i { width: 3pt; height: 3pt; background: #c9d3d3; }
-  .lembar .cv-korporat .titik-tahap i.penuh { background: #404041; }
+  .lembar .cv-korporat .titik-tahap i.penuh { background: #414042; }
   /* ikon kontak: kecil dan gelap (kelas .cvb-ikon dari fungsi ikon() yang sama) */
-  .lembar .cv-korporat .cvb-ikon { width: 3.2mm; height: 3.2mm; fill: #404041; color: #404041; }
+  .lembar .cv-korporat .cvb-ikon { width: 3.2mm; height: 3.2mm; fill: #403f41; color: #403f41; }
   .lembar .cv-korporat .ck-senarai li::before {
     content: ''; position: absolute; left: 1.8mm; top: 1.5mm;
-    width: 1.35mm; height: 1.35mm; border-radius: 50%; background: #404041;
+    width: 1.35mm; height: 1.35mm; border-radius: 50%; background: #414042;
   }
   /* ringkasan & pengalaman */
-  .lembar .cv-korporat .ck-teks { margin: 0; font-size: calc(9pt * var(--teks)); line-height: 1.35; text-align: justify; }
-  .lembar .cv-korporat .ck-item { margin-top: calc(4.4mm * var(--renggang)); }
+  .lembar .cv-korporat .ck-teks { margin: 0; font-size: calc(9pt * var(--teks)); line-height: 4.23mm; text-align: justify; }
+  .lembar .cv-korporat .ck-item { margin-top: calc(3.1mm * var(--renggang)); }
   .lembar .cv-korporat .ck-item:first-of-type { margin-top: 0; }
   /* rujukan: tarikh berada di BAWAH tajuk kerja, rata kiri pada x=83.7mm (bukan di kanan) */
   .lembar .cv-korporat .ck-item-kepala { display: block; }
   .lembar .cv-korporat .ck-item-kepala strong { font-size: calc(11pt * var(--teks)); font-weight: 600; color: #333132; }
-  .lembar .cv-korporat .ck-item-kepala span { display: block; font-size: calc(10pt * var(--teks)); font-weight: 300; margin-top: calc(1.2mm * var(--renggang)); }
+  .lembar .cv-korporat .ck-item-kepala span { display: block; font-size: calc(10pt * var(--teks)); font-weight: 300; margin-top: calc(1.3mm * var(--renggang)); }
   .lembar .cv-korporat .ck-item-sub { font-size: calc(9.5pt * var(--teks)); font-weight: 300; margin-top: .8mm; }
-  .lembar .cv-korporat .ck-senarai-item { list-style: none; margin: 1.8mm 0 0; padding: 0; }
+  .lembar .cv-korporat .ck-senarai-item { list-style: none; margin: .4mm 0 0; padding: 0; }
   .lembar .cv-korporat .ck-senarai-item li {
     position: relative; padding-left: 5.7mm; font-size: calc(9.5pt * var(--teks));
-    line-height: 1.35;
+    line-height: 4.5mm;
   }
   .lembar .cv-korporat .ck-senarai-item li::before {
-    content: ''; position: absolute; left: 1.5mm; top: 1.6mm;
-    width: 1.2mm; height: 1.2mm; border-radius: 50%; background: #313131;
+    content: ''; position: absolute; left: 1.85mm; top: 1.7mm;
+    width: 1.06mm; height: 1.06mm; border-radius: 50%; background: #313131;
   }
   /* rujukan: blok pengalaman dalam rujukan pelanggan lebih gelap (#313132) daripada
      teks kolum kiri dan ringkasan (#404041) - dua dakwat memang berbeza dalam fail asal */
-  .lembar .cv-korporat .blok[data-blok="pengalaman"] { color: #313131; }
+  .lembar .cv-korporat .blok[data-blok="pengalaman"] {
+    color: #313131; font-family: "Arial Nova", Arial, Helvetica, sans-serif;
+  }
+  /* Rujukan mencampur dua keluarga: Poppins untuk rel dan kepala, tetapi blok WORK EXPERIENCE
+     memakai ARIAL NOVA (lajur teks: ArialNova-Bold 11pt tajuk, ArialNova 10pt tarikh, ArialNova
+     9.5pt bulet). Keluarga yang lebih sempit ini juga yang mengekalkan pemecahan baris dan
+     kepadatan halaman rujukan - dengan Poppins, resume rujukan melimpah ke halaman 2. */
+  .lembar .cv-korporat .blok[data-blok="pengalaman"] .ck-item-kepala strong { font-weight: 700; }
+  .lembar .cv-korporat .blok[data-blok="pengalaman"] .ck-item-kepala span { font-weight: 400; }
+  .lembar .cv-korporat .blok[data-blok="pengalaman"] .ck-senarai-item li { font-weight: 400; line-height: 4.5mm; }
   .lembar .cv-korporat .ck-pendidikan .ck-item-kepala { display: block; }
-  .lembar .cv-korporat .ck-pendidikan strong { display: block; font-size: calc(8pt * var(--teks)); }
-  .lembar .cv-korporat .ck-pendidikan .ck-item-sub { font-size: calc(8pt * var(--teks)); }
-  .lembar .cv-korporat .ck-pendidikan .ck-tahun { font-size: calc(8pt * var(--teks)); font-weight: 300; }
+  /* Rujukan: institusi Poppins-Bold 8pt, kelulusan dan tahun Poppins-Regular 8pt;
+     irama institusi->kelulusan 5.1mm, kelulusan->tahun 4.4mm, tahun->institusi berikut 7.8mm. */
+  .lembar .cv-korporat .ck-pendidikan { margin-top: calc(3.4mm * var(--renggang)); }
+  .lembar .cv-korporat .ck-pendidikan strong {
+    display: block; font-size: calc(8pt * var(--teks)); font-weight: 700; line-height: 4.4mm; }
+  .lembar .cv-korporat .ck-pendidikan .ck-item-sub {
+    font-size: calc(8pt * var(--teks)); font-weight: 400; line-height: 4.4mm; margin-top: .7mm; }
+  .lembar .cv-korporat .ck-pendidikan .ck-tahun {
+    font-size: calc(8pt * var(--teks)); font-weight: 400; line-height: 4.4mm; }
 
   /* ---------- tanda air (watermark) + pesanan ---------- */
   .kertas { position: relative; }
@@ -1124,6 +1148,10 @@
       color: var(--jalur, #00366d);
     }
     .cb-sambung { font-weight: 400; opacity: .75; }
+    /* Rujukan Korporat Moden TIADA kaki halaman (lapisan teks rujukan berakhir pada 287mm tanpa
+       nama/jawatan di kaki) - jadi kaki hiasan dimatikan khas untuk templat ini sahaja.
+       Rel kelabu masih diteruskan pada setiap halaman seperti rujukan. */
+    body[data-templat="korporat"] .cb-kaki { display: none; }
     /* templat dua lajur: rel kelabu diteruskan ke setiap halaman supaya halaman 2 sama design */
     body[data-templat="biru"] .cb-rel {
       display: block; position: fixed; left: 0; top: 50mm; bottom: 0; width: 65mm;
@@ -2414,6 +2442,15 @@
     return '<svg class="ck-ikon" viewBox="0 0 24 24" aria-hidden="true">' + (bentuk[jenis] || bentuk.petak) + '</svg>';
   }
 
+  /* Tajuk bahagian templat Korporat Moden diambil VERBATIM daripada fail rujukan
+     ("Minimalist Professional Corporate ATS Resume.pdf" - lapisan teks Poppins-Medium
+     13pt #414042): CONTACT / EDUCATION / KEY SKILLS / LANGUAGE pada rel kiri dan
+     SUMMARY / WORK EXPERIENCE / REFERENCES pada lajur kanan. Jangan terjemahkan - ejaan itu
+     sebahagian daripada format rujukan. */
+  var TAJUK_KORP = { kontak: 'Contact', pendidikan: 'Education', kemahiran: 'Key Skills',
+                     bahasa: 'Language', profil: 'Summary', pengalaman: 'Work Experience',
+                     rujukan: 'References' };
+
   function htmlKorporat(d) {
     var h = '<div class="cv-korporat' + (d.foto ? '' : ' tanpa-foto') + '">';
     var blok = {};
@@ -2423,11 +2460,11 @@
     if (d.telefon && !dibuang(d, 'kontak')) kontak += '<li>' + ikon('telefon') + '<span>' + esc(d.telefon) + '</span></li>';
     if (d.emel && !dibuang(d, 'kontak')) kontak += '<li>' + ikon('emel') + '<span>' + esc(d.emel) + '</span></li>';
     if (d.lokasi && !dibuang(d, 'kontak')) kontak += '<li>' + ikon('lokasi') + '<span>' + esc(d.lokasi) + '</span></li>';
-    if (kontak) blok.kontak = '<h2>Kontak</h2><ul class="ck-kontak">' + kontak + '</ul>';
+    if (kontak) blok.kontak = '<h2>' + TAJUK_KORP.kontak + '</h2><ul class="ck-kontak">' + kontak + '</ul>';
 
     /* --- blok: pendidikan (institusi tebal, kelulusan, tahun) --- */
     if (d.pendidikan.length && !dibuang(d, 'pendidikan')) {
-      blok.pendidikan = '<h2>Pendidikan</h2>' + d.pendidikan.map(function (o) {
+      blok.pendidikan = '<h2>' + TAJUK_KORP.pendidikan + '</h2>' + d.pendidikan.map(function (o) {
         var x = '<div class="ck-item ck-pendidikan">';
         x += '<strong>' + esc(o.institusi || o.kelulusan || '(Pendidikan)') + '</strong>';
         if (o.institusi && o.kelulusan) x += '<div class="ck-item-sub">' + esc(o.kelulusan) + '</div>';
@@ -2440,7 +2477,7 @@
     ['kemahiran', 'bahasa'].forEach(function (kunci) {
       var senarai = senaraiTahap(d, kunci);
       if (!senarai.length || dibuang(d, kunci)) return;
-      blok[kunci] = '<h2>' + (kunci === 'kemahiran' ? 'Kemahiran' : 'Bahasa') + '</h2><ul class="ck-senarai">' +
+      blok[kunci] = '<h2>' + TAJUK_KORP[kunci] + '</h2><ul class="ck-senarai">' +
         senarai.map(function (o) {
           return '<li><span>' + esc(o.nama) + '</span>' + titikTahap(o.tahap) + '</li>';
         }).join('') + '</ul>';
@@ -2448,13 +2485,13 @@
 
     /* --- blok: ringkasan --- */
     if (d.ringkasan && !dibuang(d, 'ringkasan')) {
-      blok.profil = '<h2>' + ikonKorp('orang') + 'Ringkasan</h2>' +
+      blok.profil = '<h2>' + ikonKorp('orang') + TAJUK_KORP.profil + '</h2>' +
         '<p class="ck-teks">' + esc(d.ringkasan) + '</p>';
     }
 
     /* --- blok: pengalaman kerja --- */
     if (d.pengalaman.length && !dibuang(d, 'pengalaman')) {
-      blok.pengalaman = '<h2>' + ikonKorp('beg') + 'Pengalaman Kerja</h2>' + d.pengalaman.map(function (o) {
+      blok.pengalaman = '<h2>' + ikonKorp('beg') + TAJUK_KORP.pengalaman + '</h2>' + d.pengalaman.map(function (o) {
         var tajuk = (o.jawatan && o.syarikat) ? (o.jawatan + ', ' + o.syarikat) : (o.jawatan || o.syarikat || '(Syarikat)');
         var x = '<div class="ck-item"><div class="ck-item-kepala"><strong>' + esc(tajuk) + '</strong>' +
                 '<span>' + esc(o.tempoh) + '</span></div>';
@@ -2468,7 +2505,7 @@
     /* --- blok: rujukan --- */
     var ruj = senaraiRujukan(d);
     if (ruj.length && !dibuang(d, 'rujukan')) {
-      blok.rujukan = '<h2>' + ikonKorp('petak') + 'Rujukan</h2>' + ruj.map(function (o) {
+      blok.rujukan = '<h2>' + ikonKorp('petak') + TAJUK_KORP.rujukan + '</h2>' + ruj.map(function (o) {
         var x = '<div class="ck-item"><div class="ck-item-kepala"><strong>' + esc(o.nama || o.jawatan || '(Rujukan)') + '</strong>' +
                 '<span>' + esc(o.telefon) + '</span></div>';
         if (o.jawatan && o.nama) x += '<div class="ck-item-sub">' + esc(o.jawatan) + '</div>';

@@ -769,10 +769,49 @@ Sauh yang kini padan: saiz teks (34 / 16 / 13 / 11 / 10 / 9.5 / 9 / 8pt), warna,
 
 **Perbezaan yang tinggal (memang tidak boleh dihapuskan):** rujukan meletakkan seksyen rel kiri pada
 kedudukan **tetap** (jarak 22mm / 5mm / 8.6mm antara seksyen) manakala templat app **mengalir** supaya
-boleh menampung kandungan apa-apa panjang — irama seragam 6.6mm. Tajuk seksyen juga Bahasa Melayu
-(`KONTAK`, `RINGKASAN`) kerana semua templat app memakai label Melayu.
+boleh menampung kandungan apa-apa panjang — irama seragam 6.6mm. Tajuk seksyen asalnya Bahasa Melayu
+(`KONTAK`, `RINGKASAN`) kerana semua templat app memakai label Melayu; **Fasa 38 menukarnya kepada
+ejaan BI verbatim daripada rujukan** (lihat di bawah).
 
 Ujian: `python test/semak_ketepatan_korporat.py ["laluan PDF rujukan"]` — cetak jadual sauh dan bezanya.
+
+## Fasa 38 — templat ketiga diikut "sibijik2" (tajuk BI, Arial Nova, bulet, irama)
+
+Pelanggan bertanya kenapa format rujukan tidak diikuti butiran demi butiran. Audit Fasa 37 menguji
+**teks** sahaja; Fasa 38 menutup baki jurang yang ia tinggalkan:
+
+| Perkara | Sebelum | Selepas (nilai rujukan) |
+|---|---|---|
+| Tajuk bahagian | `KONTAK` / `RINGKASAN` / `PENGALAMAN KERJA` (BM) | **`CONTACT` / `SUMMARY` / `EDUCATION` / `KEY SKILLS` / `LANGUAGE` / `WORK EXPERIENCE`** — ejaan verbatim daripada lapisan teks rujukan (peta `TAJUK_KORP` dalam kod) |
+| Blok pengalaman | Poppins (keluarga sama dengan templat lain) | **`"Arial Nova", Arial`** — rujukan mencampur dua keluarga: Poppins untuk rel/kepala/ringkasan, Arial Nova untuk tajuk kerja (11pt bold), tarikh (10pt) dan bulet (9.5pt) |
+| Bulet pengalaman | 1.32mm @ x=85.20, `#414042` | **1.06mm @ x=85.55 `#313131`**, irama baris 4.5mm |
+| Bulet rel kiri | `#404041` | **`#414042`** (warna vektor rujukan) |
+| Ikon tajuk & ikon kontak | `#403f40` / `#404041` | **`#403f41`** |
+| Garis bawah tajuk lajur kanan | mula x=92.0mm | **x=91.4mm**, `.53mm`, `#403f41` |
+| Kepala lajur kanan | `min-height: 36mm` (tajuk pada 57.9mm) | **36.9mm → tajuk 58.8mm**, sejajar mendatar dengan tajuk rel |
+| Rel kiri tanpa foto | tajuk rel mula 14.1mm | **58.8mm** — sejajar walaupun pelanggan tidak memuat naik gambar |
+| Kaki halaman | nama + "sambungan halaman" | **dimatikan untuk templat ini sahaja** — rujukan tiada kaki |
+| Bilangan halaman (kandungan rujukan) | 2 halaman | **1 halaman = rujukan** |
+
+Irama blok pengalaman kini padan: tajuk→tarikh 6.6mm (rujukan 6.6) dan tajuk→tajuk 43.1mm (rujukan 43.3),
+selepas `.ck-item` 4.4→3.1mm, tarikh 1.6→1.3mm dan jidar bawah lajur 12→7mm. Tanpa pertukaran kepada
+Arial Nova, kandungan rujukan sendiri melimpah ke halaman 2 kerana Poppins lebih lebar dan memecahkan
+baris lebih awal.
+
+Audit `test/semak_ketepatan_korporat.py` (kandungan diambil daripada rujukan, dirender melalui app)
+melaporkan **0 sauh/ukuran menyimpang**: 17 sauh teks (saiz/warna/x) + 2 sauh bentuk bulet + 2 ukuran
+irama, dan render 1 halaman seperti rujukan.
+
+**Perbezaan yang tinggal (sebabnya):** jarak antara seksyen rel kiri. Rujukan meletakkannya pada
+kedudukan tetap dengan jarak **tidak seragam** (7.0 / 13.1 / 17.7mm), jadi templat yang mengalir tidak
+boleh memadankan ketiga-tiganya sekali gus — app memakai 13.8mm (min rujukan). Irama item bahasa
+rujukan ialah 7.1mm manakala kemahiran 6.35mm; app memakai 6.35mm seragam. Skala titik kemahiran
+kekal disembunyikan kerana rujukan tiada titik.
+
+Nota ujian: bilangan bentuk bulet dalam PDF **tidak** boleh dibandingkan terus — Chrome menggabungkan
+beberapa bulatan serupa menjadi satu objek laluan, jadi 15 bulet boleh dilaporkan sebagai 8+3.
+Sahkan bilangan sebenar dengan pemeriksaan piksel (jalur `x=10-15mm` pada 200 dpi) atau dengan melihat
+PDF; audit membandingkan geometri (saiz, x, warna) bukan bilangan objek.
 
 ## Belum ada (fasa seterusnya)
 
