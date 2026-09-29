@@ -1514,8 +1514,22 @@ ok(w.ResumeMV.kiraHalaman(0) === 1 && w.ResumeMV.kiraHalaman(undefined) === 1, '
      'label projek lalai "Projek: ..." dicetak tanpa sebarang pilihan');
   w.ResumeMV.isi(Object.assign(JSON.parse(JSON.stringify(dataPj)), { labelProjek: 'tiada' }));
   el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
-  ok(/Hospital Rizen/.test(el('resume').textContent) && !/Projek:/.test(el('resume').textContent),
-     'kod pesanan lama dengan lp="tiada" masih dihormati (nama projek sahaja)');
+  ok(/Projek: Hospital Rizen/.test(el('resume').textContent),
+     'medan label lama (lp) diabaikan - nama projek sentiasa "Projek: ..."');
+  /* Medan KLIEN: pilihan, dicetak di depan nama projek, boleh diedit pelanggan. */
+  const kadKlien = d.querySelector('#senarai-pengalaman .baris .baris-projek');
+  ok(!!kadKlien.querySelector('.pj-klien'), 'kad projek ada medan Klien (boleh diedit)');
+  kadKlien.querySelector('.pj-klien').value = 'KKM';
+  el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+  ok(/Klien: KKM/.test(el('resume').textContent) && /Projek: Hospital Rizen/.test(el('resume').textContent),
+     'medan Klien dicetak di DEPAN nama projek');
+  const kumpulKlien = w.ResumeMV.kumpul();
+  ok(kumpulKlien.pengalaman[0].projek[0].klien === 'KKM', 'Klien disimpan dalam data projek');
+  ok(w.ResumeMV.dariKod(w.ResumeMV.kod(kumpulKlien)).pengalaman[0].projek[0].klien === 'KKM',
+     'Klien dibawa dalam kod pesanan');
+  kadKlien.querySelector('.pj-klien').value = '';
+  el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+  ok(!/Klien:/.test(el('resume').textContent), 'Klien kosong: tiada baris klien dicetak (pilihan)');
   // kerja bukan berasaskan projek: nama projek kosong = terus ke perkara utama
   const dataTiada = JSON.parse(JSON.stringify(dataPj));
   dataTiada.pengalaman[0].jawatan = 'Kerani Akaun';

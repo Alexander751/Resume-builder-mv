@@ -1671,9 +1671,10 @@
         p = p || {};
         return {
           nama: String(p.nama || '').trim(),
+          klien: String(p.klien || '').trim(),
           poin: (Array.isArray(p.poin) ? p.poin : []).map(function (x) { return String(x || '').trim(); }).filter(Boolean)
         };
-      }).filter(function (p) { return p.nama || p.poin.length; });
+      }).filter(function (p) { return p.nama || p.klien || p.poin.length; });
       if (keluar.length) return keluar;
     }
     var lama = (Array.isArray(o.poin) ? o.poin : []).map(function (x) { return String(x || '').trim(); }).filter(Boolean);
@@ -1686,10 +1687,18 @@
     var t = String(nama || '').trim();
     if (!t) return '';
     if (/^(projek|project|klien|client)\b/i.test(t)) return t;
-    if (LABEL_PROJEK === 'tiada') return t;
-    if (LABEL_PROJEK === 'klien') return 'Klien: ' + t;
-    if (LABEL_PROJEK === 'projek-klien') return (BAHASA === 'en' ? 'Project / Client: ' : 'Projek / Klien: ') + t;
     return (BAHASA === 'en' ? 'Project: ' : 'Projek: ') + t;
+  }
+
+  /* Baris nama projek pada resume: klien (kalau ada) di DEPAN, kemudian nama projek.
+     Contoh: "Klien: KKM \u2014 Projek: Hospital Rizen, Kuantan". */
+  function teksProjek(pk) {
+    var nama = labelProjek(pk && pk.nama);
+    var klien = String((pk && pk.klien) || '').trim();
+    if (!klien) return nama;
+    var lb = (BAHASA === 'en') ? 'Client' : 'Klien';
+    if (/^(klien|client)\b/i.test(nama)) return nama;
+    return lb + ': ' + klien + (nama ? ' \u2014 ' + nama : '');
   }
 
   /* Buang tanda bulet yang pelanggan taip sendiri (• - * · ▪ 1.) supaya cetakan tidak keluar DUA titik.
@@ -1710,6 +1719,8 @@
     p.innerHTML =
       '<div class="kepala-projek"><strong class="pj-tajuk">Projek</strong>' +
       '<button type="button" class="btn-hapus btn-hapus-projek">Hapus projek</button></div>' +
+      '<label>Klien (pilihan)</label>' +
+      '<input class="pj-klien" type="text" placeholder="cth. KKM, JKR, Tetuan ABC Sdn Bhd">' +
       '<label>Projek (nama & tempat)</label>' +
       '<input class="pj-nama" type="text" placeholder="cth. Projek Hospital Rizen, Kuantan (RM 120 juta)">' +
       '<label>Perkara utama anda dalam projek ini (satu baris satu poin)</label>' +
@@ -1717,6 +1728,7 @@
       '<p class="poin-nota">Jangan taip tanda titik di depan ayat &mdash; app sudah menambahnya ' +
       '(tanda yang awak taip akan dibuang supaya cetakan tidak keluar dua titik).</p>';
     p.querySelector('.pj-nama').value = data.nama || '';
+    p.querySelector('.pj-klien').value = data.klien || '';
     p.querySelector('.pj-poin').value = (data.poin || []).join('\n');
     terjemahElemen(p);
     p.querySelector('.btn-hapus-projek').addEventListener('click', function () {
@@ -1877,6 +1889,8 @@
     " — tiada data hilang.": " — no data is lost.",
     "Tambahan (pilihan)": "Extra Sections (optional)",
     "Bahagian Tambahan": "Extra Sections",
+    "Klien (pilihan)": "Client (optional)",
+    "cth. KKM, JKR, Tetuan ABC Sdn Bhd": "e.g. Ministry of Health, JKR, ABC Sdn Bhd",
     "susun blok": "arrange blocks",
     "Susunan ini yang akan dicetak.": "This order is what gets printed.",
     "seret blok": "drag a block"
@@ -2450,9 +2464,10 @@
       var projek = [];
       Array.prototype.forEach.call(b.querySelectorAll('.baris-projek'), function (pk) {
         var nama = pk.querySelector('.pj-nama').value.trim();
+        var klien = pk.querySelector('.pj-klien') ? pk.querySelector('.pj-klien').value.trim() : '';
         var poin = pk.querySelector('.pj-poin').value.split('\n')
           .map(bersihPoin).filter(Boolean);
-        if (nama || poin.length) projek.push({ nama: nama, poin: poin });
+        if (nama || klien || poin.length) projek.push({ nama: nama, klien: klien, poin: poin });
       });
       var o = {
         jawatan: b.querySelector('.p-jawatan').value.trim(),
@@ -2496,7 +2511,7 @@
       if (o.nama || o.jawatan || o.telefon) d.rujukan.push(o);
     });
     d.templat = KUNCI_TEMPLAT;
-    d.labelProjek = LABEL_PROJEK;
+    d.labelProjek = 'projek';
     d.bahasaResume = BAHASA;
     return d;
   }
@@ -3172,7 +3187,7 @@
         if (o.syarikat && o.jawatan) s += '<div class="cvb-item-sub">' + esc(o.jawatan) + '</div>';
         /* setiap projek: baris nama projek, kemudian poin untuk projek itu */
         senaraiProjek(o).forEach(function (pk) {
-          if (pk.nama) s += '<div class="cvb-projek">' + esc(labelProjek(pk.nama)) + '</div>';
+          if (pk.nama) s += '<div class="cvb-projek">' + esc(teksProjek(pk)) + '</div>';
           if (pk.poin.length) {
             s += '<ul class="cvb-bullet">' + pk.poin.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul>';
           }
@@ -3247,7 +3262,7 @@
         var x = '<div class="cvs-item"><div class="cvs-item-kepala"><strong>' + esc(tajuk) + '</strong>' +
                 '<span>' + esc(o.tempoh) + '</span></div>';
         senaraiProjek(o).forEach(function (pk) {
-          if (pk.nama) x += '<div class="cvs-projek">' + esc(labelProjek(pk.nama)) + '</div>';
+          if (pk.nama) x += '<div class="cvs-projek">' + esc(teksProjek(pk)) + '</div>';
           if (pk.poin.length) x += '<ul class="cvs-senarai">' + pk.poin.map(function (k) { return '<li>' + esc(k) + '</li>'; }).join('') + '</ul>';
         });
         return x + '</div>';
@@ -3365,7 +3380,7 @@
         var x = '<div class="ck-item"><div class="ck-item-kepala"><strong>' + esc(tajuk) + '</strong>' +
                 '<span>' + esc(o.tempoh) + '</span></div>';
         senaraiProjek(o).forEach(function (pk) {
-          if (pk.nama) x += '<div class="ck-projek">' + esc(labelProjek(pk.nama)) + '</div>';
+          if (pk.nama) x += '<div class="ck-projek">' + esc(teksProjek(pk)) + '</div>';
           if (pk.poin.length) {
             x += '<ul class="ck-senarai-item">' + pk.poin.map(function (k) { return '<li>' + esc(k) + '</li>'; }).join('') + '</ul>';
           }
@@ -3463,7 +3478,7 @@
         pengalaman: Array.isArray(o.p) ? o.p : [], pendidikan: Array.isArray(o.d) ? o.d : [],
         tambahan: Array.isArray(o.a) ? o.a : [], buang: Array.isArray(o.x) ? o.x : [],
         susun: (o.y && (o.y.kiri || o.y.kanan)) ? { kiri: o.y.kiri || [], kanan: o.y.kanan || [] } : null,
-        labelProjek: (o.lp === 'klien' || o.lp === 'projek-klien' || o.lp === 'tiada') ? o.lp : 'projek',
+        labelProjek: 'projek',   // dropdown label dibuang (Fasa 49); medan 'Klien' pula menggantikannya
         bahasaResume: (o.bh === 'ms' || o.bh === 'en') ? o.bh : null   // kod lama tiada bahasa: guna tetapan semasa
       };
     } catch (e) {
@@ -4419,7 +4434,7 @@
         poin: ['Sediakan BQ dan dokumen tawaran untuk 3 projek perumahan.',
                'Nilai tuntutan kontraktor bulanan dan interim certificate.'],
         projek: [
-          { nama: 'Perumahan Idaman Rakyat, Paka (RM 42 juta)', poin: [
+          { nama: 'Perumahan Idaman Rakyat, Paka (RM 42 juta)', klien: 'KPKT', poin: [
             'Sediakan BQ pakej struktur dan seni bina.',
             'Ukur kerja sebenar di tapak dan lapor kos bulanan.'] },
           { nama: 'Naik Taraf Klinik Kesihatan Kemaman', poin: [
