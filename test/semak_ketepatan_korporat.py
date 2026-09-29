@@ -126,8 +126,11 @@ def baca_kandungan_rujukan(dok):
 def render_korporat(data, folder):
     """Render index.html dengan data rujukan melalui Chrome headless -> PDF cetakan."""
     app = io.open(os.path.join(AKAR, "index.html"), encoding="utf-8", newline="").read().replace("\r\n", "\n")
+    # Fail rujukan Canva berbahasa Inggeris, jadi audit ini MESTI merender dalam mod English
+    # supaya tajuk templat sama ejaan dengan rujukan (Fasa 43 menambah pilihan bahasa BM/English).
     arahan = ("window.ResumeMV.isi(%s);document.getElementById('mula-isi').click();"
               "document.getElementById('borang').dispatchEvent(new Event('input',{bubbles:true}));"
+              "window.ResumeMV.gunaBahasa('en');"
               "document.getElementById('ke-3').click();document.body.classList.add('mod-penjual');"
               "var c=document.getElementById('cap-air'); if(c) c.innerHTML='';"
               "var cs=document.getElementById('cap-air-sisi'); if(cs) cs.innerHTML='';"
