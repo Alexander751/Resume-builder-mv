@@ -1362,10 +1362,10 @@
       <button type="button" class="sek-buang" data-sek="pengalaman">Buang bahagian ini</button>
       <label for="label-projek">Label nama projek pada resume</label>
       <select id="label-projek">
-        <option value="projek">Projek: Hospital Rizen, Kuantan</option>
-        <option value="klien">Klien: Klinik Sihat Jaya</option>
-        <option value="projek-klien">Projek / Klien: Hospital Rizen</option>
-        <option value="tiada">Hospital Rizen, Kuantan (tiada label)</option>
+        <option value="projek">Label: Projek &nbsp;&rarr;&nbsp; Projek: Hospital Rizen</option>
+        <option value="klien">Label: Klien &nbsp;&rarr;&nbsp; Klien: Klinik Sihat Jaya</option>
+        <option value="projek-klien">Label: Projek / Klien &nbsp;&rarr;&nbsp; Projek / Klien: Hospital Rizen</option>
+        <option value="tiada">Tiada label &nbsp;&rarr;&nbsp; Hospital Rizen sahaja</option>
       </select>
       <p class="sek-nota">Nama projek dalam setiap kad adalah <strong>pilihan</strong> &mdash; kosongkan
       kalau kerja anda tidak berasaskan projek (cth kerani, jurujual, cikgu); resume akan terus ke
@@ -1879,6 +1879,27 @@
     "Ketuk tajuk 5 kali untuk Mod Penjual": "Tap the title 5 times for Seller Mode",
   };
 
+  /* tambahan kamus: serpihan ayat + nota dinamik */
+  Object.assign(KAMUS_EN, {
+    "Tahap penguasaan": "Proficiency level",
+    "perlu.": "needed.",
+    "tiada tanda koma": "no commas",
+    "Isi satu orang satu baris — ": "One person per line — ",
+    "Beginilah rupa resume anda. Tanda air ": "This is how your resume looks. The watermark ",
+    "PRATONTON": "PREVIEW",
+    "Tanda air ": "The watermark ",
+    " hilang dalam PDF bersih selepas pesanan disahkan.": " disappears in the clean PDF once the order is confirmed.",
+    "Boleh tukar bila-bila masa.": "You can change it anytime.",
+    ". Boleh tukar bila-bila masa.": ". You can change it anytime.",
+    "Reka bentuk dipilih: ": "Design selected: ",
+    "Buka pratonton, tekan": "Open the preview, press",
+    ", atur ikut kehendak anda, kemudian tekan": ", arrange it the way you want, then press",
+    "Belum ada susunan rasmi - templat menggunakan susunan asal.": "No official order yet - the template uses its default order.",
+    "Belum diset. Isi URL Apps Script dan token, kemudian tekan Simpan.": "Not set yet. Paste the Apps Script URL and token, then press Save.",
+    " Tanpa ini, butang WhatsApp berfungsi seperti biasa (kod sahaja).": " Without this, the WhatsApp button works as usual (code only).",
+    "Sedia. Resume pelanggan akan diemail ke alamat dalam Apps Script.": "Ready. Customer resumes will be emailed to the address in your Apps Script."
+  });
+
   /* tambahan kamus: ayat penuh + serpihan ayat yang dipisah markup */
   Object.assign(KAMUS_EN, {
     ", fotonya kekal — tidak perlu muat naik semula.": ", the photo is kept — no need to upload it again.",
@@ -2038,15 +2059,17 @@
     return KAMUS_EN[ms] || ms;
   }
 
-  /* terjemah mesej yang dibina dengan gabungan teks (cth 'Reka bentuk dipilih: X') -
-     setiap frasa kamus yang panjang (>=9 aksara) yang ada di dalam mesej akan ditukar. */
-  function tbMesej(mesej) {
-    if (BAHASA !== 'en' || !mesej) return mesej;
+  /* Gantikan setiap frasa kamus yang panjang (>=8 aksara) DI DALAM teks. Ini menangkap ayat yang
+     dipisah markup (satu <p> ada <strong> di tengah) dan mesej log yang dibina dengan gabungan. */
+  function gantiFrasa(teks) {
+    if (BAHASA !== 'en' || !teks) return teks;
     Object.keys(KAMUS_EN).forEach(function (k) {
-      if (k.length >= 9 && mesej.indexOf(k) >= 0) mesej = mesej.split(k).join(KAMUS_EN[k]);
+      var kk = k.replace(/\s+$/, '');           // kunci tanpa ruang hujung juga dicuba
+      if (kk.length >= 8 && teks.indexOf(kk) >= 0) teks = teks.split(kk).join(KAMUS_EN[k]);
     });
-    return mesej;
+    return teks;
   }
+  function tbMesej(mesej) { return gantiFrasa(mesej); }
 
   /* Gantikan teks Melayu dengan terjemahan dalam nilai nod. Nod HTML sering merentas baris
      (newline + indent), jadi teks yang dipangkas TIDAK menjadi substring nilai asal -
@@ -2113,6 +2136,10 @@
           if (m2 && KAMUS_EN[m2[2].trim()]) terjemah = m2[1] + ' ' + KAMUS_EN[m2[2].trim()];
         }
         dariCorak = !!terjemah;
+      }
+      if (!terjemah) {
+        var frasa = gantiFrasa(t);          /* ayat yang dipisah markup */
+        if (frasa !== t) { terjemah = frasa; dariCorak = true; }
       }
       if (!terjemah) continue;
       ingatUI(nod, 'teksNod', ms, dariCorak ? gantiTeks(ms, t, terjemah) : undefined, t);
@@ -2210,14 +2237,16 @@
       tunjukLangkah(langkahKini);            // bar langkah kecil (Step N / 8, tajuk langkah, butang)
     }
     if (LOG_MENTAH) tulisLog(LOG_MENTAH, LOG_JENIS);   // log status ikut bahasa, tanpa hilang mesej
+    if (typeof kemasLkNota === 'function') kemasLkNota();   // nota "belum diisi" ikut bahasa
                                              // (bina semula akan membuang rujukan elemen & pilihan semasa)
     var selLabel = el('label-projek');       // pilihan label projek ikut bahasa juga
     if (selLabel) {
       var ms = BAHASA !== 'en';
-      selLabel.options[0].text = ms ? 'Projek: Hospital Rizen, Kuantan' : 'Project: Hospital Rizen, Kuantan';
-      selLabel.options[1].text = ms ? 'Klien: Klinik Sihat Jaya' : 'Client: Klinik Sihat Jaya';
-      selLabel.options[2].text = ms ? 'Projek / Klien: Hospital Rizen' : 'Project / Client: Hospital Rizen';
-      selLabel.options[3].text = ms ? 'Hospital Rizen, Kuantan (tiada label)' : 'Hospital Rizen, Kuantan (no label)';
+      selLabel.options[0].text = ms ? 'Label: Projek  \u2192  Projek: Hospital Rizen' : 'Label: Project  \u2192  Project: Hospital Rizen';
+      selLabel.options[1].text = ms ? 'Label: Klien  \u2192  Klien: Klinik Sihat Jaya' : 'Label: Client  \u2192  Client: Klinik Sihat Jaya';
+      selLabel.options[2].text = ms ? 'Label: Projek / Klien  \u2192  Projek / Klien: Hospital Rizen'
+                                    : 'Label: Project / Client  \u2192  Project / Client: Hospital Rizen';
+      selLabel.options[3].text = ms ? 'Tiada label  \u2192  Hospital Rizen sahaja' : 'No label  \u2192  Hospital Rizen only';
     }
   }
 
@@ -2311,7 +2340,11 @@
     });
     var teks = bekas.querySelector('.tahap-teks');
     if (teks) {
-      teks.innerHTML = nilai ? 'Tahap <strong>' + nilai + ' / 5</strong> &#8212; ' + TAHAP_NAMA[nilai] : 'Belum dipilih';
+      teks.innerHTML = nilai
+        ? (BAHASA === 'en'
+            ? 'Level <strong>' + nilai + ' / 5</strong> &#8212; ' + tb(TAHAP_NAMA[nilai])
+            : 'Tahap <strong>' + nilai + ' / 5</strong> &#8212; ' + TAHAP_NAMA[nilai])
+        : tb('Belum dipilih');
     }
   }
 
@@ -3037,26 +3070,18 @@
       var b = el(id);
       if (b) b.hidden = !(boleh && rasmi);
     });
+    var en = (BAHASA === 'en');
     var teks = '';
     if (penjual) {
       teks = rasmi
-        ? 'Susunan rasmi sedang digunakan untuk semua pelanggan baru. Pelanggan boleh susun untuk dirinya sendiri tanpa mengubah susunan ini.'
-        : 'Belum ada susunan rasmi - templat ini memakai susunan asal. Susun blok, kemudian tekan "Jadikan susunan rasmi".';
+        ? (en ? 'The official order is being used for all new customers. A customer can arrange blocks for themselves without changing this order.'
+              : 'Susunan rasmi sedang digunakan untuk semua pelanggan baru. Pelanggan boleh susun untuk dirinya sendiri tanpa mengubah susunan ini.')
+        : (en ? 'No official order yet - this template uses its default order. Arrange the blocks, then press "Save as official order".'
+              : 'Belum ada susunan rasmi - templat ini memakai susunan asal. Susun blok, kemudian tekan "Jadikan susunan rasmi".');
     } else if (SUSUN) {
-      teks = 'Susunan blok ini hanya untuk resume anda - susunan rasmi tidak berubah.';
+      teks = en ? 'This block order is for your resume only - the official order is unchanged.'
+                : 'Susunan blok ini hanya untuk resume anda - susunan rasmi tidak berubah.';
     }
-    ['nota-rasmi', 'nota-rasmi-3'].forEach(function (id) {
-      var n = el(id);
-      if (!n) return;
-      n.textContent = teks;
-      n.hidden = !teks;
-    });
-    var np = el('nota-rasmi-penjual');
-    if (np) np.textContent = BAHASA === 'en'
-      ? (rasmi ? 'Official order for the ' + tmp().nama + ' template is active. New customers receive it.'
-               : 'No official order yet for the ' + tmp().nama + ' template - the template default order is used.')
-      : (rasmi ? 'Susunan rasmi untuk templat ' + tmp().nama + ' sedang aktif. Pelanggan baru menerimanya.'
-               : 'Belum ada susunan rasmi untuk templat ' + tmp().nama + ' - susunan asal templat digunakan.');
     var reset = el('susun-reset');
     if (reset) reset.textContent = rasmi ? 'Ikut susunan rasmi' : 'Tetapkan semula';
   }
@@ -4339,21 +4364,26 @@
     var nota = el('lk-nota');
     if (!nota) return;
     if (mesej) { nota.hidden = false; nota.textContent = mesej; return; }
+    var en = (BAHASA === 'en');
     var d = data || kumpul(), kurang = [];
-    if (!d.nama) kurang.push('nama');
-    if (!d.telefon) kurang.push('nombor telefon');
+    if (!d.nama) kurang.push(en ? 'name' : 'nama');
+    if (!d.telefon) kurang.push(en ? 'phone number' : 'nombor telefon');
     nota.hidden = !kurang.length;
     if (kurang.length) {
-      nota.textContent = langkahKini < LANGKAH.length
-        ? 'Belum diisi: ' + kurang.join(' dan ') + ' \u2014 perlu sebelum pratonton.'
-        : 'Belum diisi: ' + kurang.join(' dan ') + ' \u2014 isi dahulu untuk buka pratonton.';
+      nota.textContent = en
+        ? 'Not filled in yet: ' + kurang.join(' and ') +
+          (langkahKini < LANGKAH.length ? ' \u2014 needed before the preview.' : ' \u2014 fill it in first to open the preview.')
+        : 'Belum diisi: ' + kurang.join(' dan ') +
+          (langkahKini < LANGKAH.length ? ' \u2014 perlu sebelum pratonton.' : ' \u2014 isi dahulu untuk buka pratonton.');
     }
   }
 
   function bolehKePratonton() {
     var d = kumpul();
     if (d.nama && d.telefon) return true;
-    tulisLog('Isi ' + (!d.nama ? 'Nama' : 'Nombor Telefon') + ' dahulu sebelum lihat pratonton.', 'ralat');
+    tulisLog(BAHASA === 'en'
+      ? 'Fill in ' + (!d.nama ? 'Name' : 'Phone Number') + ' first before opening the preview.'
+      : 'Isi ' + (!d.nama ? 'Nama' : 'Nombor Telefon') + ' dahulu sebelum lihat pratonton.', 'ralat');
     var medan = !d.nama ? el('nama') : el('telefon');
     if (medan) {
       medan.focus();
@@ -4451,7 +4481,9 @@
       var kosong = bahagianKosong(kumpul());
       if (kosong.length && !sediaPratonton) {
         sediaPratonton = true;
-        kemasLkNota(null, 'Belum diisi: ' + kosong.join(', ') + '. Tekan sekali lagi untuk terus ke pratonton, atau isi dahulu.');
+        kemasLkNota(null, BAHASA === 'en'
+          ? 'Not filled in yet: ' + kosong.join(', ') + '. Press once more to go to the preview anyway, or fill it in first.'
+          : 'Belum diisi: ' + kosong.join(', ') + '. Tekan sekali lagi untuk terus ke pratonton, atau isi dahulu.');
         return;
       }
       sediaPratonton = false;
@@ -4519,6 +4551,7 @@
   tunjukLangkah(1);
   bacaTetapanEmail();
   semakSimpanan();
+  terjemahElemen(document.body);   // nota yang ditulis selepas init (cth status e-mel) juga ikut bahasa
   pergiHal(halAwal || 1, true);
   susunSkala();
 })();

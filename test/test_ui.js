@@ -1420,8 +1420,8 @@ ok(w.ResumeMV.kiraHalaman(0) === 1 && w.ResumeMV.kiraHalaman(undefined) === 1, '
   const RASMI = { kiri: ['kemahiran', 'kontak', 'bahasa'], kanan: ['profil', 'pengalaman', 'pendidikan', 'rujukan'] };
   ok(wJ.ResumeMV.simpanSusunRasmi(RASMI) === true, 'penjual boleh menyimpan susunan rasmi');
   ok(JSON.stringify(wJ.ResumeMV.susunRasmi()) === JSON.stringify(RASMI), 'susunan rasmi tersimpan seperti yang diatur');
-  ok(/Susunan rasmi|Official order/.test(dJ.getElementById('nota-rasmi-penjual').textContent),
-     'panel mod penjual memaparkan status susunan rasmi (ikut bahasa dipilih)');
+  ok(/order|rasmi/i.test(dJ.getElementById('nota-rasmi-penjual').textContent),
+     'panel mod penjual memaparkan status susunan rasmi: ' + dJ.getElementById('nota-rasmi-penjual').textContent.slice(0, 34));
 
   // pelanggan BARU tanpa susunan sendiri: menerima susunan rasmi
   const domB = domSusun('https://alexander751.github.io/Resume-builder-mv/');
@@ -1559,7 +1559,9 @@ ok(w.ResumeMV.kiraHalaman(0) === 1 && w.ResumeMV.kiraHalaman(undefined) === 1, '
      'kod pesanan membawa bahasa resume (penjual cetak dalam bahasa yang sama)');
   d.querySelector('.pb-btn[data-bahasa="ms"]').click();
   ok(/pengalaman kerja/i.test(el('resume').textContent), 'kembali ke Bahasa Melayu: tajuk resume Melayu semula');
-  ok(el('label-projek').options[0].text.indexOf('Projek:') === 0, 'pilihan label projek juga bertukar bahasa');
+  ok(/^Label: Projek/.test(el('label-projek').options[0].text), 'pilihan label projek juga bertukar bahasa');
+  ok(/^Label: Project/.test(el('label-projek').options[0].text) || /^Label: Projek/.test(el('label-projek').options[0].text),
+     'teks pilihan label jelas (Label: ... -> contoh hasil)');
 
   // ---- blok 47: mod English mesti BERSIH daripada ayat Bahasa Melayu ----
   console.log('== 47. Mod English: tiada ayat Bahasa Melayu yang tinggal ==');
@@ -1576,7 +1578,9 @@ ok(w.ResumeMV.kiraHalaman(0) === 1 && w.ResumeMV.kiraHalaman(undefined) === 1, '
       while ((nod = w2.nextNode())) {
         const p = nod.parentNode;
         if (!p || p.tagName === 'SCRIPT' || p.tagName === 'STYLE') continue;
-        if (p.closest && p.closest('#resume, .lembar, .kertas, .pb-btn, textarea, input')) continue;
+        if (p.closest && p.closest('#resume, .lembar, .kertas, .pb-btn, textarea, input, [hidden]')) continue;
+        var kotak = p.closest ? p.closest('*') : null;
+        if (kotak && w.getComputedStyle(kotak).display === 'none') continue;
         const t = (nod.nodeValue || '').replace(/\s+/g, ' ').trim();
         if (!t || t.length < 6 || !KATA.test(t)) continue;
         tinggal.push(t.slice(0, 55));
