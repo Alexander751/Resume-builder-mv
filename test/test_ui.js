@@ -1498,29 +1498,21 @@ ok(w.ResumeMV.kiraHalaman(0) === 1 && w.ResumeMV.kiraHalaman(undefined) === 1, '
   ok(kodP.length < 3000, 'kod pesanan masih pendek walaupun ada projek (g: ' + kodP.length + ' aksara)');
 
   // ---- blok 45: label projek boleh ubah, tanda titik pelanggan, dwibahasa ----
-  console.log('== 45. Label projek, tanda titik yang pelanggan taip, dwibahasa ==');
-  ok(!!el('label-projek'), 'pilihan label projek wujud di bahagian pengalaman');
-  ok(el('label-projek').options.length === 4, 'empat pilihan label (Projek / Klien / Projek & Klien / tiada label)');
+  /* Dropdown "Label nama projek pada resume" DIBUANG (pelanggan keliru) - label lalai "Projek:" kekal. */
+  ok(!el('label-projek'), 'dropdown label projek sudah dibuang dari borang pengalaman');
+  ok(!/Label: Projek|Label: Project/.test(html), 'tiada lagi teks pilihan label dalam kod');
   const dataPj = { nama: 'Uji Label Projek', telefon: '011-111 0000', templat: 'biru',
     pengalaman: [{ jawatan: 'Quantity Surveyor', syarikat: 'EPH Construction', tempoh: '2024',
                    projek: [{ nama: 'Hospital Rizen', poin: ['Sediakan BQ'] }] }],
     kemahiran: [], bahasa: [], pendidikan: [], rujukan: [], tambahan: [] };
   w.ResumeMV.isi(JSON.parse(JSON.stringify(dataPj)));
   el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
-  ok(/Projek: Hospital Rizen/.test(el('resume').textContent), 'label lalai: "Projek: Hospital Rizen"');
-  el('label-projek').value = 'klien';
-  el('label-projek').dispatchEvent(new w.Event('change', { bubbles: true }));
-  ok(/Klien: Hospital Rizen/.test(el('resume').textContent), 'pilih "Klien" - label pada resume bertukar');
-  el('label-projek').value = 'projek-klien';
-  el('label-projek').dispatchEvent(new w.Event('change', { bubbles: true }));
-  ok(/Projek \/ Klien: Hospital Rizen/.test(el('resume').textContent), 'pilih "Projek / Klien" - dua label');
-  el('label-projek').value = 'tiada';
-  el('label-projek').dispatchEvent(new w.Event('change', { bubbles: true }));
+  ok(/Projek: Hospital Rizen/.test(el('resume').textContent),
+     'label projek lalai "Projek: ..." dicetak tanpa sebarang pilihan');
+  w.ResumeMV.isi(Object.assign(JSON.parse(JSON.stringify(dataPj)), { labelProjek: 'tiada' }));
+  el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
   ok(/Hospital Rizen/.test(el('resume').textContent) && !/Projek:/.test(el('resume').textContent),
-     'pilih "tiada label" - nama projek sahaja yang dicetak');
-  el('label-projek').value = 'projek';
-  el('label-projek').dispatchEvent(new w.Event('change', { bubbles: true }));
-
+     'kod pesanan lama dengan lp="tiada" masih dihormati (nama projek sahaja)');
   // kerja bukan berasaskan projek: nama projek kosong = terus ke perkara utama
   const dataTiada = JSON.parse(JSON.stringify(dataPj));
   dataTiada.pengalaman[0].jawatan = 'Kerani Akaun';
@@ -1559,9 +1551,7 @@ ok(w.ResumeMV.kiraHalaman(0) === 1 && w.ResumeMV.kiraHalaman(undefined) === 1, '
      'kod pesanan membawa bahasa resume (penjual cetak dalam bahasa yang sama)');
   d.querySelector('.pb-btn[data-bahasa="ms"]').click();
   ok(/pengalaman kerja/i.test(el('resume').textContent), 'kembali ke Bahasa Melayu: tajuk resume Melayu semula');
-  ok(/^Label: Projek/.test(el('label-projek').options[0].text), 'pilihan label projek juga bertukar bahasa');
-  ok(/^Label: Project/.test(el('label-projek').options[0].text) || /^Label: Projek/.test(el('label-projek').options[0].text),
-     'teks pilihan label jelas (Label: ... -> contoh hasil)');
+  ok(!/Label: Projects?\s/.test(html), 'teks pilihan label dibuang sepenuhnya');
 
   // ---- blok 47: mod English mesti BERSIH daripada ayat Bahasa Melayu ----
   console.log('== 47. Mod English: tiada ayat Bahasa Melayu yang tinggal ==');

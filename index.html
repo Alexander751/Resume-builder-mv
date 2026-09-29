@@ -1360,13 +1360,6 @@
     <fieldset class="sek" data-sek="pengalaman" data-langkah="3">
       <legend>Pengalaman Kerja</legend>
       <button type="button" class="sek-buang" data-sek="pengalaman">Buang bahagian ini</button>
-      <label for="label-projek">Label nama projek pada resume</label>
-      <select id="label-projek">
-        <option value="projek">Label: Projek &nbsp;&rarr;&nbsp; Projek: Hospital Rizen</option>
-        <option value="klien">Label: Klien &nbsp;&rarr;&nbsp; Klien: Klinik Sihat Jaya</option>
-        <option value="projek-klien">Label: Projek / Klien &nbsp;&rarr;&nbsp; Projek / Klien: Hospital Rizen</option>
-        <option value="tiada">Tiada label &nbsp;&rarr;&nbsp; Hospital Rizen sahaja</option>
-      </select>
       <p class="sek-nota">Nama projek dalam setiap kad adalah <strong>pilihan</strong> &mdash; kosongkan
       kalau kerja anda tidak berasaskan projek (cth kerani, jurujual, cikgu); resume akan terus ke
       perkara utama.</p>
@@ -2248,15 +2241,7 @@
     if (LOG_MENTAH) tulisLog(LOG_MENTAH, LOG_JENIS);   // log status ikut bahasa, tanpa hilang mesej
     if (typeof kemasLkNota === 'function') kemasLkNota();   // nota "belum diisi" ikut bahasa
                                              // (bina semula akan membuang rujukan elemen & pilihan semasa)
-    var selLabel = el('label-projek');       // pilihan label projek ikut bahasa juga
-    if (selLabel) {
-      var ms = BAHASA !== 'en';
-      selLabel.options[0].text = ms ? 'Label: Projek  \u2192  Projek: Hospital Rizen' : 'Label: Project  \u2192  Project: Hospital Rizen';
-      selLabel.options[1].text = ms ? 'Label: Klien  \u2192  Klien: Klinik Sihat Jaya' : 'Label: Client  \u2192  Client: Klinik Sihat Jaya';
-      selLabel.options[2].text = ms ? 'Label: Projek / Klien  \u2192  Projek / Klien: Hospital Rizen'
-                                    : 'Label: Project / Client  \u2192  Project / Client: Hospital Rizen';
-      selLabel.options[3].text = ms ? 'Tiada label  \u2192  Hospital Rizen sahaja' : 'No label  \u2192  Hospital Rizen only';
-    }
+    
   }
 
   function gunaBahasa(bhs) {
@@ -2511,8 +2496,7 @@
       if (o.nama || o.jawatan || o.telefon) d.rujukan.push(o);
     });
     d.templat = KUNCI_TEMPLAT;
-    var selLabel = el('label-projek');
-    d.labelProjek = selLabel ? selLabel.value : 'projek';
+    d.labelProjek = LABEL_PROJEK;
     d.bahasaResume = BAHASA;
     return d;
   }
@@ -3758,8 +3742,6 @@
     BUANG = (d.buang || []).slice();
     SUSUN = d.susun ? { kiri: (d.susun.kiri || []).slice(), kanan: (d.susun.kanan || []).slice() } : null;
     LABEL_PROJEK = d.labelProjek || LABEL_PROJEK || 'projek';
-    var selLabel = el('label-projek');
-    if (selLabel) selLabel.value = LABEL_PROJEK;
     if (d.bahasaResume) BAHASA = (d.bahasaResume === 'en') ? 'en' : 'ms';
     terapkanBahasa();
     kemasSek();
@@ -3919,10 +3901,6 @@
       gunaBahasa(b.getAttribute('data-bahasa'));
       tulisLog(BAHASA === 'en' ? 'Bahasa resume: English.' : 'Bahasa resume: Bahasa Melayu.', 'info');
     });
-  });
-  el('label-projek').addEventListener('change', function () {
-    LABEL_PROJEK = el('label-projek').value;
-    kemasSemula();
   });
   el('togol-susun').addEventListener('click', function () { setModSusun(!MOD_SUSUN); });
   el('togol-susun-3').addEventListener('click', function () { setModSusun(!MOD_SUSUN); });
