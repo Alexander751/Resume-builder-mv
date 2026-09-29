@@ -1879,6 +1879,53 @@
     "Ketuk tajuk 5 kali untuk Mod Penjual": "Tap the title 5 times for Seller Mode",
   };
 
+  /* tambahan kamus: ayat penuh + serpihan ayat yang dipisah markup */
+  Object.assign(KAMUS_EN, {
+    ", fotonya kekal — tidak perlu muat naik semula.": ", the photo is kept — no need to upload it again.",
+    ". Susunan yang pelanggan buat sendiri (dalam kod pesanan mereka) mengubah resume mereka sahaja — apabila kod pelanggan itu dibuka di sini, ia dicetak mengikut susunan pelanggan, dan susunan rasmi anda tidak tersentuh.": ". An order the customer arranged themselves (inside their order code) changes only their own resume — when you open that customer code here it prints in the customer's order, and your official order is untouched.",
+    "reka bentuk": "designs",
+    "Belum diisi: nama dan nombor telefon — perlu sebelum pratonton.": "Not filled in yet: name and phone number — needed before the preview.",
+    "Belum diset. Isi URL Apps Script dan token, kemudian tekan Simpan. Tanpa ini, butang WhatsApp berfungsi seperti biasa (kod sahaja).": "Not set yet. Paste the Apps Script URL and token, then press Save. Without this, the WhatsApp button works as usual (code only).",
+    "Hantar Pesanan ke WhatsApp": "Send Order via WhatsApp",
+    "Kod tidak mengandungi foto (kod akan jadi puluhan ribu huruf kalau foto dimasukkan). Kalau pelanggan ada foto, minta dia hantar gambar dalam WhatsApp, kemudian muat naik di ruang": "The code does not contain the photo (it would be tens of thousands of characters if it did). If the customer has a photo, ask them to send it on WhatsApp, then upload it in the",
+    "Resume A4 siap cetak · tanpa daftar akaun · hantar terus melalui WhatsApp": "Print-ready A4 resume · no account needed · sent straight through WhatsApp",
+    "Seterusnya: Hantar →": "Next: Send →",
+    "Tekan butang WhatsApp di atas — butiran resume dihantar sekali sahaja kepada penjual.": "Press the WhatsApp button above — the resume details are sent to the seller once only.",
+    "Tekan butang di bawah — WhatsApp terbuka dengan butiran resume anda sudah siap diisi. Anda cuma perlu tekan hantar.": "Press the button below — WhatsApp opens with your resume details already filled in. You only need to press send.",
+    "hanya bila anda mahu PDF bersih tanpa tanda air.": "only when you want the clean PDF without the watermark.",
+    "sebelum cetak PDF. Kalau pelanggan membuka kod ini": "before printing the PDF. If the customer opens this code",
+    "untuk semak pratonton penuh, kemudian hantar melalui WhatsApp.": "to check the full preview, then send it through WhatsApp.",
+    "untuk tahap penguasaan (1 = asas, 5 = fasih sepenuhnya).": "for the proficiency scale (1 = basic, 5 = fully fluent).",
+    "untuk tahap penguasaan (1 = asas, 5 = pakar).": "for the proficiency scale (1 = basic, 5 = expert).",
+    "— kosongkan kalau kerja anda tidak berasaskan projek (cth kerani, jurujual, cikgu); resume akan terus ke perkara utama.": "— leave it empty if your work is not project-based (e.g. clerk, salesperson, teacher); the resume goes straight to the key points.",
+    "— susunan yang diterima SEMUA pelanggan baru.": "— the order that ALL new customers receive.",
+    "— tampal sekali sahaja. Selepas ini, setiap pelanggan yang menekan butang WhatsApp akan menghantar resume (bersama data dan kod) ke email anda secara automatik.": "— paste it once. After that, every customer who presses the WhatsApp button will send their resume (data and code) to your email automatically.",
+    "← Leret untuk lihat reka bentuk lain →": "← Swipe to see other designs →",
+    "Seterusnya: Pratonton →": "Next: Preview →"
+  });
+
+  /* tambahan kamus: nama kad yang dijana kod + teks status */
+  Object.assign(KAMUS_EN, {
+    "Pengalaman": "Experience",
+    "Rujukan": "Reference",
+    "Projek & perkara utama": "Project & key points",
+    "Jangan taip tanda titik di depan ayat — app sudah menambahnya (tanda yang awak taip akan dibuang supaya cetakan tidak keluar dua titik).": "Do not type a bullet character at the start of a line — the app adds it for you (any bullet you type is removed so the print does not show two dots).",
+    "Belum ada foto (pilihan).": "No photo yet (optional).",
+    "OK - foto akan masuk ke dalam resume.": "OK - the photo will go into the resume.",
+    "Foto": "Photo",
+    "Buang foto": "Remove photo",
+    "Kemahiran Profesional": "Professional Skills",
+    "Sijil & Latihan": "Certificates & Training",
+    "Aktiviti": "Activities",
+    "Projek": "Project",
+    "Bahasa": "Languages",
+    "Pendidikan": "Education",
+    "Kemahiran": "Skills",
+    "Tahap": "Level",
+    "daripada 5": "of 5",
+    "Belum dipilih": "Not selected"
+  });
+
   /* tambahan kamus: placeholder + butang + label kad yang dijana kod */
   Object.assign(KAMUS_EN, {
     "cth. Ahmad bin Ali": "e.g. Ahmad bin Ali",
@@ -2001,17 +2048,30 @@
     return mesej;
   }
 
+  /* Gantikan teks Melayu dengan terjemahan dalam nilai nod. Nod HTML sering merentas baris
+     (newline + indent), jadi teks yang dipangkas TIDAK menjadi substring nilai asal -
+     fungsi ini memadankan perkataan demi perkataan bila padanan terus gagal. */
+  function gantiTeks(nilai, cari, ganti) {
+    var i = (nilai || '').indexOf(cari);
+    if (i >= 0) return nilai.slice(0, i) + ganti + nilai.slice(i + cari.length);
+    var corak = (cari || '').split(' ').map(function (x) {
+      return x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }).join('\\s+');
+    if (!corak) return nilai;
+    try { return nilai.replace(new RegExp('^\\s*' + corak + '\\s*$'), ganti); } catch (e) { return nilai; }
+  }
+
   /* senarai teks antara muka yang pernah diterjemah, untuk dipulihkan */
   var UI_ASAL = [];
   var UI_LOMPAT = '#resume, .lembar, .kertas, #log, #galeri, #mini-';
 
   /* kunci = teks Melayu yang dipangkas (dipakai untuk cari terjemahan); ms = nilai asal penuh
      (untuk nod teks yang ada ruang/newline, kita pulihkan nilai penuh itu) */
-  function ingatUI(e, jenis, ms, kunci) {
+  function ingatUI(e, jenis, ms, en, kunci) {
     for (var i = 0; i < UI_ASAL.length; i++) {
       if (UI_ASAL[i].e === e && UI_ASAL[i].jenis === jenis) return;
     }
-    UI_ASAL.push({ e: e, jenis: jenis, ms: ms, kunci: kunci || ms });
+    UI_ASAL.push({ e: e, jenis: jenis, ms: ms, kunci: kunci || ms, en: en });
   }
 
   /* kumpul teks dalam satu bekas yang ada dalam kamus (untuk bekas kecil selepas render).
@@ -2042,9 +2102,21 @@
       if (!p || (p.closest && p.closest(UI_LOMPAT))) continue;
       var ms = nod.nodeValue || '';
       var t = ms.replace(/\s+/g, ' ').trim();
-      if (!t || !KAMUS_EN[t]) continue;
-      ingatUI(nod, 'teksNod', ms, t);
-      if (en) nod.nodeValue = ms.replace(t, KAMUS_EN[t]);
+      if (!t) continue;
+      var terjemah = KAMUS_EN[t], dariCorak = false;
+      if (!terjemah) {
+        /* teks yang dijana kod: "Pengalaman 2", "Pendidikan 1", "Projek 3" */
+        var m = /^([^0-9]+?) (\d+)$/.exec(t);
+        if (m && KAMUS_EN[m[1].trim()]) terjemah = KAMUS_EN[m[1].trim()] + ' ' + m[2];
+        if (!terjemah) {                                 /* cth "2 reka bentuk" */
+          var m2 = /^(\d+) (.+)$/.exec(t);
+          if (m2 && KAMUS_EN[m2[2].trim()]) terjemah = m2[1] + ' ' + KAMUS_EN[m2[2].trim()];
+        }
+        dariCorak = !!terjemah;
+      }
+      if (!terjemah) continue;
+      ingatUI(nod, 'teksNod', ms, dariCorak ? gantiTeks(ms, t, terjemah) : undefined, t);
+      if (en) nod.nodeValue = gantiTeks(ms, t, terjemah);
     }
     Array.prototype.forEach.call(akar.querySelectorAll('[placeholder]'), function (e) {
       if (e.closest && e.closest(UI_LOMPAT)) return;
@@ -2090,8 +2162,10 @@
   function terjemahAntaraMuka() {
     var en = (BAHASA === 'en');
     UI_ASAL.forEach(function (o) {
-      var nilai = en ? (KAMUS_EN[o.kunci || o.ms] || o.kunci || o.ms) : (o.kunci || o.ms);
-      if (o.jenis === 'teksNod') o.e.nodeValue = (o.ms || '').replace(o.kunci || o.ms, nilai);
+      /* 'en' hanya disimpan untuk teks yang dijana oleh pola (cth "Pengalaman 2");
+         selebihnya dikira daripada kamus SEMASA supaya entri yang ditambah kemudian ikut terpakai */
+      var nilai = en ? (o.en || KAMUS_EN[o.kunci] || o.kunci || o.ms) : (o.kunci || o.ms);
+      if (o.jenis === 'teksNod') o.e.nodeValue = gantiTeks(o.ms, o.kunci || o.ms, nilai);
       else if (o.jenis === 'teks') o.e.textContent = nilai;
       else if (o.jenis === 'placeholder') o.e.setAttribute('placeholder', nilai);
       else if (o.jenis === 'title') o.e.setAttribute('title', nilai);
@@ -2978,9 +3052,11 @@
       n.hidden = !teks;
     });
     var np = el('nota-rasmi-penjual');
-    if (np) np.textContent = rasmi
-      ? 'Susunan rasmi untuk templat ' + tmp().nama + ' sedang aktif. Pelanggan baru menerimanya.'
-      : 'Belum ada susunan rasmi untuk templat ' + tmp().nama + ' - susunan asal templat digunakan.';
+    if (np) np.textContent = BAHASA === 'en'
+      ? (rasmi ? 'Official order for the ' + tmp().nama + ' template is active. New customers receive it.'
+               : 'No official order yet for the ' + tmp().nama + ' template - the template default order is used.')
+      : (rasmi ? 'Susunan rasmi untuk templat ' + tmp().nama + ' sedang aktif. Pelanggan baru menerimanya.'
+               : 'Belum ada susunan rasmi untuk templat ' + tmp().nama + ' - susunan asal templat digunakan.');
     var reset = el('susun-reset');
     if (reset) reset.textContent = rasmi ? 'Ikut susunan rasmi' : 'Tetapkan semula';
   }
@@ -3530,21 +3606,37 @@
 
   /* ---------- kiraan hidup + simpan ---------- */
   function status(d) {
+    var en = (BAHASA === 'en');
     var p = d.pengalaman.length, pd = d.pendidikan.length;
-    var bahagian = p + ' pengalaman, ' + pd + ' pendidikan';
-    if (!d.nama && !d.telefon) return { mesej: 'Belum ada apa-apa diisi. ' + bahagian + ' akan masuk ke resume.', jenis: '' };
-    if (p === 0) return { mesej: 'AMARAN: resume akan keluar tanpa bahagian Pengalaman. ' + bahagian + ' setakat ini.', jenis: 'amaran' };
+    var bahagian = en
+      ? p + (p === 1 ? ' experience' : ' experiences') + ', ' + pd + (pd === 1 ? ' education entry' : ' education entries')
+      : p + ' pengalaman, ' + pd + ' pendidikan';
+    if (!d.nama && !d.telefon) {
+      return { mesej: en ? 'Nothing filled in yet. ' + bahagian + ' will go into the resume.'
+                         : 'Belum ada apa-apa diisi. ' + bahagian + ' akan masuk ke resume.', jenis: '' };
+    }
+    if (p === 0) {
+      return { mesej: en ? 'WARNING: the resume will print without a Work Experience section. ' + bahagian + ' so far.'
+                         : 'AMARAN: resume akan keluar tanpa bahagian Pengalaman. ' + bahagian + ' setakat ini.',
+               jenis: 'amaran' };
+    }
     // templat satu lajur: beritahu kalau jarak sudah direnggangkan maksimum (halaman masih lapang)
     if (LEBIH) {
-      return { mesej: 'OK - ' + bahagian + ' akan masuk ke resume. Isi sudah melebihi satu halaman '
-        + '(akan dicetak 2 halaman) - padam poin yang kurang penting kalau mahu 1 halaman.', jenis: 'amaran' };
+      return { mesej: en ? 'OK - ' + bahagian + ' will go into the resume. The content now exceeds one page '
+                         + '(it will print as 2 pages) - remove less important points if you want 1 page.'
+                         : 'OK - ' + bahagian + ' akan masuk ke resume. Isi sudah melebihi satu halaman '
+                         + '(akan dicetak 2 halaman) - padam poin yang kurang penting kalau mahu 1 halaman.',
+               jenis: 'amaran' };
     }
     if (tmp().satuLajur && PENUH < 0.55) {
-      return { mesej: 'OK - ' + bahagian + ' akan masuk ke resume. Ruang halaman masih lapang '
-        + '(jarak direnggangkan automatik) - tambah kemahiran, bahasa atau bahagian tambahan supaya resume nampak penuh.',
-        jenis: 'info' };
+      return { mesej: en ? 'OK - ' + bahagian + ' will go into the resume. There is still space on the page '
+                         + '(spacing was stretched automatically) - add skills, languages or an extra section to fill it.'
+                         : 'OK - ' + bahagian + ' akan masuk ke resume. Ruang halaman masih lapang '
+                         + '(jarak direnggangkan automatik) - tambah kemahiran, bahasa atau bahagian tambahan supaya resume nampak penuh.',
+               jenis: 'info' };
     }
-    return { mesej: 'OK - ' + bahagian + ' akan masuk ke resume.', jenis: 'info' };
+    return { mesej: en ? 'OK - ' + bahagian + ' will go into the resume.'
+                       : 'OK - ' + bahagian + ' akan masuk ke resume.', jenis: 'info' };
   }
 
   function kemasSemula() {
@@ -3660,7 +3752,9 @@
     kotak.style.fontSize = '12px';
     kotak.style.marginTop = '4px';
     kotak.style.color = ralat ? '#b42318' : (foto ? '#166534' : '#6b7280');
-    kotak.textContent = mesej || (foto ? 'OK - foto akan masuk ke dalam resume.' : 'Belum ada foto (pilihan).');
+    kotak.textContent = mesej || (foto
+      ? (BAHASA === 'en' ? 'OK - the photo will go into the resume.' : 'OK - foto akan masuk ke dalam resume.')
+      : (BAHASA === 'en' ? 'No photo yet (optional).' : 'Belum ada foto (pilihan).'));
   }
 
   function kecilkanFoto(fail, sudah) {
@@ -4413,6 +4507,7 @@
     susunRasmi: bacaSusunRasmi, simpanSusunRasmi: simpanSusunRasmi,
     penjual: function () { return penjual; }, tandaSusunRasmi: tandaSusunRasmi,
     bahasa: function () { return BAHASA; }, gunaBahasa: gunaBahasa, bersihPoin: bersihPoin,
+    kamus: function (k) { return KAMUS_EN[k]; }, uiAsal: function () { return UI_ASAL.length; },
     tempat: function () { return Object.keys(TEMPLAT); }, urutan: urutan, pindah: pindahBlok };
   kemasSemula();
   kemasSek();
