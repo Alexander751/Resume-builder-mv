@@ -1116,7 +1116,8 @@
     margin: 3.4mm 0 0; font-size: calc(15pt * var(--teks)); color: #323b4c;
     text-transform: uppercase; letter-spacing: .34em;
   }
-  .lembar .cv-gelap .gd-kepala { margin-bottom: 8.6mm; }
+  /* rujukan: tajuk pertama lajur kanan (About me) pada y=99.7mm; kepala nama+jawatan mengambil ruang itu */
+  .lembar .cv-gelap .gd-kepala { min-height: 85.3mm; margin-bottom: 0; }
   .lembar .cv-gelap h2 {
     margin: 0 0 3.2mm; padding-bottom: 1.4mm; font-size: calc(17pt * var(--teks)); font-weight: 700;
     color: #323b4c; border-bottom: .53mm solid #323b4c; break-after: avoid; page-break-after: avoid;
@@ -1134,6 +1135,8 @@
   .lembar .cv-gelap .gd-poin { list-style: none; margin: 1mm 0 0; padding: 0; }
   .lembar .cv-gelap .gd-poin li { font-size: calc(9pt * var(--teks)); line-height: 4.2mm; text-align: justify; break-inside: avoid; }
   .lembar .cv-gelap .gd-dua { margin: 1mm 0 0; font-size: calc(9pt * var(--teks)); line-height: 4.2mm; }
+  /* rujukan: tajuk pertama panel kiri (Education) juga pada y=99.7mm seperti imej/foto di atasnya */
+  .lembar .cv-gelap .gd-blok-kiri { margin-top: 41.4mm; }
   .lembar .cv-gelap .gd-kiri .gd-item { margin-top: calc(3.4mm * var(--renggang)); }
   .lembar .cv-gelap .gd-kiri .gd-item:first-child { margin-top: 0; }
   .lembar .cv-gelap .gd-kiri .gd-item strong { display: block; font-size: calc(12pt * var(--teks)); font-weight: 700; }
@@ -1155,7 +1158,7 @@
   .lembar .cv-gelap .gd-kemahiran li::before { display: none; }
   .lembar .cv-gelap .gd-senarai-bullet { list-style: none; margin: 0; padding: 0; }
   .lembar .cv-gelap .gd-senarai-bullet li {
-    position: relative; padding-left: 4mm; font-size: calc(10pt * var(--teks));
+    position: relative; padding-left: 6mm; font-size: calc(10pt * var(--teks));
     line-height: 4.6mm; margin-bottom: calc(1.6mm * var(--renggang));
   }
   .lembar .cv-gelap .gd-senarai-bullet li::before {
@@ -3715,7 +3718,14 @@
   /* urutan() memulangkan senarai ID (bukan objek) - jangan baca o.id.
      Bahagian tambahan (cth Certifications dalam rujukan) diletakkan di PANEL KIRI untuk templat ini. */
   function ikutKiri(d, blok) {
-    var id = urutan(d).kiri.concat(urutan(d).kanan.filter(function (x) { return /^t\d+$/.test(x); }));
+    var u = urutan(d);
+    var tambahan = u.kanan.filter(function (x) { return /^t\d+$/.test(x); });
+    var id = [];
+    u.kiri.forEach(function (x) {
+      id.push(x);
+      if (x === 'pendidikan') id = id.concat(tambahan);   // rujukan: Certifications selepas Education
+    });
+    if (id.indexOf(tambahan[0]) < 0) id = id.concat(tambahan);
     return id.map(function (x) { return blokHtml(x, blok[x], 'kiri'); }).join('');
   }
   function ikutKanan(d, blok) {
