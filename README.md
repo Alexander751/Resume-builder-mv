@@ -892,6 +892,29 @@ kod membawa susunan pelanggan sahaja, butang tersembunyi untuk pelanggan, dan se
 templat. API ujian: `ResumeMV.susunRasmi()`, `ResumeMV.simpanSusunRasmi()`, `ResumeMV.susun()`,
 `ResumeMV.penjual()`.
 
+## Fasa 42 — Projek di dalam pengalaman kerja (builder + cetakan)
+
+Sebelum ini setiap pengalaman hanya ada satu senarai "perkara utama". Susunan sekarang:
+**jawatan/syarikat + tempoh -> PROJEK -> perkara utama projek itu**. Satu pengalaman boleh ada beberapa
+projek (cth projek hospital, kemudian projek perumahan), masing-masing dengan senarai poin sendiri.
+
+- **Borang**: setiap pengalaman ada kad projek. Butang **+ Tambah projek lain** menambah kad baharu;
+  setiap kad ada **Hapus projek** (butang hapus disembunyikan bila hanya tinggal satu kad, supaya
+  pengalaman tidak pernah kehilangan bekas projek). Kad dinomborkan (Projek 1, Projek 2), medan nama
+  projek + medan poin 4 baris tinggi.
+- **Cetakan**: baris nama projek muncul sebelum poin projek itu dalam KETIGA-TIGA templat
+  (`.cvb-projek`, `.cvs-projek`, `.cv-korporat .ck-projek`). Nama ditulis apa adanya; app menambah
+  awalan "Projek: " hanya kalau pelanggan belum menulis perkataan itu sendiri.
+- **Data lama**: pengalaman lama yang menyimpan `poin` terus (tiada medan `projek`) dirender TEPAT
+  seperti dahulu - tiada baris "Projek:" direka. `senaraiProjek()` menormalkan kedua-dua bentuk, jadi
+  kod pesanan pelanggan lama tetap betul.
+- **Kod pesanan**: medan `projek` dibawa bersama `pengalaman` dalam kod (tiada kenaikan format), dan
+  `kumpul()` masih mengisi senarai rata `poin` supaya kod/ujian lama kekal serasi.
+
+Diuji dengan jsdom blok 44 (24 semakan: tambah/hapus kad, penomboran, `kumpul()`, render ketiga-tiga
+templat, keserasian data lama, kod pesanan) dan dengan mencetak tiga PDF sebenar - "Projek: Hospital
+Rizen, Kuantan" serta "Projek: Perumahan Idaman Rakyat" masing-masing muncul SEBELUM poin projeknya.
+
 ## Belum ada (fasa seterusnya)
 
 - Penjana PDF terus tanpa dialog cetak

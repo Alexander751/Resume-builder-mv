@@ -80,7 +80,7 @@ el('ringkasan').value = 'Graduan Ukur Bahan dengan 2 tahun pengalaman dalam proj
 isi('#senarai-pengalaman .baris:nth-child(1) .p-jawatan', 'Quantity Surveyor');
 isi('#senarai-pengalaman .baris:nth-child(1) .p-syarikat', 'EPH Construction Sdn Bhd');
 isi('#senarai-pengalaman .baris:nth-child(1) .p-tempoh', 'Mac 2024 - Kini');
-isi('#senarai-pengalaman .baris:nth-child(1) .p-poin', 'Sediakan BQ 3 projek perumahan\nSemak tuntutan kontraktor');
+isi('#senarai-pengalaman .baris:nth-child(1) .pj-poin', 'Sediakan BQ 3 projek perumahan\nSemak tuntutan kontraktor');
 el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
 let r = resume();
 ok(r.includes('Ahmad bin Ali'), 'nama masuk pratonton');
@@ -226,7 +226,7 @@ console.log('== 12. Templat Biru & Kelabu ==');
 el('emel').value = 'ahmad@gmail.com';
 el('lokasi').value = 'Kemaman, Terengganu';
 el('ringkasan').value = 'Graduan Ukur Bahan dengan 2 tahun pengalaman dalam projek perumahan.';
-isi('#senarai-pengalaman .baris:nth-child(1) .p-poin', 'Sediakan BQ 3 projek\nSemak tuntutan kontraktor');
+isi('#senarai-pengalaman .baris:nth-child(1) .pj-poin', 'Sediakan BQ 3 projek\nSemak tuntutan kontraktor');
 el('tambah-pendidikan').click();
 isi('#senarai-pendidikan .baris:nth-child(1) .d-kelulusan', 'Sarjana Muda Ukur Bahan');
 isi('#senarai-pendidikan .baris:nth-child(1) .d-institusi', 'UiTM Shah Alam');
@@ -770,7 +770,7 @@ isiTahap('bahasa', [['Bahasa Melayu', 5], ['Bahasa Inggeris', 4]]);
 isi('#senarai-pengalaman .baris .p-jawatan', 'Jurutera Tapak');
 isi('#senarai-pengalaman .baris .p-syarikat', 'EPH Construction Sdn Bhd');
 isi('#senarai-pengalaman .baris .p-tempoh', 'Jan 2023 - Kini');
-isi('#senarai-pengalaman .baris .p-poin', 'Menyelia kerja struktur 3 blok\nMenyediakan laporan kemajuan bulanan');
+isi('#senarai-pengalaman .baris .pj-poin', 'Menyelia kerja struktur 3 blok\nMenyediakan laporan kemajuan bulanan');
 isi('#senarai-pendidikan .baris .d-kelulusan', 'Ijazah Sarjana Muda Kejuruteraan Mekanikal');
 isi('#senarai-pendidikan .baris .d-institusi', 'Universiti Malaysia Pahang');
 isi('#senarai-pendidikan .baris .d-tahun', '2018 - 2022');
@@ -1321,10 +1321,10 @@ ok(w.getComputedStyle(el('ke-3')).display === 'none' || !el('ke-3').offsetParent
 
 console.log('== 35. Medan panjang: tinggi sedia selesa (tidak perlu tarik) ==');
 ok(/#ringkasan \{ min-height: 150px; \}/.test(html), 'ringkasan profil tinggi sedia 150px (6-7 baris)');
-ok(/\.p-poin, \.t-isi \{ min-height: 96px; \}/.test(html), 'senarai bulet pengalaman & bahagian tambahan tinggi 96px');
+ok(/\.pj-poin, \.t-isi \{ min-height: 96px; \}/.test(html), 'senarai bulet pengalaman & bahagian tambahan tinggi 96px');
 ok(el('ringkasan').getAttribute('rows') === '6', 'ringkasan ada rows=6 (sandaran tanpa CSS)');
 ok(el('ringkasan').clientWidth > 300 || true, 'ringkasan lebar penuh kad (tiada lebar dikunci)');
-ok(d.querySelector('#senarai-pengalaman .baris .p-poin').getAttribute('rows') === '4', 'medan bulet pengalaman rows=4');
+ok(d.querySelector('#senarai-pengalaman .baris .pj-poin').getAttribute('rows') === '4', 'medan bulet pengalaman rows=4');
 el('tambah-bahagian').click();
 ok(d.querySelector('#senarai-tambahan .baris .t-isi').getAttribute('rows') === '4', 'medan bahagian tambahan rows=4');
 ok(/textarea \{ resize: vertical; min-height: 60px; line-height: 1\.48; \}/.test(html), 'medan pendek lain kekal 60px');
@@ -1448,6 +1448,57 @@ ok(w.ResumeMV.kiraHalaman(0) === 1 && w.ResumeMV.kiraHalaman(undefined) === 1, '
   domK.window.document.querySelector('.kad-pilih[data-templat="korporat"]').click();
   ok(domK.window.ResumeMV.susunRasmi() === null,
      'susunan rasmi satu templat tidak bocor ke templat lain (set berasingan bagi setiap templat)');
+
+  // ---- blok 44: PROJEK dalam pengalaman (builder + render semua templat + kod) ----
+  console.log('== 44. Projek dalam pengalaman (tambah/hapus, render, kod) ==');
+  const barisP = d.querySelector('#senarai-pengalaman .baris');
+  ok(barisP.querySelectorAll('.baris-projek').length === 1, 'borang pengalaman bermula dengan 1 kad projek');
+  ok(barisP.querySelector('.btn-hapus-projek').hidden === true, 'butang "Hapus projek" tersembunyi bila hanya satu projek');
+  ok(!!barisP.querySelector('.pj-nama') && !!barisP.querySelector('.pj-poin'), 'kad projek ada medan nama projek + poin');
+  barisP.querySelector('.btn-tambah-projek').click();
+  ok(barisP.querySelectorAll('.baris-projek').length === 2, '"+ Tambah projek lain" menambah kad projek kedua');
+  ok(barisP.querySelectorAll('.baris-projek')[0].querySelector('.btn-hapus-projek').hidden === false,
+     'butang hapus muncul bila sudah ada dua projek');
+  ok(barisP.querySelectorAll('.pj-tajuk')[1].textContent === 'Projek 2', 'kad projek dinomborkan (Projek 2)');
+  barisP.querySelectorAll('.baris-projek')[1].querySelector('.btn-hapus-projek').click();
+  ok(barisP.querySelectorAll('.baris-projek').length === 1, 'butang hapus projek membuang kad itu');
+  const pk1 = barisP.querySelectorAll('.baris-projek')[0];
+  pk1.querySelector('.pj-nama').value = 'Projek Hospital Rizen, Kuantan';
+  pk1.querySelector('.pj-poin').value = 'Sediakan BQ dan dokumen tawaran\nNilai tuntutan kontraktor setiap bulan';
+  barisP.querySelector('.btn-tambah-projek').click();
+  const pk2 = barisP.querySelectorAll('.baris-projek')[1];
+  pk2.querySelector('.pj-nama').value = 'Projek Perumahan Idaman Rakyat';
+  pk2.querySelector('.pj-poin').value = 'Semak interim certificate\nSediakan laporan kos bulanan';
+  el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+  const dp = w.ResumeMV.kumpul();
+  ok(dp.pengalaman[0].projek.length === 2, 'kumpul(): dua projek disimpan untuk satu pengalaman');
+  ok(dp.pengalaman[0].projek[0].nama === 'Projek Hospital Rizen, Kuantan', 'kumpul(): nama projek pertama betul');
+  ok(dp.pengalaman[0].poin.length === 4, 'kumpul(): senarai poin rata (4) kekal untuk keserasian kod lama');
+  ['biru', 'bersih', 'korporat'].forEach(t => {
+    d.querySelector('.kad-pilih[data-templat="' + t + '"]').click();
+    const teks = el('resume').textContent;
+    const iHosp = teks.indexOf('Hospital Rizen'), iHospPoin = teks.indexOf('Sediakan BQ');
+    const iPeru = teks.indexOf('Idaman Rakyat'), iPeruPoin = teks.indexOf('Semak interim');
+    ok(iHosp >= 0 && iHosp < iHospPoin, t + ': "Projek: Hospital Rizen" muncul SEBELUM poin projek itu');
+    ok(iPeru >= 0 && iPeru < iPeruPoin, t + ': projek kedua juga - nama projek sebelum poinnya');
+    ok(iHospPoin < iPeru, t + ': projek berurutan (poin projek 1 habis, baru nama projek 2)');
+  });
+  const kodP = w.ResumeMV.kod(w.ResumeMV.kumpul());
+  const balikP = w.ResumeMV.dariKod(kodP);
+  ok(balikP.pengalaman[0].projek && balikP.pengalaman[0].projek[0].nama === 'Projek Hospital Rizen, Kuantan',
+     'kod pesanan membawa senarai projek (nama + poin)');
+  ok(kodP.length < 3000, 'kod pesanan masih pendek walaupun ada projek (g: ' + kodP.length + ' aksara)');
+
+  // data lama (poin tanpa projek) mesti kekal berfungsi
+  d.querySelector('.kad-pilih[data-templat="biru"]').click();
+  w.ResumeMV.isi({ nama: 'Data Lama', telefon: '011-000 0000', templat: 'biru',
+    pengalaman: [{ syarikat: 'EPH', jawatan: 'QS', tempoh: '2020', poin: ['Poin lama satu'] }],
+    kemahiran: [], bahasa: [], pendidikan: [], rujukan: [], tambahan: [] });
+  el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+  ok(!/Projek:/.test(el('resume').textContent), 'data lama (poin tanpa projek) TIDAK direka baris "Projek:"');
+  ok(/Poin lama satu/.test(el('resume').textContent), 'data lama: poin lama tetap dirender');
+  ok(d.querySelector('#senarai-pengalaman .baris .baris-projek .pj-poin').value === 'Poin lama satu',
+     'data lama dibuka dalam borang sebagai satu kad projek (nama kosong)');
 ok(/\.kertas-tambahan \{ position: relative; \}/.test(html), 'helaian tambahan jadi rujukan kedudukan');
 ok(/\.kertas \.sambungan \{[\s\S]{0,200}height: var\(--tinggi-hal, 100%\); overflow: hidden;[\s\S]{0,20}\}/.test(html),
    'tingkap sambungan dipotong pada tinggi yang ditetapkan JS');

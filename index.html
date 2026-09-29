@@ -427,7 +427,7 @@
   /* medan yang selalunya diisi beberapa baris: beri tinggi sedia yang selesa
      supaya pelanggan tidak perlu menarik bucu medan untuk melihat apa yang ditulis */
   #ringkasan { min-height: 150px; }        /* ringkasan profil: 6-7 baris */
-  .p-poin, .t-isi { min-height: 96px; }    /* senarai bulet pengalaman & bahagian tambahan */
+  .pj-poin, .t-isi { min-height: 96px; }    /* senarai bulet pengalaman & bahagian tambahan */
   input[type="file"] { padding: 9px 11px; background: #fbfcfe; border-style: dashed; cursor: pointer; }
   #foto-info { margin-top: 7px; font-size: 12.5px; }
   #buang-foto {
@@ -573,7 +573,7 @@
     .galeri .kad-pilih { flex: 0 0 84%; scroll-snap-align: center; }
     .galeri-hint { display: block; }
     #ringkasan { min-height: 172px; }
-    .p-poin, .t-isi { min-height: 112px; }
+    .pj-poin, .t-isi { min-height: 112px; }
     .sek-bahagian .cip { font-size: 12.4px; padding: 9px 10px; gap: 8px; }
     .cip-ikon { width: 27px; height: 27px; }
   }
@@ -1072,6 +1072,29 @@
     font-size: calc(8pt * var(--teks)); font-weight: 400; line-height: 4.4mm; margin-top: .7mm; }
   .lembar .cv-korporat .ck-pendidikan .ck-tahun {
     font-size: calc(8pt * var(--teks)); font-weight: 400; line-height: 4.4mm; }
+
+  /* ---------- nama projek di dalam pengalaman (setiap templat warna sendiri) ----------
+     Susunan setiap item pengalaman: jawatan/syarikat + tempoh -> PROJEK -> perkara utama
+     projek itu. Baris "Projek:" hanya muncul bila pelanggan mengisi nama projek, jadi resume
+     lama (tanpa projek) kekal sama seperti sebelum ini. */
+  .lembar .cvb-projek { font-size: calc(9.5pt * var(--teks)); font-weight: 700; color: #323b4c; margin: 1.8mm 0 .6mm; }
+  .lembar .cvs-projek { font-size: calc(9.5pt * var(--teks)); font-weight: 700; color: #00366d; margin: 1.8mm 0 .6mm; }
+  .lembar .cv-korporat .ck-projek {
+    font-size: calc(9.5pt * var(--teks)); font-weight: 600; color: #313131; margin: 1.5mm 0 .5mm;
+  }
+  /* ---------- kad projek dalam borang pengalaman ---------- */
+  .projek-kotak { display: grid; gap: 10px; margin: 2px 0 0; }
+  .baris-projek {
+    border: 1px solid var(--line); border-left: 3px solid var(--brand); border-radius: 10px;
+    padding: 9px 11px 12px; background: #fbfcfe;
+  }
+  .kepala-projek { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 2px; }
+  .kepala-projek strong {
+    font-size: 12.4px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: var(--muted);
+  }
+  .baris-projek .btn-hapus-projek { padding: 4px 9px; font-size: 12px; }
+  .baris-projek label { margin-top: 6px; }
+  .btn-tambah-projek { margin-top: 8px; }
 
   /* ---------- tanda air (watermark) + pesanan ---------- */
   .kertas { position: relative; }
@@ -1582,6 +1605,68 @@
     return b;
   }
 
+  /* Satu pengalaman = jawatan + syarikat + tempoh + senarai PROJEK. Setiap projek ada nama
+     (cth "Projek Hospital Rizen, Kuantan") dan senarai perkara utama untuk projek itu.
+     Data lama (poin terus pada pengalaman, tiada projek) dinormalkan kepada SATU projek tanpa
+     nama supaya resume sedia ada tidak berubah rupa. */
+  function senaraiProjek(o) {
+    o = o || {};
+    if (Array.isArray(o.projek) && o.projek.length) {
+      var keluar = o.projek.map(function (p) {
+        p = p || {};
+        return {
+          nama: String(p.nama || '').trim(),
+          poin: (Array.isArray(p.poin) ? p.poin : []).map(function (x) { return String(x || '').trim(); }).filter(Boolean)
+        };
+      }).filter(function (p) { return p.nama || p.poin.length; });
+      if (keluar.length) return keluar;
+    }
+    var lama = (Array.isArray(o.poin) ? o.poin : []).map(function (x) { return String(x || '').trim(); }).filter(Boolean);
+    return lama.length ? [{ nama: '', poin: lama }] : [];
+  }
+
+  /* paparkan "Projek: X" - tetapi jangan gandakan kalau pelanggan sudah menulis "Projek ..." */
+  function labelProjek(nama) {
+    var t = String(nama || '').trim();
+    return /^projek\b/i.test(t) ? t : 'Projek: ' + t;
+  }
+
+  /* satu projek = satu kad kecil di dalam pengalaman (nama projek + poin projek itu) */
+  function barisProjek(data) {
+    data = data || {};
+    var p = document.createElement('div');
+    p.className = 'baris-projek';
+    p.innerHTML =
+      '<div class="kepala-projek"><strong class="pj-tajuk">Projek</strong>' +
+      '<button type="button" class="btn-hapus btn-hapus-projek">Hapus projek</button></div>' +
+      '<label>Projek (nama & tempat)</label>' +
+      '<input class="pj-nama" type="text" placeholder="cth. Projek Hospital Rizen, Kuantan (RM 120 juta)">' +
+      '<label>Perkara utama anda dalam projek ini (satu baris satu poin)</label>' +
+      '<textarea class="pj-poin" rows="4" placeholder="Sediakan BQ dan dokumen tawaran&#10;Nilai tuntutan kontraktor dan interim certificate setiap bulan"></textarea>';
+    p.querySelector('.pj-nama').value = data.nama || '';
+    p.querySelector('.pj-poin').value = (data.poin || []).join('\n');
+    p.querySelector('.btn-hapus-projek').addEventListener('click', function () {
+      var kotak = p.parentNode;
+      p.remove();
+      kemasProjek(kotak);
+      kemasSemula();
+    });
+    return p;
+  }
+
+  /* nomborkan projek + butang Hapus hanya bila ada lebih daripada satu
+     (setiap pengalaman mesti tinggal sekurang-kurangnya satu bekas projek) */
+  function kemasProjek(kotak) {
+    if (!kotak) return;
+    var semua = kotak.querySelectorAll('.baris-projek');
+    Array.prototype.forEach.call(semua, function (p, i) {
+      var t = p.querySelector('.pj-tajuk');
+      if (t) t.textContent = 'Projek ' + (i + 1);
+      var h = p.querySelector('.btn-hapus-projek');
+      if (h) h.hidden = semua.length < 2;
+    });
+  }
+
   function barisPengalaman(data) {
     data = data || {};
     bilPengalaman++;
@@ -1594,12 +1679,25 @@
       '<label>Jawatan</label><input class="p-jawatan" type="text" placeholder="cth. Quantity Surveyor">' +
       '<label>Syarikat</label><input class="p-syarikat" type="text" placeholder="cth. EPH Construction Sdn Bhd">' +
       '<label>Tempoh</label><input class="p-tempoh" type="text" placeholder="cth. Mac 2024 - Kini">' +
-      '<label>Perkara utama (satu baris satu poin)</label>' +
-      '<textarea class="p-poin" rows="4" placeholder="Sediakan BQ untuk 3 projek perumahan&#10;Semak tuntutan kontraktor setiap bulan"></textarea>';
+      '<label>Projek &amp; perkara utama</label>' +
+      '<div class="projek-kotak"></div>' +
+      '<button type="button" class="btn-tambah btn-tambah-projek">+ Tambah projek lain (cth. projek perumahan)</button>';
     b.querySelector('.p-jawatan').value = data.jawatan || '';
     b.querySelector('.p-syarikat').value = data.syarikat || '';
     b.querySelector('.p-tempoh').value = data.tempoh || '';
-    b.querySelector('.p-poin').value = (data.poin || []).join('\n');
+    var kotakProjek = b.querySelector('.projek-kotak');
+    var senaraiAwal = senaraiProjek(data);
+    (senaraiAwal.length ? senaraiAwal : [{ nama: '', poin: [] }]).forEach(function (pk) {
+      kotakProjek.appendChild(barisProjek(pk));
+    });
+    kemasProjek(kotakProjek);
+    b.querySelector('.btn-tambah-projek').addEventListener('click', function () {
+      var baharu = barisProjek({ nama: '', poin: [] });
+      kotakProjek.appendChild(baharu);
+      kemasProjek(kotakProjek);
+      baharu.querySelector('.pj-nama').focus();
+      kemasSemula();
+    });
     b.querySelector('.btn-hapus').addEventListener('click', function () {
       b.remove();
       kemasSemula();
@@ -1757,14 +1855,22 @@
       susun: SUSUN ? { kiri: SUSUN.kiri.slice(), kanan: SUSUN.kanan.slice() } : null   // susunan blok
     };
     Array.prototype.forEach.call(document.querySelectorAll('#senarai-pengalaman .baris'), function (b) {
+      var projek = [];
+      Array.prototype.forEach.call(b.querySelectorAll('.baris-projek'), function (pk) {
+        var nama = pk.querySelector('.pj-nama').value.trim();
+        var poin = pk.querySelector('.pj-poin').value.split('\n')
+          .map(function (s) { return s.trim(); }).filter(Boolean);
+        if (nama || poin.length) projek.push({ nama: nama, poin: poin });
+      });
       var o = {
         jawatan: b.querySelector('.p-jawatan').value.trim(),
         syarikat: b.querySelector('.p-syarikat').value.trim(),
         tempoh: b.querySelector('.p-tempoh').value.trim(),
-        poin: b.querySelector('.p-poin').value.split('\n')
-              .map(function (s) { return s.trim(); }).filter(Boolean)
+        projek: projek,
+        poin: []                                   // senarai rata (keserasian kod/ujian lama)
       };
-      if (o.jawatan || o.syarikat || o.tempoh || o.poin.length) d.pengalaman.push(o);
+      projek.forEach(function (pk) { pk.poin.forEach(function (x) { o.poin.push(x); }); });
+      if (o.jawatan || o.syarikat || o.tempoh || projek.length) d.pengalaman.push(o);
     });
     Array.prototype.forEach.call(document.querySelectorAll('#senarai-pendidikan .baris'), function (b) {
       var o = {
@@ -2440,9 +2546,13 @@
         var s = '<div class="cvb-item"><div class="cvb-item-kepala"><strong>' + esc(tajuk) + '</strong>' +
                 '<span>' + esc(o.tempoh) + '</span></div>';
         if (o.syarikat && o.jawatan) s += '<div class="cvb-item-sub">' + esc(o.jawatan) + '</div>';
-        if (o.poin.length) {
-          s += '<ul class="cvb-bullet">' + o.poin.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul>';
-        }
+        /* setiap projek: baris nama projek, kemudian poin untuk projek itu */
+        senaraiProjek(o).forEach(function (pk) {
+          if (pk.nama) s += '<div class="cvb-projek">' + esc(labelProjek(pk.nama)) + '</div>';
+          if (pk.poin.length) {
+            s += '<ul class="cvb-bullet">' + pk.poin.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul>';
+          }
+        });
         return s + '</div>';
       }).join('');
     }
@@ -2512,7 +2622,10 @@
         var tajuk = (o.jawatan && o.syarikat) ? (o.jawatan + ', ' + o.syarikat) : (o.jawatan || o.syarikat || '(Syarikat)');
         var x = '<div class="cvs-item"><div class="cvs-item-kepala"><strong>' + esc(tajuk) + '</strong>' +
                 '<span>' + esc(o.tempoh) + '</span></div>';
-        if (o.poin.length) x += '<ul class="cvs-senarai">' + o.poin.map(function (k) { return '<li>' + esc(k) + '</li>'; }).join('') + '</ul>';
+        senaraiProjek(o).forEach(function (pk) {
+          if (pk.nama) x += '<div class="cvs-projek">' + esc(labelProjek(pk.nama)) + '</div>';
+          if (pk.poin.length) x += '<ul class="cvs-senarai">' + pk.poin.map(function (k) { return '<li>' + esc(k) + '</li>'; }).join('') + '</ul>';
+        });
         return x + '</div>';
       }).join('');
     }
@@ -2627,9 +2740,12 @@
         var tajuk = (o.jawatan && o.syarikat) ? (o.jawatan + ', ' + o.syarikat) : (o.jawatan || o.syarikat || '(Syarikat)');
         var x = '<div class="ck-item"><div class="ck-item-kepala"><strong>' + esc(tajuk) + '</strong>' +
                 '<span>' + esc(o.tempoh) + '</span></div>';
-        if (o.poin.length) {
-          x += '<ul class="ck-senarai-item">' + o.poin.map(function (k) { return '<li>' + esc(k) + '</li>'; }).join('') + '</ul>';
-        }
+        senaraiProjek(o).forEach(function (pk) {
+          if (pk.nama) x += '<div class="ck-projek">' + esc(labelProjek(pk.nama)) + '</div>';
+          if (pk.poin.length) {
+            x += '<ul class="ck-senarai-item">' + pk.poin.map(function (k) { return '<li>' + esc(k) + '</li>'; }).join('') + '</ul>';
+          }
+        });
         return x + '</div>';
       }).join('');
     }
