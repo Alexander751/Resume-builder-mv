@@ -291,7 +291,7 @@ ok(/var isi = htmlTemplat\(d\);/.test(html) && /el\('resume'\)\.innerHTML = isi;
    'papar() menulis resume yang sama ke kertas utama dan kertas pratonton di sisi');
 ok(/var TEMPLAT = \{/.test(html) && /bersih: \{/.test(html), 'daftar TEMPLAT (peta) wujud dalam kod');
 ok(html.includes('function htmlBersih') && html.includes('.cv-bersih'), 'templat kedua (Biru Bersih) wujud');
-ok(d.querySelectorAll('.kad-pilih[data-templat]').length === 3, 'tiga kad reka bentuk di halaman 1');
+ok(d.querySelectorAll('.kad-pilih[data-templat]').length === 4, 'empat kad reka bentuk di halaman 1');
 ok(!/r-sek|r-nama|\.chip/.test(html), 'tiada sisa gaya templat Klasik');
 ok(html.includes('function htmlBiru') && html.includes('.cv-biru'), 'reka bentuk Biru & Kelabu kekal utuh');
 ok(html.includes('.cvb-lencana') && html.includes('.cvb-titik') && html.includes('ikonLencana'),
@@ -878,7 +878,7 @@ el('mula-isi').click();
 el('nama').value = 'Ujian Nota'; el('telefon').value = '012-000 0000';
 el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
 ok(el('nota-lapang').hidden === true, 'nota tersembunyi bila isi penuh/dalam templat dua lajur');
-ok(w.ResumeMV.tempat().length === 3 && w.ResumeMV.tempat().indexOf('bersih') >= 0 && w.ResumeMV.tempat().indexOf('korporat') >= 0, 'daftar templat boleh dibaca dari luar');
+  ok(w.ResumeMV.tempat().length === 4 && w.ResumeMV.tempat().indexOf('gelap') >= 0, 'daftar templat boleh dibaca dari luar (4 reka bentuk)');
 
 console.log('== 26. Isi terlalu banyak: auto-padat + nota melebihi halaman ==');
 ok(/--teks: 1;/.test(html), 'pemboleh --teks (skala fon) wujud');

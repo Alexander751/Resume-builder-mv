@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Resume Builder MV</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@500;700;800&family=Inter:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@500;700;800&family=Inter:wght@400;600;700&family=Poppins:wght@300;400;500;600&family=Bricolage+Grotesque:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --ink: #16202c;
@@ -753,6 +753,12 @@
     display: block; position: absolute; left: 0; top: 50mm; bottom: 0; width: 65mm;
     background: #e4e4e4; z-index: 0;
   }
+  /* Biru Gelap Minimalis: rel navy diteruskan pada setiap halaman, tiada jalur atas, tiada kaki */
+  body[data-templat="gelap"] .pr-berulang .cb-rel {
+    display: block; position: absolute; left: 0; top: 0; bottom: 0; width: 74.6mm;
+    background: #323b4c; z-index: 0;
+  }
+  body[data-templat="gelap"] .pr-berulang .cb-jalur { display: none; }
   body[data-templat="korporat"] .pr-berulang .cb-rel {
     display: block; position: absolute; left: 0; top: 0; bottom: 0; width: 71.3mm;
     background: #dae3e3; z-index: 0;
@@ -1073,6 +1079,96 @@
   .lembar .cv-korporat .ck-pendidikan .ck-tahun {
     font-size: calc(8pt * var(--teks)); font-weight: 400; line-height: 4.4mm; }
 
+  /* ---------- templat: Biru Gelap Minimalis ----------
+     Rujukan pelanggan "Dark Blue and White Minimalist Education Resume.pdf" - semua nombor di bawah
+     ialah ukuran sebenar fail itu (PyMuPDF): panel navy #323b4c 74.6mm penuh tinggi, foto BULAT 44mm
+     @ x14.8 y8.3, banner kontak navy 15.4mm @ y65.1 (x5.3-204.8), nama 34pt #323b4c @ x85.5 y14.4
+     (jarak baris 12.4mm), jawatan 15pt berjarak huruf, tajuk bahagian 17pt Bold dengan garis 0.53mm
+     (putih di panel 61.24mm, navy di lajur kanan 113.75mm), badan 9pt #000000 jarak baris 4.2mm. */
+  .lembar .cv-gelap {
+    position: relative; display: flex; align-items: stretch; min-height: 297mm;
+    background: #fff; color: #000;
+    --renggang: 1; --teks: 1;
+    font-family: "Bricolage Grotesque", Poppins, Arial, sans-serif;
+  }
+  /* panel kiri MESTI berada dalam aliran (bukan position:absolute) - kalau tidak, aliran cetakan
+     jadi kosong dan hanya lajur kanan yang tercetak. */
+  .lembar .cv-gelap .gd-kiri {
+    flex: 0 0 74.6mm; width: 74.6mm; background: #323b4c; color: #fff;
+    padding: 8.3mm 0.6mm 10mm 12.8mm;
+  }
+  .lembar .cv-gelap .gd-foto { width: 44mm; height: 44mm; border-radius: 50%; overflow: hidden; background: #fff; margin: 0 0 6mm; }
+  .lembar .cv-gelap .gd-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .lembar .cv-gelap.tanpa-foto .gd-foto { display: none; }
+  .lembar .cv-gelap .gd-band {
+    position: absolute; left: 5.3mm; right: 5.3mm; top: 65.1mm; height: 15.4mm; background: #323b4c;
+    color: #fff; display: flex; align-items: center; gap: 7.5mm; padding: 0 6.1mm; z-index: 2;
+  }
+  .lembar .cv-gelap .gd-band .gd-k { display: flex; align-items: center; gap: 1.7mm; font-size: calc(9pt * var(--teks)); }
+  .lembar .cv-gelap .gd-band .gd-k i { font-style: normal; }
+  .lembar .cv-gelap .gd-band .cvb-ikon { width: 4mm; height: 4mm; flex: 0 0 4mm; fill: #efefef; color: #efefef; }
+  .lembar .cv-gelap .gd-kanan { flex: 1 1 auto; min-width: 0; padding: 14.4mm 11.55mm 12mm 10.9mm; position: relative; z-index: 1; }
+  .lembar .cv-gelap .gd-nama {
+    margin: 0; font-size: calc(34pt * var(--teks)); font-weight: 700; color: #323b4c;
+    line-height: 12.4mm; text-transform: uppercase;
+  }
+  .lembar .cv-gelap .gd-jawatan {
+    margin: 3.4mm 0 0; font-size: calc(15pt * var(--teks)); color: #323b4c;
+    text-transform: uppercase; letter-spacing: .34em;
+  }
+  .lembar .cv-gelap .gd-kepala { margin-bottom: 8.6mm; }
+  .lembar .cv-gelap h2 {
+    margin: 0 0 3.2mm; padding-bottom: 1.4mm; font-size: calc(17pt * var(--teks)); font-weight: 700;
+    color: #323b4c; border-bottom: .53mm solid #323b4c; break-after: avoid; page-break-after: avoid;
+  }
+  .lembar .cv-gelap .gd-kiri h2 { color: #fff; border-bottom-color: #fff; }
+  .lembar .cv-gelap .blok + .blok > h2 { margin-top: calc(6.6mm * var(--renggang)); }
+  .lembar .cv-gelap .gd-teks { margin: 0; font-size: calc(9pt * var(--teks)); line-height: 4.2mm; text-align: justify; }
+  .lembar .cv-gelap .gd-kerja { margin-top: calc(3.6mm * var(--renggang)); }
+  .lembar .cv-gelap .gd-kerja:first-of-type { margin-top: 0; }
+  .lembar .cv-gelap .gd-kerja-kepala { display: flex; align-items: baseline; justify-content: space-between; gap: 4mm; }
+  .lembar .cv-gelap .gd-kerja-kepala strong { font-size: calc(13pt * var(--teks)); font-weight: 700; }
+  .lembar .cv-gelap .gd-kerja-kepala span { font-size: calc(10pt * var(--teks)); white-space: nowrap; }
+  .lembar .cv-gelap .gd-syarikat { font-size: calc(10pt * var(--teks)); margin-top: .4mm; }
+  .lembar .cv-gelap .gd-projek { font-size: calc(9pt * var(--teks)); font-weight: 700; margin-top: 1.4mm; }
+  .lembar .cv-gelap .gd-poin { list-style: none; margin: 1mm 0 0; padding: 0; }
+  .lembar .cv-gelap .gd-poin li { font-size: calc(9pt * var(--teks)); line-height: 4.2mm; text-align: justify; break-inside: avoid; }
+  .lembar .cv-gelap .gd-dua { margin: 1mm 0 0; font-size: calc(9pt * var(--teks)); line-height: 4.2mm; }
+  .lembar .cv-gelap .gd-kiri .gd-item { margin-top: calc(3.4mm * var(--renggang)); }
+  .lembar .cv-gelap .gd-kiri .gd-item:first-child { margin-top: 0; }
+  .lembar .cv-gelap .gd-kiri .gd-item strong { display: block; font-size: calc(12pt * var(--teks)); font-weight: 700; }
+  .lembar .cv-gelap .gd-kiri .gd-sub { font-size: calc(10pt * var(--teks)); line-height: 4.2mm; }
+  .lembar .cv-gelap .gd-senarai { list-style: none; margin: 0; padding: 0; }
+  .lembar .cv-gelap .gd-senarai li {
+    position: relative; display: flex; align-items: center; justify-content: space-between; gap: 2mm;
+    padding-left: 6mm; font-size: calc(10pt * var(--teks)); line-height: 5.6mm;
+    margin-bottom: calc(1.8mm * var(--renggang));
+  }
+  .lembar .cv-gelap .gd-senarai li::before {
+    content: ''; position: absolute; left: 2.1mm; top: 2.2mm;
+    width: 1.06mm; height: 1.06mm; border-radius: 50%; background: #fff;
+  }
+  .lembar .cv-gelap .gd-bahasa li { line-height: 4.6mm; padding-left: 0; }
+  .lembar .cv-gelap .gd-bahasa li::before { display: none; }
+  /* kemahiran: rujukan TIDAK memakai bulet dan teks mula pada x=12.8 (sama seperti tajuk) */
+  .lembar .cv-gelap .gd-kemahiran li { padding-left: 0; }
+  .lembar .cv-gelap .gd-kemahiran li::before { display: none; }
+  .lembar .cv-gelap .gd-senarai-bullet { list-style: none; margin: 0; padding: 0; }
+  .lembar .cv-gelap .gd-senarai-bullet li {
+    position: relative; padding-left: 4mm; font-size: calc(10pt * var(--teks));
+    line-height: 4.6mm; margin-bottom: calc(1.6mm * var(--renggang));
+  }
+  .lembar .cv-gelap .gd-senarai-bullet li::before {
+    content: ''; position: absolute; left: 0; top: 1.7mm;
+    width: 1.06mm; height: 1.06mm; border-radius: 50%; background: #fff;
+  }
+  .lembar .cv-gelap .gd-senarai .titik-tahap { display: inline-flex; }
+  .lembar .cv-gelap .gd-senarai .titik-tahap i { background: rgba(255, 255, 255, .35); }
+  .lembar .cv-gelap .gd-senarai .titik-tahap i.penuh { background: #fff; }
+  .lembar .cv-gelap .gd-rujukan { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm 8mm; }
+  .lembar .cv-gelap .gd-ruj strong { font-size: calc(10pt * var(--teks)); font-weight: 700; }
+  .lembar .cv-gelap .gd-ruj .gd-sub { font-size: calc(10pt * var(--teks)); }
+
   /* ---------- nama projek di dalam pengalaman (setiap templat warna sendiri) ----------
      Susunan setiap item pengalaman: jawatan/syarikat + tempoh -> PROJEK -> perkara utama
      projek itu. Baris "Projek:" hanya muncul bila pelanggan mengisi nama projek, jadi resume
@@ -1235,7 +1331,13 @@
        ini tiada jalur atas (jalur navy hanya untuk templat Biru & Kelabu dan Biru Bersih). */
     .lembar .cv-korporat { min-height: calc(297mm - 1px); }
     .lembar .cv-korporat .ck-kiri, .lembar .cv-korporat .ck-kanan { position: relative; z-index: 1; }
-    body[data-templat="korporat"] .cb-rel {
+    body[data-templat="gelap"] .cb-rel {
+    display: block; position: fixed; left: 0; top: 0; bottom: 0; width: 74.6mm;
+    background: #323b4c; z-index: 0;
+  }
+  body[data-templat="gelap"] .cb-jalur { display: none; }
+  body[data-templat="gelap"] .cb-kaki { display: none; }
+  body[data-templat="korporat"] .cb-rel {
       display: block; position: fixed; left: 0; top: 0; bottom: 0; width: 71.3mm;
       background: #dae3e3; z-index: 0;
     }
@@ -3036,6 +3138,8 @@
      Korporat Moden (bila bahasa Inggeris) mengekalkan ejaan fail rujukan Canva. */
   var TAJUK_TEMPLAT_KHAS = {
     biru: { ms: { profil: 'Profil' }, en: { profil: 'Profile' } },
+    gelap: { en: { kontak: 'Contact', profil: 'About me', pengalaman: 'Experience', pendidikan: 'Education',
+                   kemahiran: 'Skills', bahasa: 'Language', rujukan: 'Reference' } },
     korporat: { en: { kontak: 'Contact', profil: 'Summary', pengalaman: 'Work Experience',
                       pendidikan: 'Education', kemahiran: 'Key Skills', bahasa: 'Language',
                       rujukan: 'References' } }
@@ -3081,6 +3185,116 @@
       ciri: ['Ruang putih luas - sesuai jawatan korporat dan pengurusan', 'Tajuk huruf besar dengan garis dan ikon petak'],
       urutanDua: { kiri: ['kontak', 'pendidikan', 'kemahiran', 'bahasa'], kanan: ['profil', 'pengalaman', 'rujukan'] },
       html: htmlKorporat
+    },
+    gelap: {
+      kunci: 'gelap', kelas: 'cv-gelap', nama: 'Biru Gelap Minimalis', aksen: '#323b4c',
+      nota: 'Reka bentuk dua lajur: panel biru gelap di kiri dengan foto bulat dan kemahiran, '
+        + 'banner kontak biru gelap di tengah, lajur kanan putih untuk ringkasan dan pengalaman.',
+      ciri: ['Panel biru gelap penuh tinggi dengan foto bulat', 'Banner kontak melintang dengan ikon putih'],
+      urutanDua: { kiri: ['pendidikan', 'kemahiran', 'bahasa'], kanan: ['profil', 'pengalaman', 'rujukan'] },
+      /* data contoh 1:1 daripada fail rujukan pelanggan (lihat komponen htmlGelap untuk ukuran) */
+      contoh: {
+            "nama": "ADELINE PALMERSTON",
+            "jawatan": "Graphic Designer",
+            "telefon": "+123-456-7890",
+            "emel": "hello@reallygreatsite.com",
+            "lokasi": "123 Anywhere St., Any City",
+            "ringkasan": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.",
+            "pengalaman": [
+                  {
+                        "jawatan": "Graphic Designer",
+                        "syarikat": "Aldenaire & Partners",
+                        "tempoh": "Jan 2021 - Jan 2022",
+                        "poin": [
+                              "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation."
+                        ]
+                  },
+                  {
+                        "jawatan": "Graphic Designer",
+                        "syarikat": "Warner & Spencer",
+                        "tempoh": "Jan 2020 - Dec 2020",
+                        "poin": [
+                              "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation."
+                        ]
+                  },
+                  {
+                        "jawatan": "Graphic Designer",
+                        "syarikat": "Ingoude Company",
+                        "tempoh": "Jan 2017 - Dec 2029",
+                        "poin": [
+                              "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation."
+                        ]
+                  }
+            ],
+            "pendidikan": [
+                  {
+                        "kelulusan": "Bachelor of Design",
+                        "institusi": "Really Great University",
+                        "tahun": "2012-2016"
+                  },
+                  {
+                        "kelulusan": "Master of Design",
+                        "institusi": "Really Great University",
+                        "tahun": "2016-2020"
+                  }
+            ],
+            "kemahiran": [
+                  {
+                        "nama": "Organized",
+                        "tahap": 5
+                  },
+                  {
+                        "nama": "Creativity",
+                        "tahap": 5
+                  },
+                  {
+                        "nama": "Teamwork",
+                        "tahap": 4
+                  },
+                  {
+                        "nama": "Meeting deadlines",
+                        "tahap": 4
+                  },
+                  {
+                        "nama": "Critical thinking",
+                        "tahap": 5
+                  }
+            ],
+            "bahasa": [
+                  {
+                        "nama": "French",
+                        "tahap": 4
+                  },
+                  {
+                        "nama": "Spanish",
+                        "tahap": 3
+                  },
+                  {
+                        "nama": "English",
+                        "tahap": 5
+                  }
+            ],
+            "rujukan": [
+                  {
+                        "nama": "Alfredo Torres",
+                        "jawatan": "Director",
+                        "telefon": "+123-456-7890"
+                  },
+                  {
+                        "nama": "Harumi Kobayashi",
+                        "jawatan": "CEO",
+                        "telefon": "+123-456-7890"
+                  }
+            ],
+            "tambahan": [
+                  {
+                        "t": "Certifications",
+                        "b": "Certified Graphic Designer.\nUser Experience (UX) Design Certificate."
+                  }
+            ],
+            "foto": ''
+      },
+      html: htmlGelap
     }
   };
   var KUNCI_TEMPLAT = 'biru';
@@ -3406,6 +3620,107 @@
     var ikut = urutanSatu(d);
     h += '<div class="cvs-badan">' + ikut.map(function (o) { return blokHtml(o.id, blok[o.id], o.kol); }).join('') + '</div>';
     return h + '</div>';
+  }
+
+  /* ---------- templat: Biru Gelap Minimalis ----------
+     Rujukan pelanggan "Dark Blue and White Minimalist Education Resume.pdf" (diukur PyMuPDF):
+       panel kiri navy #323b4c  0-74.6mm penuh tinggi; foto BULAT 44mm @ x14.8 y8.3
+       banner kontak navy       x5.3-204.8mm, tinggi 15.4mm @ y65.1, teks putih 9pt, ikon 4mm
+       nama                     34pt Bold #323b4c @ x85.5 y14.4, jarak baris 12.4mm
+       jawatan                  15pt #323b4c, huruf besar + jarak huruf
+       tajuk bahagian           17pt Bold (putih di panel kiri, #323b4c di lajur kanan)
+       garis bawah tajuk        0.53mm, 8.6mm di bawah puncak tajuk (61.24mm kiri / 113.75mm kanan)
+       badan                    9pt #000000, jarak baris 4.2mm, justify
+       pengalaman               13pt Bold + tarikh 10pt rata kanan, syarikat 10pt, perenggan 9pt
+       panel kiri               10pt putih (kemahiran 7.4mm, bahasa 6.4mm, pendidikan baris 4.2mm)
+       rujukan                  dua blok sebaris @ x85.5 dan x160.6 */
+  function htmlGelap(d) {
+    var h = '<div class="cv-gelap' + (d.foto ? '' : ' tanpa-foto') + '">';
+    var band = '';
+    if (d.telefon && !dibuang(d, 'kontak')) band += '<span class="gd-k">' + ikon('telefon') + '<i>' + esc(d.telefon) + '</i></span>';
+    if (d.emel && !dibuang(d, 'kontak')) band += '<span class="gd-k">' + ikon('emel') + '<i>' + esc(d.emel) + '</i></span>';
+    if (d.lokasi && !dibuang(d, 'kontak')) band += '<span class="gd-k">' + ikon('lokasi') + '<i>' + esc(d.lokasi) + '</i></span>';
+    var blok = {};
+
+    /* --- panel kiri: pendidikan, kemahiran, bahasa, bahagian tambahan --- */
+    if (d.pendidikan.length && !dibuang(d, 'pendidikan')) {
+      blok.pendidikan = '<h2>' + tt('pendidikan') + '</h2><div class="gd-pendidikan">' + d.pendidikan.map(function (o) {
+        var x = '<div class="gd-item">';
+        x += '<strong>' + esc(o.kelulusan || '(Kelulusan)') + '</strong>';
+        if (o.institusi) x += '<div class="gd-sub">' + esc(o.institusi) + '</div>';
+        if (o.tahun) x += '<div class="gd-sub">' + esc(o.tahun) + '</div>';
+        return x + '</div>';
+      }).join('') + '</div>';
+    }
+    ['kemahiran', 'bahasa'].forEach(function (kunci) {
+      var senarai = senaraiTahap(d, kunci);
+      if (!senarai.length || dibuang(d, kunci)) return;
+      blok[kunci] = '<h2>' + tt(kunci) + '</h2><ul class="gd-senarai gd-' + kunci + '">' +
+        senarai.map(function (o) {
+          return '<li><span>' + esc(o.nama) + '</span>' + titikTahap(o.tahap) + '</li>';
+        }).join('') + '</ul>';
+    });
+    (d.tambahan || []).forEach(function (o, i) {
+      var tajuk = String(o.t || '').trim();
+      var item = String(o.b || '').split('\n').map(function (x) { return x.trim(); }).filter(Boolean);
+      if (o.mod === 'dua' && Array.isArray(o.bahagian) && o.bahagian.length) {
+        blok['t' + i] = '<h2>' + esc(tajuk) + '</h2>' + o.bahagian.map(function (x) {
+          return '<p class="gd-dua"><strong>' + esc(x.nama) + '</strong>' +
+                 (x.detail ? (x.nama ? ' &#8212; ' : '') + esc(x.detail) : '') + '</p>';
+        }).join('');
+        return;
+      }
+      if (!tajuk || !item.length) return;
+      blok['t' + i] = '<h2>' + esc(tajuk) + '</h2>' + (item.length === 1
+        ? '<p class="gd-teks">' + esc(item[0]) + '</p>'
+        : '<ul class="gd-senarai-bullet">' + item.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>');
+    });
+
+    /* --- lajur kanan: ringkasan, pengalaman, rujukan --- */
+    if (d.ringkasan && !dibuang(d, 'ringkasan')) {
+      blok.profil = '<h2>' + tt('profil') + '</h2><p class="gd-teks">' + esc(d.ringkasan) + '</p>';
+    }
+    if (d.pengalaman.length && !dibuang(d, 'pengalaman')) {
+      blok.pengalaman = '<h2>' + tt('pengalaman') + '</h2>' + d.pengalaman.map(function (o) {
+        var x = '<div class="gd-kerja"><div class="gd-kerja-kepala"><strong>' + esc(o.jawatan || o.syarikat) +
+                '</strong><span>' + esc(o.tempoh) + '</span></div>';
+        if (o.jawatan && o.syarikat) x += '<div class="gd-syarikat">' + esc(o.syarikat) + '</div>';
+        senaraiProjek(o).forEach(function (pk) {
+          if (pk.nama || pk.klien) x += '<div class="gd-projek">' + esc(teksProjek(pk)) + '</div>';
+          if (pk.poin.length) {
+            x += '<ul class="gd-poin">' + pk.poin.map(function (k) { return '<li>' + esc(k) + '</li>'; }).join('') + '</ul>';
+          }
+        });
+        return x + '</div>';
+      }).join('');
+    }
+    var ruj = senaraiRujukan(d);
+    if (ruj.length && !dibuang(d, 'rujukan')) {
+      blok.rujukan = '<h2>' + tt('rujukan') + '</h2><div class="gd-rujukan">' + ruj.map(function (o) {
+        return '<div class="gd-ruj"><strong>' + esc(o.nama || '(Rujukan)') + (o.jawatan ? ' | ' + esc(o.jawatan) : '') + '</strong>' +
+               '<div class="gd-sub">' + esc(o.telefon) + '</div></div>';
+      }).join('') + '</div>';
+    }
+
+    h += '<div class="gd-kiri"><div class="gd-foto">' + (d.foto ? '<img src="' + d.foto + '" alt="">' : '') + '</div>';
+    h += '<div class="gd-blok-kiri">' + ikutKiri(d, blok) + '</div></div>';
+    h += '<div class="gd-band">' + band + '</div>';
+    h += '<div class="gd-kanan"><div class="gd-kepala"><h1 class="gd-nama">' + esc(d.nama || '') + '</h1>' +
+         (d.jawatan ? '<div class="gd-jawatan">' + esc(d.jawatan) + '</div>' : '') + '</div>';
+    h += ikutKanan(d, blok) + '</div>';
+    return h + '</div>';
+  }
+
+  /* susunan blok untuk templat Biru Gelap */
+  /* urutan() memulangkan senarai ID (bukan objek) - jangan baca o.id.
+     Bahagian tambahan (cth Certifications dalam rujukan) diletakkan di PANEL KIRI untuk templat ini. */
+  function ikutKiri(d, blok) {
+    var id = urutan(d).kiri.concat(urutan(d).kanan.filter(function (x) { return /^t\d+$/.test(x); }));
+    return id.map(function (x) { return blokHtml(x, blok[x], 'kiri'); }).join('');
+  }
+  function ikutKanan(d, blok) {
+    var id = urutan(d).kanan.filter(function (x) { return !/^t\d+$/.test(x); });
+    return id.map(function (x) { return blokHtml(x, blok[x], 'kanan'); }).join('');
   }
 
   /* ---------- templat: Minimalis Korporat ----------
@@ -4561,7 +4876,9 @@
     Object.keys(TEMPLAT).forEach(function (k) {
       var mini = el('mini-' + k);
       if (!mini || !mini.parentNode) return;
-      if (!mini.innerHTML) mini.innerHTML = TEMPLAT[k].html(CONTOH);
+      var dataContoh = TEMPLAT[k].contoh || CONTOH;      // templat boleh ada data contoh sendiri (1:1 rujukan)
+      if (dataContoh.foto === '' && CONTOH.foto) dataContoh.foto = CONTOH.foto;
+      if (!mini.innerHTML) mini.innerHTML = TEMPLAT[k].html(dataContoh);
       var lebar = mini.parentNode.clientWidth;
       if (!lebar) return;
       mini.style.setProperty('--skala-mini', (lebar / 794).toFixed(4));
