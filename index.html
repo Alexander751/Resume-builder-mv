@@ -1082,6 +1082,38 @@
   .lembar .cv-korporat .ck-projek {
     font-size: calc(9.5pt * var(--teks)); font-weight: 600; color: #313131; margin: 1.5mm 0 .5mm;
   }
+  /* ---------- pilihan bahasa (paling awal di halaman 1) ---------- */
+  .pilih-bahasa {
+    border: 1px solid var(--line); border-radius: 14px; background: #fbfcfe;
+    padding: 14px 15px 15px; margin: 0 0 18px;
+  }
+  .pb-label {
+    margin: 0 0 4px; font-size: 11.6px; font-weight: 800; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--brand);
+  }
+  .pilih-bahasa .hal-tajuk { margin: 0 0 4px; font-size: 20px; }
+  .pilih-bahasa .hal-sub { margin: 0 0 12px; }
+  .pb-pilihan { display: grid; gap: 9px; }
+  .pb-btn {
+    display: flex; flex-direction: column; gap: 3px; text-align: left; cursor: pointer;
+    border: 1.5px solid var(--line); border-radius: 11px; background: #fff; color: var(--ink, #17233a);
+    padding: 11px 13px; font: inherit;
+  }
+  .pb-btn strong { font-size: 14.5px; }
+  .pb-btn span { font-size: 12.2px; color: var(--muted); }
+  .pb-btn[aria-pressed="true"] { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); background: #f6faff; }
+  .pb-btn[aria-pressed="true"] strong::after { content: ' \2713'; color: var(--brand); }
+  .pb-nota { margin: 11px 0 0; font-size: 12.3px; color: var(--muted); }
+  @media screen and (min-width: 620px) { .pb-pilihan { grid-template-columns: 1fr 1fr; } }
+
+  /* pratonton grafik poin di dalam kad projek */
+  .poin-preview { margin-top: 7px; display: grid; gap: 3px; }
+  .poin-preview .pp-baris { display: flex; gap: 7px; align-items: flex-start; font-size: 12.6px; color: #40506a; line-height: 1.35; }
+  .poin-preview .pp-titik { flex: 0 0 auto; width: 5px; height: 5px; border-radius: 50%; background: var(--brand); margin-top: 5px; }
+  .poin-preview .pp-kosong { font-size: 12.4px; color: var(--muted); }
+  .poin-nota { margin: 6px 0 0; font-size: 12.1px; color: var(--muted); }
+  #label-projek { max-width: 100%; }
+
   /* ---------- kad projek dalam borang pengalaman ---------- */
   .projek-kotak { display: grid; gap: 10px; margin: 2px 0 0; }
   .baris-projek {
@@ -1238,9 +1270,31 @@
 
 <main>
   <section class="hal" id="hal-1">
+    <!-- Bahasa diletak PALING AWAL, sebelum pilihan reka bentuk: bahasa menentukan tajuk & label
+         dalam resume (dan teks borang). Pilihan disimpan dalam kod pesanan supaya penjual mencetak
+         dalam bahasa yang sama. -->
+    <div class="pilih-bahasa" id="pilih-bahasa">
+      <p class="pb-label">Bahasa Resume</p>
+      <h2 class="hal-tajuk" id="tajuk-bahasa">Pilih bahasa resume</h2>
+      <p class="hal-sub" id="sub-bahasa">Bahasa ini menentukan tajuk dan label di dalam resume anda
+        (cth <strong>KONTAK</strong> atau <strong>CONTACT</strong>). Boleh tukar bila-bila masa.</p>
+      <div class="pb-pilihan" id="pb-pilihan">
+        <button type="button" class="pb-btn" data-bahasa="ms" aria-pressed="true">
+          <strong>Bahasa Melayu</strong>
+          <span>KONTAK &middot; RINGKASAN &middot; PENGALAMAN KERJA &middot; PENDIDIKAN</span>
+        </button>
+        <button type="button" class="pb-btn" data-bahasa="en" aria-pressed="false">
+          <strong>English</strong>
+          <span>CONTACT &middot; SUMMARY &middot; WORK EXPERIENCE &middot; EDUCATION</span>
+        </button>
+      </div>
+      <p class="pb-nota" id="pb-nota">Reka bentuk <strong>Korporat Moden</strong> memakai tajuk bahasa
+        Inggeris terus daripada fail rujukan Canva; pilihan <strong>English</strong> mengekalkan ejaan itu.</p>
+    </div>
+
     <div class="galeri-kepala">
       <div>
-        <p class="galeri-label">Langkah 1 &middot; Reka bentuk</p>
+        <p class="galeri-label" id="galeri-label">Langkah 1 &middot; Reka bentuk</p>
         <h2 class="hal-tajuk">Pilih reka bentuk resume anda</h2>
         <p class="hal-sub">Semua reka bentuk siap A4 satu halaman. Boleh tukar bila-bila masa &mdash; butiran yang sudah diisi tidak hilang.</p>
       </div>
@@ -1311,6 +1365,16 @@
     <fieldset class="sek" data-sek="pengalaman" data-langkah="3">
       <legend>Pengalaman Kerja</legend>
       <button type="button" class="sek-buang" data-sek="pengalaman">Buang bahagian ini</button>
+      <label for="label-projek">Label nama projek pada resume</label>
+      <select id="label-projek">
+        <option value="projek">Projek: Hospital Rizen, Kuantan</option>
+        <option value="klien">Klien: Klinik Sihat Jaya</option>
+        <option value="projek-klien">Projek / Klien: Hospital Rizen</option>
+        <option value="tiada">Hospital Rizen, Kuantan (tiada label)</option>
+      </select>
+      <p class="sek-nota">Nama projek dalam setiap kad adalah <strong>pilihan</strong> &mdash; kosongkan
+      kalau kerja anda tidak berasaskan projek (cth kerani, jurujual, cikgu); resume akan terus ke
+      perkara utama.</p>
       <div id="senarai-pengalaman"></div>
       <button type="button" class="btn-tambah" id="tambah-pengalaman">+ Tambah Pengalaman</button>
       <p class="sek-nota">Bahagian <strong>Pengalaman Kerja</strong> dibuang dari resume. <button type="button" data-sek-batal="pengalaman">Tambah balik</button></p>
@@ -1625,10 +1689,26 @@
     return lama.length ? [{ nama: '', poin: lama }] : [];
   }
 
-  /* paparkan "Projek: X" - tetapi jangan gandakan kalau pelanggan sudah menulis "Projek ..." */
+  /* paparkan nama projek dengan label pilihan pelanggan - jangan gandakan kalau pelanggan
+     sudah menulis label sendiri ("Projek ...", "Klien ...") */
   function labelProjek(nama) {
     var t = String(nama || '').trim();
-    return /^projek\b/i.test(t) ? t : 'Projek: ' + t;
+    if (!t) return '';
+    if (/^(projek|project|klien|client)\b/i.test(t)) return t;
+    if (LABEL_PROJEK === 'tiada') return t;
+    if (LABEL_PROJEK === 'klien') return 'Klien: ' + t;
+    if (LABEL_PROJEK === 'projek-klien') return (BAHASA === 'en' ? 'Project / Client: ' : 'Projek / Klien: ') + t;
+    return (BAHASA === 'en' ? 'Project: ' : 'Projek: ') + t;
+  }
+
+  /* Buang tanda bulet yang pelanggan taip sendiri (• - * · ▪ 1.) supaya cetakan tidak keluar DUA titik.
+     Hanya tanda di hujung depan dibuang, dan hanya tanda bulet - bukan sebahagian teks. */
+  function bersihPoin(s) {
+    var t = String(s == null ? '' : s).replace(/\u00a0/g, ' ').trim();
+    t = t.replace(/^[\u2022\u00b7\u25cf\u25aa\u25cb\u25e6\u2023\u2043\u2219\*\u2013\u2014\u2015\u2500]+\s*/, '');
+    t = t.replace(/^-\s+/, '');
+    t = t.replace(/^[\u2022\u00b7\u25cf\u25aa\u25cb\u25e6\u2023\u2043\u2219\*]+/, '');
+    return t.trim();
   }
 
   /* satu projek = satu kad kecil di dalam pengalaman (nama projek + poin projek itu) */
@@ -1642,9 +1722,14 @@
       '<label>Projek (nama & tempat)</label>' +
       '<input class="pj-nama" type="text" placeholder="cth. Projek Hospital Rizen, Kuantan (RM 120 juta)">' +
       '<label>Perkara utama anda dalam projek ini (satu baris satu poin)</label>' +
-      '<textarea class="pj-poin" rows="4" placeholder="Sediakan BQ dan dokumen tawaran&#10;Nilai tuntutan kontraktor dan interim certificate setiap bulan"></textarea>';
+      '<textarea class="pj-poin" rows="4" placeholder="Sediakan BQ dan dokumen tawaran&#10;Nilai tuntutan kontraktor dan interim certificate setiap bulan"></textarea>' +
+      '<div class="poin-preview" aria-hidden="true"></div>' +
+      '<p class="poin-nota">App sudah menambah tanda titik sendiri &mdash; <strong>jangan taip &bull; atau -</strong> ' +
+      'di depan ayat; tanda yang awak taip akan dibuang automatik supaya cetakan tidak keluar dua titik.</p>';
     p.querySelector('.pj-nama').value = data.nama || '';
     p.querySelector('.pj-poin').value = (data.poin || []).join('\n');
+    kemasPratontonPoin(p);
+    p.querySelector('.pj-poin').addEventListener('input', function () { kemasPratontonPoin(p); });
     p.querySelector('.btn-hapus-projek').addEventListener('click', function () {
       var kotak = p.parentNode;
       p.remove();
@@ -1652,6 +1737,20 @@
       kemasSemula();
     });
     return p;
+  }
+
+  /* Pratonton grafik poin: setiap baris yang akan dicetak dipaparkan dengan tanda titiknya.
+     Pelanggan nampak dengan jelas bahawa app sudah menambah titik, jadi dia tidak perlu menaipnya. */
+  function kemasPratontonPoin(kad) {
+    var t = kad.querySelector('.pj-poin');
+    var pv = kad.querySelector('.poin-preview');
+    if (!t || !pv) return;
+    var baris = t.value.split('\n').map(bersihPoin).filter(function (x) { return x; });
+    pv.innerHTML = baris.length
+      ? baris.map(function (x) {
+          return '<span class="pp-baris"><span class="pp-titik"></span>' + esc(x) + '</span>';
+        }).join('')
+      : '<span class="pp-kosong">Setiap baris akan jadi satu poin bertitik di dalam resume.</span>';
   }
 
   /* nomborkan projek + butang Hapus hanya bila ada lebih daripada satu
@@ -1665,6 +1764,80 @@
       var h = p.querySelector('.btn-hapus-projek');
       if (h) h.hidden = semua.length < 2;
     });
+  }
+
+  /* ---------- bahasa antara muka (dwibahasa) ---------- */
+  var TEKS_UI = {
+    ms: {
+      tajukBahasa: 'Pilih bahasa resume',
+      subBahasa: 'Bahasa ini menentukan tajuk dan label di dalam resume anda (cth <strong>KONTAK</strong> atau <strong>CONTACT</strong>). Boleh tukar bila-bila masa.',
+      notaBahasa: 'Reka bentuk <strong>Korporat Moden</strong> memakai tajuk bahasa Inggeris terus daripada fail rujukan Canva; pilihan <strong>English</strong> mengekalkan ejaan itu.',
+      galeriLabel: 'Langkah 1 &middot; Reka bentuk',
+      galeriTajuk: 'Pilih reka bentuk resume anda',
+      galeriSub: 'Semua reka bentuk siap A4. Boleh tukar bila-bila masa &mdash; butiran yang sudah diisi tidak hilang.',
+      mulaIsi: 'Mula Isi Butiran &rarr;',
+      hal2Tajuk: 'Isi butiran anda',
+      hal2Sub: 'Medan <strong>Nama</strong> dan <strong>Nombor Telefon</strong> wajib diisi. Data disimpan dalam pelayar anda sendiri sahaja.',
+      tajukHal: ['', 'Bahasa & reka bentuk', 'Butiran', 'Pratonton', 'Hantar'],
+      teksLangkah: ['', 'Langkah 1 daripada 3 \u00b7 Pilih reka bentuk', 'Langkah 2 daripada 3 \u00b7 Isi butiran',
+                    'Pratonton resume', 'Langkah 3 daripada 3 \u00b7 Hantar']
+    },
+    en: {
+      tajukBahasa: 'Choose the resume language',
+      subBahasa: 'This language decides the headings and labels INSIDE your resume (e.g. <strong>KONTAK</strong> or <strong>CONTACT</strong>). You can change it anytime.',
+      notaBahasa: 'The <strong>Korporat Moden</strong> design keeps the English headings from its Canva reference file; choosing <strong>English</strong> preserves that spelling.',
+      galeriLabel: 'Step 1 &middot; Design',
+      galeriTajuk: 'Choose your resume design',
+      galeriSub: 'Every design is ready as a one-page A4. Change anytime &mdash; the details you already filled in are kept.',
+      mulaIsi: 'Start filling details &rarr;',
+      hal2Tajuk: 'Fill in your details',
+      hal2Sub: 'The <strong>Name</strong> and <strong>Phone number</strong> fields are required. Your data is saved in your own browser only.',
+      tajukHal: ['', 'Language & design', 'Details', 'Preview', 'Send'],
+      teksLangkah: ['', 'Step 1 of 3 \u00b7 Choose a design', 'Step 2 of 3 \u00b7 Fill in details',
+                    'Resume preview', 'Step 3 of 3 \u00b7 Send']
+    }
+  };
+
+  function terapkanBahasa() {
+    document.documentElement.setAttribute('lang', BAHASA === 'en' ? 'en' : 'ms');
+    var t = TEKS_UI[BAHASA] || TEKS_UI.ms;
+    var set = function (id, teks) { var e = el(id); if (e && teks != null) e.innerHTML = teks; };
+    set('tajuk-bahasa', t.tajukBahasa);
+    set('sub-bahasa', t.subBahasa);
+    set('pb-nota', t.notaBahasa);
+    set('galeri-label', t.galeriLabel);
+    set('mula-isi', t.mulaIsi);
+    var h1 = document.querySelector('#hal-1 .galeri-kepala h2');
+    if (h1) h1.innerHTML = t.galeriTajuk;
+    var s1 = document.querySelector('#hal-1 .galeri-kepala .hal-sub');
+    if (s1) s1.innerHTML = t.galeriSub;
+    var h2 = document.querySelector('#hal-2 > .hal-tajuk');
+    if (h2) h2.innerHTML = t.hal2Tajuk;
+    var s2 = document.querySelector('#hal-2 > .hal-sub');
+    if (s2) s2.innerHTML = t.hal2Sub;
+    TAJUK_HAL = t.tajukHal.slice();
+    TEKS_LANGKAH = t.teksLangkah.slice();
+    ['ms', 'en'].forEach(function (k) {
+      var b = document.querySelector('.pb-btn[data-bahasa="' + k + '"]');
+      if (b) b.setAttribute('aria-pressed', k === BAHASA ? 'true' : 'false');
+    });
+    var lt = el('langkah-teks');           // teks langkah di bar atas
+    if (lt && TEKS_LANGKAH[HAL_SEMASA]) lt.textContent = TEKS_LANGKAH[HAL_SEMASA];
+    var selLabel = el('label-projek');       // pilihan label projek ikut bahasa juga
+    if (selLabel) {
+      var ms = BAHASA !== 'en';
+      selLabel.options[0].text = ms ? 'Projek: Hospital Rizen, Kuantan' : 'Project: Hospital Rizen, Kuantan';
+      selLabel.options[1].text = ms ? 'Klien: Klinik Sihat Jaya' : 'Client: Klinik Sihat Jaya';
+      selLabel.options[2].text = ms ? 'Projek / Klien: Hospital Rizen' : 'Project / Client: Hospital Rizen';
+      selLabel.options[3].text = ms ? 'Hospital Rizen, Kuantan (tiada label)' : 'Hospital Rizen, Kuantan (no label)';
+    }
+  }
+
+  function gunaBahasa(bhs) {
+    BAHASA = (bhs === 'en') ? 'en' : 'ms';
+    try { localStorage.setItem(KUNCI_BAHASA, BAHASA); } catch (e) { /* storan dihalang */ }
+    terapkanBahasa();
+    kemasSemula();
   }
 
   function barisPengalaman(data) {
@@ -1859,7 +2032,7 @@
       Array.prototype.forEach.call(b.querySelectorAll('.baris-projek'), function (pk) {
         var nama = pk.querySelector('.pj-nama').value.trim();
         var poin = pk.querySelector('.pj-poin').value.split('\n')
-          .map(function (s) { return s.trim(); }).filter(Boolean);
+          .map(bersihPoin).filter(Boolean);
         if (nama || poin.length) projek.push({ nama: nama, poin: poin });
       });
       var o = {
@@ -1904,6 +2077,9 @@
       if (o.nama || o.jawatan || o.telefon) d.rujukan.push(o);
     });
     d.templat = KUNCI_TEMPLAT;
+    var selLabel = el('label-projek');
+    d.labelProjek = selLabel ? selLabel.value : 'projek';
+    d.bahasaResume = BAHASA;
     return d;
   }
 
@@ -2321,6 +2497,34 @@
      null bermakna "ikut susunan rasmi"; kalau tiada susunan rasmi, susunan asal templat digunakan. */
   var SUSUN = null;                 // { kiri: [id...], kanan: [id...] } — null bermakna ikut susunan rasmi
   var KUNCI_SUSUN = 'resume-mv-susun-rasmi';
+  var KUNCI_BAHASA = 'resume-mv-bahasa';
+
+  /* ---------- bahasa resume (dwibahasa) ----------
+     BAHASA menentukan tajuk & label di dalam resume. Templat Korporat Moden memakai ejaan fail
+     rujukan Canva (CONTACT / SUMMARY / KEY SKILLS / LANGUAGE / WORK EXPERIENCE) bila bahasa Inggeris
+     dipilih - TAJUK_KORP - supaya kesetiaan kepada rujukan tidak hilang. */
+  var BAHASA = 'ms';
+  var TAJUK_BHS = {
+    ms: { kontak: 'Kontak', profil: 'Ringkasan', pengalaman: 'Pengalaman Kerja', pendidikan: 'Pendidikan',
+          kemahiran: 'Kemahiran', bahasa: 'Bahasa', rujukan: 'Rujukan' },
+    en: { kontak: 'Contact', profil: 'Summary', pengalaman: 'Work Experience', pendidikan: 'Education',
+          kemahiran: 'Key Skills', bahasa: 'Languages', rujukan: 'References' }
+  };
+  /* Setiap templat ada ejaan sendiri: Biru & Kelabu memakai "Profil" sejak awal, dan templat
+     Korporat Moden (bila bahasa Inggeris) mengekalkan ejaan fail rujukan Canva. */
+  var TAJUK_TEMPLAT_KHAS = {
+    biru: { ms: { profil: 'Profil' }, en: { profil: 'Profile' } },
+    korporat: { en: { kontak: 'Contact', profil: 'Summary', pengalaman: 'Work Experience',
+                      pendidikan: 'Education', kemahiran: 'Key Skills', bahasa: 'Language',
+                      rujukan: 'References' } }
+  };
+  function tt(kunci) {
+    var khas = (TAJUK_TEMPLAT_KHAS[KUNCI_TEMPLAT] || {})[BAHASA] || {};
+    if (khas[kunci]) return khas[kunci];
+    return (TAJUK_BHS[BAHASA] || TAJUK_BHS.ms)[kunci] || TAJUK_BHS.ms[kunci];
+  }
+  /* label projek: pelanggan boleh ubah (Projek / Klien / Projek & Klien / tanpa label) */
+  var LABEL_PROJEK = 'projek';
   var MOD_SUSUN = false;            // mod alih: blok boleh diseret / digerak
   var URUTAN_ASAS = { kiri: ['kontak', 'kemahiran', 'bahasa'], kanan: ['profil', 'pengalaman', 'pendidikan', 'rujukan'] };
 
@@ -2525,23 +2729,23 @@
     if (d.telefon) kontak += '<li>' + ikon('telefon') + '<span>' + esc(d.telefon) + '</span></li>';
     if (d.emel) kontak += '<li>' + ikon('emel') + '<span>' + esc(d.emel) + '</span></li>';
     if (d.lokasi) kontak += '<li>' + ikon('lokasi') + '<span>' + esc(d.lokasi) + '</span></li>';
-    if (kontak) blok.kontak = '<h2>Kontak</h2><ul class="cvb-kontak">' + kontak + '</ul>';
+    if (kontak) blok.kontak = '<h2>' + tt('kontak') + '</h2><ul class="cvb-kontak">' + kontak + '</ul>';
     var kemBiru = senaraiTahap(d, 'kemahiran'), bahBiru = senaraiTahap(d, 'bahasa');
     if (kemBiru.length && !dibuang(d, 'kemahiran')) {
-      blok.kemahiran = '<h2>Kemahiran</h2><ul class="cvb-titik cvb-tahap">' + kemBiru.map(function (o) {
+      blok.kemahiran = '<h2>' + tt('kemahiran') + '</h2><ul class="cvb-titik cvb-tahap">' + kemBiru.map(function (o) {
         return '<li><span>' + esc(o.nama) + '</span>' + titikTahap(o.tahap) + '</li>';
       }).join('') + '</ul>';
     }
     if (bahBiru.length && !dibuang(d, 'bahasa')) {
-      blok.bahasa = '<h2>Bahasa</h2><ul class="cvb-titik cvb-tahap padat">' + bahBiru.map(function (o) {
+      blok.bahasa = '<h2>' + tt('bahasa') + '</h2><ul class="cvb-titik cvb-tahap padat">' + bahBiru.map(function (o) {
         return '<li><span>' + esc(o.nama) + '</span>' + titikTahap(o.tahap) + '</li>';
       }).join('') + '</ul>';
     }
 
-    if (d.ringkasan && !dibuang(d, 'ringkasan')) blok.profil = '<h2>' + ikonLencana('orang') + 'Profil</h2><p class="cvb-teks">' + esc(d.ringkasan) + '</p>';
+    if (d.ringkasan && !dibuang(d, 'ringkasan')) blok.profil = '<h2>' + ikonLencana('orang') + tt('profil') + '</h2><p class="cvb-teks">' + esc(d.ringkasan) + '</p>';
 
     if (d.pengalaman.length && !dibuang(d, 'pengalaman')) {
-      blok.pengalaman = '<h2>' + ikonLencana('beg') + 'Pengalaman Kerja</h2>' + d.pengalaman.map(function (o) {
+      blok.pengalaman = '<h2>' + ikonLencana('beg') + tt('pengalaman') + '</h2>' + d.pengalaman.map(function (o) {
         var tajuk = o.syarikat || o.jawatan || '(Syarikat)';
         var s = '<div class="cvb-item"><div class="cvb-item-kepala"><strong>' + esc(tajuk) + '</strong>' +
                 '<span>' + esc(o.tempoh) + '</span></div>';
@@ -2558,7 +2762,7 @@
     }
 
     if (d.pendidikan.length && !dibuang(d, 'pendidikan')) {
-      blok.pendidikan = '<h2>' + ikonLencana('topi') + 'Pendidikan</h2>' + d.pendidikan.map(function (o) {
+      blok.pendidikan = '<h2>' + ikonLencana('topi') + tt('pendidikan') + '</h2>' + d.pendidikan.map(function (o) {
         var s = '<div class="cvb-item"><div class="cvb-item-kepala"><strong>' + esc(o.kelulusan || '(Kelulusan)') + '</strong>' +
                 '<span>' + esc(o.tahun) + '</span></div>';
         if (o.institusi) s += '<div class="cvb-item-sub">' + esc(o.institusi) + '</div>';
@@ -2568,7 +2772,7 @@
 
     var rujBiru = senaraiRujukan(d);
     if (rujBiru.length && !dibuang(d, 'rujukan')) {
-      blok.rujukan = '<h2>' + ikonLencana('orangRamai') + 'Rujukan</h2>' + rujBiru.map(function (o) {
+      blok.rujukan = '<h2>' + ikonLencana('orangRamai') + tt('rujukan') + '</h2>' + rujBiru.map(function (o) {
         var x = '<div class="cvb-item"><div class="cvb-item-kepala"><strong>' + esc(o.nama || o.jawatan || '(Rujukan)') + '</strong>' +
                 '<span>' + esc(o.telefon) + '</span></div>';
         if (o.jawatan && o.nama) x += '<div class="cvb-item-sub">' + esc(o.jawatan) + '</div>';
@@ -2615,10 +2819,10 @@
 
     var blok = {};
     if (d.ringkasan && !dibuang(d, 'ringkasan')) {
-      blok.profil = '<h2>Ringkasan</h2><p class="cvs-teks">' + esc(d.ringkasan) + '</p>';
+      blok.profil = '<h2>' + tt('profil') + '</h2><p class="cvs-teks">' + esc(d.ringkasan) + '</p>';
     }
     if (d.pengalaman.length && !dibuang(d, 'pengalaman')) {
-      blok.pengalaman = '<h2>Pengalaman Kerja</h2>' + d.pengalaman.map(function (o) {
+      blok.pengalaman = '<h2>' + tt('pengalaman') + '</h2>' + d.pengalaman.map(function (o) {
         var tajuk = (o.jawatan && o.syarikat) ? (o.jawatan + ', ' + o.syarikat) : (o.jawatan || o.syarikat || '(Syarikat)');
         var x = '<div class="cvs-item"><div class="cvs-item-kepala"><strong>' + esc(tajuk) + '</strong>' +
                 '<span>' + esc(o.tempoh) + '</span></div>';
@@ -2630,7 +2834,7 @@
       }).join('');
     }
     if (d.pendidikan.length && !dibuang(d, 'pendidikan')) {
-      blok.pendidikan = '<h2>Pendidikan</h2>' + d.pendidikan.map(function (o) {
+      blok.pendidikan = '<h2>' + tt('pendidikan') + '</h2>' + d.pendidikan.map(function (o) {
         var x = '<div class="cvs-item"><div class="cvs-item-kepala"><strong>' + esc(o.kelulusan || '(Kelulusan)') + '</strong>' +
                 '<span>' + esc(o.tahun) + '</span></div>';
         if (o.institusi) x += '<div class="cvs-item-sub">' + esc(o.institusi) + '</div>';
@@ -2639,18 +2843,18 @@
     }
     var kemBersih = senaraiTahap(d, 'kemahiran'), bahBersih = senaraiTahap(d, 'bahasa');
     if (kemBersih.length && !dibuang(d, 'kemahiran')) {
-      blok.kemahiran = '<h2>Kemahiran</h2><ul class="cvs-tahap">' + kemBersih.map(function (o) {
+      blok.kemahiran = '<h2>' + tt('kemahiran') + '</h2><ul class="cvs-tahap">' + kemBersih.map(function (o) {
         return '<li><span>' + esc(o.nama) + '</span>' + titikTahap(o.tahap) + '</li>';
       }).join('') + '</ul>';
     }
     if (bahBersih.length && !dibuang(d, 'bahasa')) {
-      blok.bahasa = '<h2>Bahasa</h2><ul class="cvs-tahap">' + bahBersih.map(function (o) {
+      blok.bahasa = '<h2>' + tt('bahasa') + '</h2><ul class="cvs-tahap">' + bahBersih.map(function (o) {
         return '<li><span>' + esc(o.nama) + '</span>' + titikTahap(o.tahap) + '</li>';
       }).join('') + '</ul>';
     }
     var rujBersih = senaraiRujukan(d);
     if (rujBersih.length && !dibuang(d, 'rujukan')) {
-      blok.rujukan = '<h2>Rujukan</h2>' + rujBersih.map(function (o) {
+      blok.rujukan = '<h2>' + tt('rujukan') + '</h2>' + rujBersih.map(function (o) {
         var x = '<div class="cvs-item"><div class="cvs-item-kepala"><strong>' + esc(o.nama || o.jawatan || '(Rujukan)') + '</strong>' +
                 '<span>' + esc(o.telefon) + '</span></div>';
         if (o.jawatan && o.nama) x += '<div class="cvs-item-sub">' + esc(o.jawatan) + '</div>';
@@ -2705,11 +2909,11 @@
     if (d.telefon && !dibuang(d, 'kontak')) kontak += '<li>' + ikon('telefon') + '<span>' + esc(d.telefon) + '</span></li>';
     if (d.emel && !dibuang(d, 'kontak')) kontak += '<li>' + ikon('emel') + '<span>' + esc(d.emel) + '</span></li>';
     if (d.lokasi && !dibuang(d, 'kontak')) kontak += '<li>' + ikon('lokasi') + '<span>' + esc(d.lokasi) + '</span></li>';
-    if (kontak) blok.kontak = '<h2>' + TAJUK_KORP.kontak + '</h2><ul class="ck-kontak">' + kontak + '</ul>';
+    if (kontak) blok.kontak = '<h2>' + tt('kontak') + '</h2><ul class="ck-kontak">' + kontak + '</ul>';
 
     /* --- blok: pendidikan (institusi tebal, kelulusan, tahun) --- */
     if (d.pendidikan.length && !dibuang(d, 'pendidikan')) {
-      blok.pendidikan = '<h2>' + TAJUK_KORP.pendidikan + '</h2>' + d.pendidikan.map(function (o) {
+      blok.pendidikan = '<h2>' + tt('pendidikan') + '</h2>' + d.pendidikan.map(function (o) {
         var x = '<div class="ck-item ck-pendidikan">';
         x += '<strong>' + esc(o.institusi || o.kelulusan || '(Pendidikan)') + '</strong>';
         if (o.institusi && o.kelulusan) x += '<div class="ck-item-sub">' + esc(o.kelulusan) + '</div>';
@@ -2722,7 +2926,7 @@
     ['kemahiran', 'bahasa'].forEach(function (kunci) {
       var senarai = senaraiTahap(d, kunci);
       if (!senarai.length || dibuang(d, kunci)) return;
-      blok[kunci] = '<h2>' + TAJUK_KORP[kunci] + '</h2><ul class="ck-senarai">' +
+      blok[kunci] = '<h2>' + tt(kunci) + '</h2><ul class="ck-senarai">' +
         senarai.map(function (o) {
           return '<li><span>' + esc(o.nama) + '</span>' + titikTahap(o.tahap) + '</li>';
         }).join('') + '</ul>';
@@ -2730,13 +2934,13 @@
 
     /* --- blok: ringkasan --- */
     if (d.ringkasan && !dibuang(d, 'ringkasan')) {
-      blok.profil = '<h2>' + ikonKorp('orang') + TAJUK_KORP.profil + '</h2>' +
+      blok.profil = '<h2>' + ikonKorp('orang') + tt('profil') + '</h2>' +
         '<p class="ck-teks">' + esc(d.ringkasan) + '</p>';
     }
 
     /* --- blok: pengalaman kerja --- */
     if (d.pengalaman.length && !dibuang(d, 'pengalaman')) {
-      blok.pengalaman = '<h2>' + ikonKorp('beg') + TAJUK_KORP.pengalaman + '</h2>' + d.pengalaman.map(function (o) {
+      blok.pengalaman = '<h2>' + ikonKorp('beg') + tt('pengalaman') + '</h2>' + d.pengalaman.map(function (o) {
         var tajuk = (o.jawatan && o.syarikat) ? (o.jawatan + ', ' + o.syarikat) : (o.jawatan || o.syarikat || '(Syarikat)');
         var x = '<div class="ck-item"><div class="ck-item-kepala"><strong>' + esc(tajuk) + '</strong>' +
                 '<span>' + esc(o.tempoh) + '</span></div>';
@@ -2753,7 +2957,7 @@
     /* --- blok: rujukan --- */
     var ruj = senaraiRujukan(d);
     if (ruj.length && !dibuang(d, 'rujukan')) {
-      blok.rujukan = '<h2>' + ikonKorp('petak') + TAJUK_KORP.rujukan + '</h2>' + ruj.map(function (o) {
+      blok.rujukan = '<h2>' + ikonKorp('petak') + tt('rujukan') + '</h2>' + ruj.map(function (o) {
         var x = '<div class="ck-item"><div class="ck-item-kepala"><strong>' + esc(o.nama || o.jawatan || '(Rujukan)') + '</strong>' +
                 '<span>' + esc(o.telefon) + '</span></div>';
         if (o.jawatan && o.nama) x += '<div class="ck-item-sub">' + esc(o.jawatan) + '</div>';
@@ -2812,7 +3016,9 @@
       p: d.pengalaman, d: d.pendidikan,
       a: (d.tambahan || []).filter(function (o) { return String(o.t || '').trim(); }),   // bahagian tambahan
       x: d.buang || [],                                                                 // bahagian dibuang
-      y: (d.susun && (d.susun.kiri || d.susun.kanan)) ? d.susun : null                   // susunan blok
+      y: (d.susun && (d.susun.kiri || d.susun.kanan)) ? d.susun : null,                  // susunan blok
+      lp: d.labelProjek || LABEL_PROJEK || 'projek',                                     // label nama projek
+      bh: d.bahasaResume || BAHASA || 'ms'                                               // bahasa resume
     };
     var b64 = window.btoa(unescape(encodeURIComponent(JSON.stringify(ringkas))));
     return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -2835,7 +3041,9 @@
           : senaraiRujukan({ rujukan: o.u })),
         pengalaman: Array.isArray(o.p) ? o.p : [], pendidikan: Array.isArray(o.d) ? o.d : [],
         tambahan: Array.isArray(o.a) ? o.a : [], buang: Array.isArray(o.x) ? o.x : [],
-        susun: (o.y && (o.y.kiri || o.y.kanan)) ? { kiri: o.y.kiri || [], kanan: o.y.kanan || [] } : null
+        susun: (o.y && (o.y.kiri || o.y.kanan)) ? { kiri: o.y.kiri || [], kanan: o.y.kanan || [] } : null,
+        labelProjek: (o.lp === 'klien' || o.lp === 'projek-klien' || o.lp === 'tiada') ? o.lp : 'projek',
+        bahasaResume: (o.bh === 'en') ? 'en' : 'ms'
       };
     } catch (e) {
       return null;
@@ -3102,6 +3310,11 @@
     (d.pendidikan || []).forEach(function (o) { el('senarai-pendidikan').appendChild(barisPendidikan(o)); });
     BUANG = (d.buang || []).slice();
     SUSUN = d.susun ? { kiri: (d.susun.kiri || []).slice(), kanan: (d.susun.kanan || []).slice() } : null;
+    LABEL_PROJEK = d.labelProjek || LABEL_PROJEK || 'projek';
+    var selLabel = el('label-projek');
+    if (selLabel) selLabel.value = LABEL_PROJEK;
+    if (d.bahasaResume) BAHASA = (d.bahasaResume === 'en') ? 'en' : 'ms';
+    terapkanBahasa();
     kemasSek();
     el('senarai-tambahan').innerHTML = '';
     bilTambahan = 0;
@@ -3251,6 +3464,16 @@
     kemasSemula();
     var baris = el('senarai-rujukan').lastElementChild;
     if (baris) baris.querySelector('.rj-nama').focus();
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.pb-btn'), function (b) {
+    b.addEventListener('click', function () {
+      gunaBahasa(b.getAttribute('data-bahasa'));
+      tulisLog(BAHASA === 'en' ? 'Bahasa resume: English.' : 'Bahasa resume: Bahasa Melayu.', 'info');
+    });
+  });
+  el('label-projek').addEventListener('change', function () {
+    LABEL_PROJEK = el('label-projek').value;
+    kemasSemula();
   });
   el('togol-susun').addEventListener('click', function () { setModSusun(!MOD_SUSUN); });
   el('togol-susun-3').addEventListener('click', function () { setModSusun(!MOD_SUSUN); });
@@ -3868,9 +4091,12 @@
     susun: function () { return SUSUN ? { kiri: SUSUN.kiri.slice(), kanan: SUSUN.kanan.slice() } : null; },
     susunRasmi: bacaSusunRasmi, simpanSusunRasmi: simpanSusunRasmi,
     penjual: function () { return penjual; }, tandaSusunRasmi: tandaSusunRasmi,
+    bahasa: function () { return BAHASA; }, gunaBahasa: gunaBahasa, bersihPoin: bersihPoin,
     tempat: function () { return Object.keys(TEMPLAT); }, urutan: urutan, pindah: pindahBlok };
   kemasSemula();
   kemasSek();
+  try { BAHASA = (localStorage.getItem(KUNCI_BAHASA) === 'en') ? 'en' : 'ms'; } catch (e) { BAHASA = 'ms'; }
+  terapkanBahasa();
   susunSkalaSisi();
   tunjukLangkah(1);
   bacaTetapanEmail();

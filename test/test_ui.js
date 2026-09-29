@@ -1489,6 +1489,71 @@ ok(w.ResumeMV.kiraHalaman(0) === 1 && w.ResumeMV.kiraHalaman(undefined) === 1, '
      'kod pesanan membawa senarai projek (nama + poin)');
   ok(kodP.length < 3000, 'kod pesanan masih pendek walaupun ada projek (g: ' + kodP.length + ' aksara)');
 
+  // ---- blok 45: label projek boleh ubah, tanda titik pelanggan, dwibahasa ----
+  console.log('== 45. Label projek, tanda titik yang pelanggan taip, dwibahasa ==');
+  ok(!!el('label-projek'), 'pilihan label projek wujud di bahagian pengalaman');
+  ok(el('label-projek').options.length === 4, 'empat pilihan label (Projek / Klien / Projek & Klien / tiada label)');
+  const dataPj = { nama: 'Uji Label Projek', telefon: '011-111 0000', templat: 'biru',
+    pengalaman: [{ jawatan: 'Quantity Surveyor', syarikat: 'EPH Construction', tempoh: '2024',
+                   projek: [{ nama: 'Hospital Rizen', poin: ['Sediakan BQ'] }] }],
+    kemahiran: [], bahasa: [], pendidikan: [], rujukan: [], tambahan: [] };
+  w.ResumeMV.isi(JSON.parse(JSON.stringify(dataPj)));
+  el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+  ok(/Projek: Hospital Rizen/.test(el('resume').textContent), 'label lalai: "Projek: Hospital Rizen"');
+  el('label-projek').value = 'klien';
+  el('label-projek').dispatchEvent(new w.Event('change', { bubbles: true }));
+  ok(/Klien: Hospital Rizen/.test(el('resume').textContent), 'pilih "Klien" - label pada resume bertukar');
+  el('label-projek').value = 'projek-klien';
+  el('label-projek').dispatchEvent(new w.Event('change', { bubbles: true }));
+  ok(/Projek \/ Klien: Hospital Rizen/.test(el('resume').textContent), 'pilih "Projek / Klien" - dua label');
+  el('label-projek').value = 'tiada';
+  el('label-projek').dispatchEvent(new w.Event('change', { bubbles: true }));
+  ok(/Hospital Rizen/.test(el('resume').textContent) && !/Projek:/.test(el('resume').textContent),
+     'pilih "tiada label" - nama projek sahaja yang dicetak');
+  el('label-projek').value = 'projek';
+  el('label-projek').dispatchEvent(new w.Event('change', { bubbles: true }));
+
+  // kerja bukan berasaskan projek: nama projek kosong = terus ke perkara utama
+  const dataTiada = JSON.parse(JSON.stringify(dataPj));
+  dataTiada.pengalaman[0].jawatan = 'Kerani Akaun';
+  dataTiada.pengalaman[0].projek = [{ nama: '', poin: ['Urus fail dan rekod bayaran'] }];
+  w.ResumeMV.isi(dataTiada);
+  el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+  ok(!/Projek:/.test(el('resume').textContent) && /Urus fail dan rekod bayaran/.test(el('resume').textContent),
+     'nama projek kosong: resume terus ke perkara utama (sesuai pelanggan bukan industri projek)');
+
+  // tanda titik yang pelanggan taip sendiri dibuang (punca "keluar 2 point" dalam cetakan)
+  const kadPoin = d.querySelector('#senarai-pengalaman .baris .baris-projek');
+  kadPoin.querySelector('.pj-poin').value = '\u2022 Sediakan BQ\n- Semak tuntutan\n* Lapor kos bulanan\nTanpa tanda';
+  kadPoin.querySelector('.pj-poin').dispatchEvent(new w.Event('input', { bubbles: true }));
+  el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+  const dpoin = w.ResumeMV.kumpul().pengalaman[0].projek[0].poin;
+  ok(dpoin.length === 4 && dpoin[0] === 'Sediakan BQ' && dpoin[1] === 'Semak tuntutan' && dpoin[2] === 'Lapor kos bulanan',
+     'tanda \u2022, "-" dan "*" yang pelanggan taip dibuang (cetakan tidak keluar dua titik)');
+  ok(w.ResumeMV.bersihPoin('\u2022\u2022 Poin berganda') === 'Poin berganda', 'tanda bertindih juga dibuang');
+  ok(w.ResumeMV.bersihPoin('-1.5% kos berkurang') === '-1.5% kos berkurang', 'tanda "-" tanpa jarak tidak dibuang (bukan bulet)');
+  ok(kadPoin.querySelectorAll('.poin-preview .pp-baris').length === 4, 'pratonton grafik poin menunjukkan 4 baris');
+  ok(kadPoin.querySelectorAll('.poin-preview .pp-titik').length === 4, 'setiap baris pratonton ada grafik titiknya');
+  ok(/jangan taip/.test(kadPoin.querySelector('.poin-nota').textContent), 'nota mengingatkan jangan taip tanda titik sendiri');
+
+  // dwibahasa
+  const kadBhs = d.querySelector('#pilih-bahasa');
+  ok(!!kadBhs && !!d.querySelector('.pb-btn[data-bahasa="en"]'), 'pilihan bahasa wujud di halaman 1');
+  ok(d.querySelector('#hal-1').firstElementChild === kadBhs,
+     'pilihan bahasa diletak PALING AWAL halaman 1, sebelum pilihan reka bentuk');
+  d.querySelector('.pb-btn[data-bahasa="en"]').click();
+  ok(w.ResumeMV.bahasa() === 'en', 'butang English menukar bahasa resume');
+  ok(/work experience/i.test(el('resume').textContent), 'tajuk resume bertukar ke English (Work Experience)');
+  ok(/Choose your resume design/.test(d.querySelector('#hal-1 .galeri-kepala h2').textContent),
+     'tajuk halaman 1 bertukar ke English');
+  ok(/^Step \d of 3 /.test(el('langkah-teks').textContent), 'teks langkah bertukar ke English');
+  ok(d.documentElement.getAttribute('lang') === 'en', 'atribut lang dokumen ditetapkan untuk pembaca skrin');
+  ok(w.ResumeMV.dariKod(w.ResumeMV.kod(w.ResumeMV.kumpul())).bahasaResume === 'en',
+     'kod pesanan membawa bahasa resume (penjual cetak dalam bahasa yang sama)');
+  d.querySelector('.pb-btn[data-bahasa="ms"]').click();
+  ok(/pengalaman kerja/i.test(el('resume').textContent), 'kembali ke Bahasa Melayu: tajuk resume Melayu semula');
+  ok(el('label-projek').options[0].text.indexOf('Projek:') === 0, 'pilihan label projek juga bertukar bahasa');
+
   // data lama (poin tanpa projek) mesti kekal berfungsi
   d.querySelector('.kad-pilih[data-templat="biru"]').click();
   w.ResumeMV.isi({ nama: 'Data Lama', telefon: '011-000 0000', templat: 'biru',
@@ -1679,7 +1744,12 @@ var k0 = korp[0];
 ok(k0.querySelector('.ck-kiri') && k0.querySelector('.ck-kanan'), 'dua kolum (rel kiri + lajur kanan) wujud');
 var namaKorp = [].map.call(d.querySelectorAll('.ck-nama'), function (x) { return (x.textContent || '').toUpperCase(); }).join(' | ');
 ok(/UJIAN KORPORAT/.test(namaKorp), 'nama pelanggan muncul dalam lajur kanan (dijumpai: ' + namaKorp.slice(0, 60) + ')');
-ok(k0.querySelector('.ck-kiri h2') && /^CONTACT$/i.test(k0.querySelector('.ck-kiri h2').textContent.trim()), 'tajuk bahagian rel kiri = CONTACT (verbatim dari rujukan, bukan KONTAK)');
+ok(k0.querySelector('.ck-kiri h2') && /^KONTAK$/i.test(k0.querySelector('.ck-kiri h2').textContent.trim()),
+     'tajuk bahagian rel kiri = KONTAK dalam bahasa Melayu (lalai)');
+  w.ResumeMV.gunaBahasa('en');
+  ok(/^CONTACT$/i.test(d.querySelector('#resume .ck-kiri h2').textContent.trim()),
+     'bahasa English: tajuk = CONTACT, ejaan verbatim fail rujukan Canva');
+  w.ResumeMV.gunaBahasa('ms');
 ok(k0.querySelectorAll('.ck-kiri .blok[data-blok]').length >= 2, 'blok rel kiri boleh disusun semula');
 ok(k0.querySelectorAll('.ck-kanan .blok[data-blok]').length >= 2, 'blok lajur kanan boleh disusun semula');
 ok(w.ResumeMV.templat() === 'korporat' && isFinite(w.ResumeMV.halaman()) && isFinite(w.ResumeMV.renggang()),

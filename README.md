@@ -915,6 +915,37 @@ Diuji dengan jsdom blok 44 (24 semakan: tambah/hapus kad, penomboran, `kumpul()`
 templat, keserasian data lama, kod pesanan) dan dengan mencetak tiga PDF sebenar - "Projek: Hospital
 Rizen, Kuantan" serta "Projek: Perumahan Idaman Rakyat" masing-masing muncul SEBELUM poin projeknya.
 
+## Fasa 43 — label projek boleh ubah, tanda titik pelanggan, dan dwibahasa
+
+Tiga permintaan pelanggan dalam satu fasa:
+
+**1. Nama projek: pilihan dan label boleh ubah.** Medan nama projek dalam setiap kad kini jelas
+**pilihan** — kosongkan kalau kerja pelanggan tidak berasaskan projek (kerani, jurujual, cikgu); resume
+akan terus ke perkara utama. Ada juga pilihan label pada resume: **Projek:** / **Klien:** /
+**Projek / Klien:** / **tiada label**. Pilihan dibawa dalam kod pesanan (medan `lp`) supaya cetakan
+penjual sama dengan pilihan pelanggan, dan app tidak menggandakan label kalau pelanggan sudah menulisnya
+sendiri ("Klien ..." tidak jadi "Projek: Klien ...").
+
+**2. Tanda titik yang pelanggan taip dibuang + pratonton grafik.** Punca "keluar 2 point" dalam cetakan:
+pelanggan menaip `•` sendiri di depan ayat sedangkan app sudah menambah titik. Kini setiap baris
+dibersihkan oleh `bersihPoin()` (`• · ● ▪ ○ ◦ ‣ ⁃ ∙ *` dan `- ` di hujung depan sahaja; `-1.5%` tidak
+disentuh), dan di bawah setiap medan poin ada **pratonton grafik** — setiap baris dipaparkan dengan tanda
+titiknya sendiri beserta nota "jangan taip tanda titik sendiri".
+
+**3. Dwibahasa (Bahasa Melayu / English) — pilihan paling AWAL di halaman 1.** Kad pilihan bahasa diletak
+sebelum galeri reka bentuk. Bahasa menentukan tajuk dan label dalam resume melalui `tt()`:
+KONTAK/CONTACT, PENGALAMAN KERJA/WORK EXPERIENCE, PENDIDIKAN/EDUCATION, KEMAHIRAN/KEY SKILLS,
+BAHASA/LANGUAGE, RINGKASAN/SUMMARY, dan label projek (Projek:/Project:). Ejaan asal setiap templat
+dikekalkan — Biru & Kelabu memakai "Profil", dan templat Korporat Moden dalam bahasa Inggeris mengekalkan
+ejaan fail rujukan Canva (CONTACT / KEY SKILLS / LANGUAGE / WORK EXPERIENCE). Bahasa juga menukar tajuk
+halaman 1 dan 2, teks langkah, dan atribut `lang` dokumen; pilihan disimpan dalam kod pesanan (medan `bh`)
+dan dalam pelayar. **Bahasa lalai ialah Bahasa Melayu** — pilih English untuk resume berbahasa Inggeris.
+
+Diuji: jsdom blok 45 (24 semakan: label boleh ubah, nama projek kosong, pembuangan tanda titik, pratonton
+grafik, pertukaran bahasa, kod pesanan) dan cetakan sebenar — PDF Melayu mengandungi KONTAK /
+PENGALAMAN KERJA / PENDIDIKAN / KEMAHIRAN, PDF English mengandungi CONTACT / WORK EXPERIENCE / EDUCATION /
+PROJECT.
+
 ## Belum ada (fasa seterusnya)
 
 - Penjana PDF terus tanpa dialog cetak
