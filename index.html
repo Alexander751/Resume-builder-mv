@@ -2239,6 +2239,7 @@
     }
     if (LOG_MENTAH) tulisLog(LOG_MENTAH, LOG_JENIS);   // log status ikut bahasa, tanpa hilang mesej
     if (typeof kemasLkNota === 'function') kemasLkNota();   // nota "belum diisi" ikut bahasa
+    if (typeof semakSimpanan === 'function') semakSimpanan();   // nota resume tersimpan ikut bahasa
                                              // (bina semula akan membuang rujukan elemen & pilihan semasa)
     
   }
@@ -2849,11 +2850,17 @@
     }
     if (tmp().satuLajur && PENUH < 0.55) {
       nota.hidden = false;
-      nota.innerHTML = '<strong>Halaman masih lapang.</strong> Jarak sudah direnggangkan automatik, '
-        + 'tetapi resume ini masih ada banyak ruang kosong. Tambah bahagian lain supaya nampak penuh \u2014 '
-        + 'contohnya <strong>Kemahiran</strong> yang lebih lengkap, <strong>Bahasa</strong>, atau bahagian sendiri '
-        + 'seperti <strong>Projek</strong>, <strong>Sijil &amp; Latihan</strong> atau <strong>Aktiviti</strong> '
-        + '(butang di hujung borang halaman 2).';
+      nota.innerHTML = BAHASA === 'en'
+        ? '<strong>The page is still empty.</strong> Spacing was stretched automatically, but this resume '
+          + 'still has a lot of blank space. Add another section to fill it \u2014 for example more '
+          + '<strong>Skills</strong>, <strong>Languages</strong>, or your own section such as '
+          + '<strong>Projects</strong>, <strong>Certificates &amp; Training</strong> or <strong>Activities</strong> '
+          + '(buttons at the end of the page 2 form).'
+        : '<strong>Halaman masih lapang.</strong> Jarak sudah direnggangkan automatik, '
+          + 'tetapi resume ini masih ada banyak ruang kosong. Tambah bahagian lain supaya nampak penuh \u2014 '
+          + 'contohnya <strong>Kemahiran</strong> yang lebih lengkap, <strong>Bahasa</strong>, atau bahagian sendiri '
+          + 'seperti <strong>Projek</strong>, <strong>Sijil &amp; Latihan</strong> atau <strong>Aktiviti</strong> '
+          + '(butang di hujung borang halaman 2).';
     } else {
       nota.hidden = true;
       nota.innerHTML = '';
@@ -3586,14 +3593,21 @@
     var d = simpananTerakhir(), nota = el('nota-simpan');
     if (!nota) return;
     if (!d) { nota.hidden = true; nota.innerHTML = ''; return; }
+    var en = (BAHASA === 'en');
     nota.hidden = false;
-    nota.innerHTML = 'Resume terakhir di peranti ini: <strong>' + esc(String(d.nama).slice(0, 40))
-      + '</strong>. Tekan <strong>Mula Isi Butiran</strong> untuk sambung, atau ';
+    nota.innerHTML = (en
+      ? 'Last resume on this device: <strong>' + esc(String(d.nama).slice(0, 40))
+        + '</strong>. Press <strong>Start filling details</strong> to continue, or '
+      : 'Resume terakhir di peranti ini: <strong>' + esc(String(d.nama).slice(0, 40))
+        + '</strong>. Tekan <strong>Mula Isi Butiran</strong> untuk sambung, atau ');
+    var kosong = document.getElementById('buang-simpanan');
+    if (kosong) kosong.parentNode.removeChild(kosong);
     var pautan = document.createElement('button');
     pautan.type = 'button'; pautan.className = 'pautan-buang'; pautan.id = 'buang-simpanan';
-    pautan.textContent = 'mula kosong (buang dari peranti)';
+    pautan.textContent = en ? 'start empty (remove from this device)' : 'mula kosong (buang dari peranti)';
     pautan.addEventListener('click', function () {
-      if (!window.confirm('Buang resume yang disimpan dalam peranti ini?')) return;
+      if (!window.confirm(BAHASA === 'en' ? 'Remove the resume saved on this device?'
+                                          : 'Buang resume yang disimpan dalam peranti ini?')) return;
       kosongkanBorang();
       semakSimpanan();
       tulisLog('Resume tersimpan dibuang. Isi butiran baru anda.', 'info');

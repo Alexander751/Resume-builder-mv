@@ -1591,6 +1591,18 @@ ok(w.ResumeMV.kiraHalaman(0) === 1 && w.ResumeMV.kiraHalaman(undefined) === 1, '
   ok(!!el('nota-rasmi-penjual') && /official order|Susunan rasmi/i.test(el('nota-rasmi-penjual').textContent),
      'nota susunan rasmi dalam panel penjual ikut bahasa');
 
+  /* Nota yang MUNCUL hanya dalam keadaan tertentu (resume tersimpan, halaman lapang) mudah terlepas
+     daripada imbasan - uji keadaan itu secara eksplisit dalam DOM yang ada simpanan (domUlang). */
+  wU.ResumeMV.gunaBahasa('en');
+  ok(/Last resume on this device/.test(elU('nota-simpan').textContent),
+     'nota resume tersimpan: English (Last resume on this device...)');
+  ok(/start empty/.test(elU('nota-simpan').textContent), 'pautan buang simpanan juga English');
+  wU.ResumeMV.gunaBahasa('ms');
+  ok(/Resume terakhir di peranti ini/.test(elU('nota-simpan').textContent), 'kembali Melayu: nota resume tersimpan pulih');
+  wU.ResumeMV.gunaBahasa('en');
+  ok(/window\.addEventListener\('load', susunSemulaSelepasFont\)/.test(html) === true,
+     'ukur semula selepas font dimuat masih aktif');
+
   // ---- blok 46: SELURUH antara muka bertukar English, bukan hanya tajuk resume ----
   console.log('== 46. Seluruh halaman bertukar English (borang, butang, nota, langkah) ==');
   w.ResumeMV.gunaBahasa('en');
