@@ -762,7 +762,7 @@ kedua-duanya dan membetulkan nilai yang menyimpang:
 | Kontak | 9.5pt | **9pt** (irama baris 7.85mm) |
 | Jarak ikon ke teks tajuk | 4mm (teks x=96.0mm) | **3.6mm (teks x=91.4mm)** |
 | Nama / jawatan / tajuk kanan | 18.9 / 36.1 / 45.2mm | **21.0 / 34.8 / 57.9mm** (rujukan 21.1 / 34.8 / 58.8) |
-| Skala titik kemahiran & bahasa | dipaparkan | **disembunyikan** — rujukan tiada titik |
+| Skala titik kemahiran & bahasa | dipaparkan | disembunyikan (rujukan tiada titik) — **dipulihkan pada Fasa 40** |
 
 Sauh yang kini padan: saiz teks (34 / 16 / 13 / 11 / 10 / 9.5 / 9 / 8pt), warna, dan kedudukan x
 (79.5 / 83.7 / 89.4 / 10.0 / 15.0 / 16.0mm).
@@ -806,7 +806,7 @@ irama, dan render 1 halaman seperti rujukan.
 kedudukan tetap dengan jarak **tidak seragam** (7.0 / 13.1 / 17.7mm), jadi templat yang mengalir tidak
 boleh memadankan ketiga-tiganya sekali gus — app memakai 13.8mm (min rujukan). Irama item bahasa
 rujukan ialah 7.1mm manakala kemahiran 6.35mm; app memakai 6.35mm seragam. Skala titik kemahiran
-kekal disembunyikan kerana rujukan tiada titik.
+tidak lagi disembunyikan - lihat Fasa 40 (tahap ialah data pelanggan, bukan hiasan).
 
 Nota ujian: bilangan bentuk bulet dalam PDF **tidak** boleh dibandingkan terus — Chrome menggabungkan
 beberapa bulatan serupa menjadi satu objek laluan, jadi 15 bulet boleh dilaporkan sebagai 8+3.
@@ -833,6 +833,28 @@ PDF sebenar - **18/18 padan**. Had yang diakui: titik pecahan tepat *dalam* sesu
 kira-kira satu baris (Chrome memutuskan sendiri); bilangan halaman, bilangan helaian dan nota tidak lagi
 bercanggah. Kod ujian dalam app: `lembarUkur()`, `hitungTinggiIsi()`, `ResumeMV.potong()`,
 `ResumeMV.tinggiIsi()`.
+
+## Fasa 40 — titik skala 1-5 kemahiran & bahasa dalam SEMUA templat
+
+Pelanggan mengadu templat ketiga tiada titik skala walaupun dia sudah menetapkan tahap 1-5. Puncanya:
+Fasa 37 menyembunyikan titik dalam Korporat Moden kerana **fail rujukan Canva memang tiada titik**
+(`.lembar .cv-korporat .titik-tahap { display: none }`). Itu keputusan yang salah - tahap yang
+pelanggan isi ialah **data produk**, bukan hiasan yang boleh dibuang untuk meniru rujukan.
+
+| Perkara | Sebelum | Sekarang |
+|---|---|---|
+| Titik dalam Korporat Moden | `display: none` (tiada langsung) | **dipaparkan**: bulatan 3pt, penuh `#414042`, kosong `#bcc9c9`, jarak 1.6pt, 2mm dari hujung nama |
+| Data tahap | tersimpan dalam kod pesanan (`k`/`b` dengan `p`) tetapi tidak kelihatan dalam templat ini | kelihatan dalam **ketiga-tiga** templat |
+
+Disahkan dengan mencetak PDF sebenar: titik penuh/kosong ditemui dalam ketiga-tiga templat
+(Korporat Moden 57 penuh + 23 kosong, Biru & Kelabu 49+10, Biru Bersih 25+12 - Biru Bersih meletakkan
+bahagian kemahiran pada halaman 2 kerana kandungannya panjang), dan ujian jsdom memeriksa 5 titik setiap
+baris serta bilangan titik penuh mengikut tahap (AutoCAD 5 = lima penuh, MS Excel 4 = empat penuh).
+
+**Peraturan yang dipegang:** jangan buang atau sembunyikan data pelanggan untuk memenuhi rujukan visual.
+Rujukan menunjukkan REKA BENTUK; tahap kemahiran ialah DATA. Kalau rujukan tiada sesuatu yang pelanggan
+sudah isi, reka bentukkan elemen itu mengikut bahasa reka bentuk templat tersebut (warna dakwat templat,
+saiz sebaris dengan elemen lain) - jangan matikan.
 
 ## Belum ada (fasa seterusnya)
 

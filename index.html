@@ -1018,11 +1018,13 @@
     padding-left: 6.1mm; font-size: calc(10pt * var(--teks)); font-weight: 300;
     line-height: 1.35; margin-bottom: calc(1.6mm * var(--renggang));
   }
-  /* skala kemahiran: bulatan kecil, sepadan dengan bulet bulat rujukan */
-  /* rujukan TIADA skala titik: kemahiran dan bahasa ialah senarai teks biasa */
-  .lembar .cv-korporat .titik-tahap { display: none; }
-  .lembar .cv-korporat .titik-tahap { gap: 1.6pt; }
-  .lembar .cv-korporat .titik-tahap i { width: 3pt; height: 3pt; background: #c9d3d3; }
+  /* Skala titik 1-5 untuk kemahiran & bahasa WAJIB muncul dalam SEMUA templat, termasuk
+     templat ini (keputusan produk pengguna - pelanggan mahu tahap kelihatan). Fail rujukan
+     Canva tiada titik, jadi bentuknya direka mengikut bahasa reka bentuk rel ini sendiri:
+     bulatan 3pt sebaris dengan bulet rel (1.32mm), penuh #414042, kosong #bcc9c9
+     (lebih gelap daripada latar rel #dae3e3 supaya jelas kelihatan). */
+  .lembar .cv-korporat .titik-tahap { gap: 1.6pt; margin-left: 2mm; }
+  .lembar .cv-korporat .titik-tahap i { width: 3pt; height: 3pt; background: #bcc9c9; }
   .lembar .cv-korporat .titik-tahap i.penuh { background: #414042; }
   /* ikon kontak: kecil dan gelap (kelas .cvb-ikon dari fungsi ikon() yang sama) */
   .lembar .cv-korporat .cvb-ikon { width: 3.2mm; height: 3.2mm; fill: #403f41; color: #403f41; }

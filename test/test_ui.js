@@ -991,6 +991,18 @@ d.querySelector('.kad-pilih[data-templat="bersih"]').click();
 ok(d.querySelectorAll('#resume .cvs-tahap li').length === 5, 'templat Biru Bersih: 5 baris kemahiran/bahasa');
 ok(d.querySelectorAll('#resume .cvs-tahap li .titik-tahap').length === 5, 'templat Biru Bersih juga ada titik skala');
 ok(d.querySelectorAll('#resume .cvs-tahap li')[0].querySelectorAll('i.penuh').length === 5, 'titik penuh ikut tahap dalam templat bersih');
+// render templat korporat: skala titik mesti ada juga (aduan pelanggan: templat 3 tiada titik)
+d.querySelector('.kad-pilih[data-templat="korporat"]').click();
+const liKorp = d.querySelectorAll('#resume .cv-korporat .ck-senarai li');
+ok(liKorp.length === 5, 'Korporat: 3 kemahiran + 2 bahasa = 5 baris dalam rel kiri');
+ok(d.querySelectorAll('#resume .cv-korporat .ck-senarai li .titik-tahap').length === 5,
+   'Korporat: setiap baris kemahiran/bahasa ada titik skala (tidak lagi kosong)');
+ok(liKorp[0].querySelectorAll('.titik-tahap i').length === 5, 'Korporat: sentiasa lima titik (penuh + kosong)');
+ok(liKorp[0].querySelectorAll('i.penuh').length === 5, 'Korporat: AutoCAD (5) = lima titik penuh');
+ok(liKorp[1].querySelectorAll('i.penuh').length === 4, 'Korporat: MS Excel (4) = empat titik penuh');
+ok(/aria-label="Tahap 5 daripada 5"/.test(d.querySelector('#resume .cv-korporat .titik-tahap').outerHTML),
+   'Korporat: titik ada label untuk pembaca skrin');
+d.querySelector('.kad-pilih[data-templat="biru"]').click();
 // kod pesanan menyimpan + memulihkan tahap
 const kodTahap = w.ResumeMV.kod(w.ResumeMV.kumpul());
 ok(kodTahap.length < 4000, 'kod pesanan tidak membengkak (g: ' + kodTahap.length + ' aksara)');
@@ -1510,7 +1522,16 @@ ok(/color: #414042/.test(html), 'dakwat teks #414042 (nilai lapisan teks PDF, bu
 ok(/gap: 3\.6mm/.test(html), 'jarak ikon ke teks tajuk 3.6mm supaya teks tajuk bermula x=91.4mm seperti rujukan');
 ok(/font-size: calc\(9pt \* var\(--teks\)\);[\s\S]{0,120}margin-bottom: calc\(3\.4mm/.test(html),
    'kontak 9pt (bukan 9.5pt) dengan irama baris 7.85mm');
-ok(/\.titik-tahap \{ display: none; \}/.test(html), 'skala titik disembunyikan dalam Korporat: rujukan TIADA titik kemahiran/bahasa');
+/* Skala titik 1-5 MESTI muncul dalam templat ini juga (keputusan produk pengguna: pelanggan
+     mahu tahap kelihatan). Fail rujukan Canva tiada titik, jadi warna mengikut rel template itu. */
+  ok(!/cv-korporat \.titik-tahap \{ display: none/.test(html),
+     'skala titik TIDAK disembunyikan dalam Korporat lagi (semua templat mesti tunjuk tahap 1-5)');
+  ok(/\.cv-korporat \.titik-tahap i \{[^\}]*background: #bcc9c9/.test(html),
+     'titik kosong Korporat #bcc9c9 (lebih gelap daripada latar rel #dae3e3 supaya kelihatan)');
+  ok(/\.cv-korporat \.titik-tahap i\.penuh \{ background: #414042; \}/.test(html),
+     'titik penuh Korporat #414042 - warna dakwat templat itu sendiri');
+  ok(/\.cv-korporat \.titik-tahap \{ gap: 1\.6pt; margin-left: 2mm; \}/.test(html),
+     'titik Korporat 3pt sebaris dengan irama rel (jarak 1.6pt)');
 ok(/body\[data-templat="korporat"\] \.cb-rel \{[\s\S]{0,220}?position: fixed; left: 0; top: 0; bottom: 0; width: 71\.3mm/.test(html),
    'rel berterusan pada setiap halaman semasa cetak');
 ok(/body\[data-templat="korporat"\] \.cb-jalur \{ display: none; \}/.test(html), 'jalur atas tidak digunakan (tiada banner)');
