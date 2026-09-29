@@ -4253,9 +4253,16 @@
     akar.style.setProperty('--skala', Math.max(0.28, skala).toFixed(4));
     kertas.setAttribute('data-skala', Math.max(0.28, skala).toFixed(4));   // untuk ujian/ukur
   }
-  window.addEventListener('resize', function () { susunSkala(); susunMini(); });
-  window.addEventListener('orientationchange', function () { susunSkala(); susunMini(); });
-  window.addEventListener('load', susunSkala);        // selepas font web selesai dimuat
+  /* Ukur semula kandungan SELEPAS font web selesai dimuat: metrik font mengubah tinggi
+     kandungan, jadi kiraan halaman dan helaian pratonton mesti dikemas kini. Kalau tidak,
+     pratonton tidak sama dengan PDF (Chrome mencetak dengan metrik font sebenar). */
+  function susunSemulaSelepasFont() { larasRuang(); susunSkala(); susunMini(); susunSkalaSisi(); }
+  window.addEventListener('resize', function () { larasRuang(); susunSkala(); susunMini(); susunSkalaSisi(); });
+  window.addEventListener('orientationchange', function () { larasRuang(); susunSkala(); susunMini(); susunSkalaSisi(); });
+  window.addEventListener('load', susunSemulaSelepasFont);
+  if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
+    document.fonts.ready.then(susunSemulaSelepasFont);
+  }
 
   /* ---------- pratonton skrin penuh ---------- */
   function togolSkrinPenuh(paksa) {

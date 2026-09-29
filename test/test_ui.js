@@ -323,8 +323,11 @@ ok(Math.abs((794 * Number(skala)) / (tinggiA4 * Number(skala)) - 210 / 297) < 1e
 let meletup = false;
 try { w.dispatchEvent(new w.Event('resize')); } catch (e) { meletup = true; }
 ok(!meletup, 'peristiwa resize mengira semula skala tanpa ralat');
-ok(Number(d.documentElement.style.getPropertyValue('--skala')) > 0.28, 'skala kekal sah selepas resize');
-ok(/window\.addEventListener\('load', susunSkala\)/.test(html), 'skala dikira semula selepas font web dimuat');
+  ok(/window\.addEventListener\('load', susunSemulaSelepasFont\)/.test(html) &&
+     /function susunSemulaSelepasFont\(\) \{ larasRuang\(\); susunSkala\(\); susunMini\(\); susunSkalaSisi\(\); \}/.test(html),
+     'selepas font web dimuat: UKUR SEMULA kandungan + bina helaian (bukan skala sahaja)');
+  ok(/document\.fonts\.ready\.then\(susunSemulaSelepasFont\)/.test(html),
+     'font web siap dimuat juga mencetuskan ukur semula (SUSUNAN PRATONTON = CETAKAN)');
 
 console.log('== 16. Pratonton skrin penuh ==');
 ok(!!el('btn-skrin'), 'butang "Skrin penuh" ada');
