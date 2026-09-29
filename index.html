@@ -742,7 +742,7 @@
   }
   body[data-templat="korporat"] .pr-berulang .cb-rel {
     display: block; position: absolute; left: 0; top: 0; bottom: 0; width: 71.3mm;
-    background: #dbe3e3; z-index: 0;
+    background: #dae3e3; z-index: 0;
   }
   body[data-templat="korporat"] .pr-berulang .cb-jalur { display: none; }
   /* garis pemisah kolum: diteruskan penuh sampai hujung halaman pada setiap helaian */
@@ -905,15 +905,20 @@
      mengukur semula, kerana reka bentuk ini bergantung pada jidar yang tepat:
        rel kiri      : 0 - 71.3mm, warna #dbe3e3, rata sepanjang halaman
        teks kiri     : 10mm dari tepi; kontak menjorok ke 15mm (selepas ikon), kemahiran/bahasa 16mm
-       foto          : 36.7mm x 36.7mm pada 15.7mm dari tepi, 14.1mm dari atas
-       nama          : 34pt Light, HURUF BESAR, mula 79.6mm (4.2mm lebih kiri daripada teks kanan)
-       jawatan       : 16pt Light
-       teks kanan    : 83.7mm - 199.6mm (jidar kanan 10.4mm)
-       tajuk bahagian: 13pt Medium, huruf besar, jarak huruf .04em
-       badan         : 9pt (kontak/ringkasan), 9.5pt (pengalaman), 10pt (kemahiran/bahasa)
-       garis tajuk   : .53mm di bawah tajuk kolum kanan, dari mula teks sampai jidar kanan
-       ikon tajuk    : petak gelap 8.3mm dengan simbol putih di kiri tajuk kolum kanan
-       dakwat        : #403f41 */
+       foto          : BULAT 36.7mm, putih, pada 15.7mm dari tepi, 14.1mm dari atas
+       nama          : 34pt Light, HURUF BESAR, mula 79.6mm (4.2mm lebih kiri daripada teks kanan),
+                       warna kelabu-hijau #90a6a6, TANPA jarak huruf
+       jawatan       : 16pt Light, #404041
+       teks kanan    : 83.7mm - 199.6mm (jidar kanan 10.4mm), perenggan justified
+       tajuk bahagian: 13pt Poppins Medium, huruf besar, TANPA jarak huruf; kolum KIRI tiada garis
+       garis tajuk   : .53mm DI BAWAH teks tajuk kolum kanan (bukan di sisi), dari hujung ikon
+                       (12.3mm dari mula tajuk) sampai jidar kanan
+       ikon tajuk    : BULAT gelap 8.3mm (#403f40) dengan glyph putih (orang / beg), jarak 4mm ke teks
+       badan         : 9pt ringkasan (baris 4.23mm), 9.5pt kontak, 10.5pt tajuk pengalaman,
+                       9.5pt tarikh + bulet pengalaman, 8pt pendidikan
+       bulet kolum kiri : BULAT 1.35mm pada 11.8mm dari tepi, teks mula 16.1mm
+       bulet pengalaman : PETAK kecil #313132
+       dakwat        : #404041 (kiri, ringkasan, tajuk) dan #313132 (blok pengalaman) */
   .lembar .cv-korporat {
     display: flex; background: #fff; color: #403f41;
     /* --renggang dan --teks diurus oleh larasRuang() seperti templat lain; templat dua lajur
@@ -923,36 +928,43 @@
     font-family: "Poppins", "Inter", "Segoe UI", Arial, sans-serif;
   }
   .lembar .cv-korporat .ck-kiri {
-    flex: 0 0 71.3mm; width: 71.3mm; background: #dbe3e3;
+    flex: 0 0 71.3mm; width: 71.3mm; background: #dae3e3;
     padding: 14.1mm 8mm 12mm 10mm;
   }
   .lembar .cv-korporat .ck-kanan { flex: 1 1 auto; min-width: 0; padding: 21.1mm 10.4mm 12mm 12.4mm; }
   .lembar .cv-korporat .ck-foto {
-    width: 36.7mm; height: 36.7mm; margin: 0 auto calc(8.5mm * var(--renggang));
-    overflow: hidden; background: #fff;
+    width: 36.7mm; height: 36.7mm; margin: 0 auto calc(8mm * var(--renggang));
+    overflow: hidden; background: #fff; border-radius: 50%;
   }
   .lembar .cv-korporat .ck-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .lembar .cv-korporat.tanpa-foto .ck-foto { display: none; }
-  .lembar .cv-korporat .ck-kepala { margin: 0 0 calc(6mm * var(--renggang)) -4.2mm; }
+  /* Kepala kolum kanan: tinggi minimum 36.9mm (rujukan: mula teks 21.1mm -> tajuk SUMMARY 58.0mm)
+     supaya RINGKASAN sejajar mendatar dengan KONTAK dalam rel kiri. */
+  .lembar .cv-korporat .ck-kepala { margin: 0 0 0 -4.2mm; min-height: calc(36.9mm - 21.1mm); }
   .lembar .cv-korporat .ck-nama {
     margin: 0; font-size: calc(34pt * var(--teks)); font-weight: 300; line-height: 1.05;
     font-family: "Poppins", "Inter", "Segoe UI", Arial, sans-serif;
-    letter-spacing: .02em; text-transform: uppercase; color: #403f41;
+    text-transform: uppercase; color: #90a6a6;
   }
   .lembar .cv-korporat .ck-jawatan {
     margin: calc(2.6mm * var(--renggang)) 0 0; font-size: calc(16pt * var(--teks));
     font-weight: 300; color: #403f41;
   }
-  /* tajuk bahagian: huruf besar, jarak huruf, garis nipis di kanan (kolum kanan sahaja) */
+  /* tajuk bahagian: huruf besar, TANPA jarak huruf (rujukan tidak bertracking). Garis nipis berada
+     DI BAWAH teks tajuk kolum kanan dan bermula selepas ikon (12.3mm), bukan mengiringi teks. */
   .lembar .cv-korporat h2 {
-    display: flex; align-items: center; gap: 2.6mm; margin: 0 0 calc(2.8mm * var(--renggang));
-    font-size: calc(13pt * var(--teks)); font-weight: 500; letter-spacing: .04em;
+    display: flex; align-items: center; gap: 4mm; margin: 0 0 calc(2.8mm * var(--renggang));
+    font-size: calc(13pt * var(--teks)); font-weight: 500;
     font-family: "Poppins", "Inter", "Segoe UI", Arial, sans-serif;
-    text-transform: uppercase; color: #403f41; break-after: avoid; page-break-after: avoid;
+    text-transform: uppercase; color: #404041; break-after: avoid; page-break-after: avoid;
   }
-  .lembar .cv-korporat .ck-kanan h2::after { content: ''; flex: 1 1 auto; height: .53mm; background: #403f41; }
+  .lembar .cv-korporat .ck-kanan h2 { position: relative; padding-bottom: 1.5mm; }
+  .lembar .cv-korporat .ck-kanan h2::after {
+    content: ''; position: absolute; left: 12.3mm; right: 0; bottom: 0;
+    height: .53mm; background: #403f40;
+  }
   .lembar .cv-korporat .ck-ikon { width: 8.3mm; height: 8.3mm; flex: 0 0 8.3mm; padding: 1.9mm;
-    background: #403f41; color: #fff; box-sizing: border-box; }
+    background: #403f40; color: #fff; box-sizing: border-box; border-radius: 50%; }
   .lembar .cv-korporat .ck-kiri .blok + .blok > h2,
   .lembar .cv-korporat .ck-kanan .blok + .blok > h2 { margin-top: calc(6.6mm * var(--renggang)); }
   .lembar .cv-korporat .ck-kiri .blok:first-child > h2,
@@ -960,44 +972,47 @@
   /* kontak: ikon kecil + teks menjorok */
   .lembar .cv-korporat .ck-kontak { list-style: none; margin: 0; padding: 0; }
   .lembar .cv-korporat .ck-kontak li {
-    display: flex; gap: 2mm; align-items: flex-start; font-size: calc(9pt * var(--teks));
-    line-height: 1.45; margin-bottom: calc(4.4mm * var(--renggang));
+    display: flex; gap: 1.9mm; align-items: flex-start; font-size: calc(9.5pt * var(--teks));
+    line-height: 1.4; margin-bottom: calc(3.4mm * var(--renggang));
   }
   .lembar .cv-korporat .ck-kontak .ck-ikon-kecil { width: 3.2mm; height: 3.2mm; flex: 0 0 3.2mm; margin-top: .5mm; }
-  /* kemahiran & bahasa: petak kecil + teks */
+  /* kemahiran & bahasa: bulet BULAT kecil 1.35mm pada 11.8mm, teks mula 16.1mm (rujukan) */
   .lembar .cv-korporat .ck-senarai { list-style: none; margin: 0; padding: 0; }
   .lembar .cv-korporat .ck-senarai li {
     position: relative; display: flex; align-items: center; justify-content: space-between; gap: 3mm;
-    padding-left: 6mm; font-size: calc(10pt * var(--teks)); font-weight: 300;
-    line-height: 1.35; margin-bottom: calc(2.6mm * var(--renggang));
+    padding-left: 6.1mm; font-size: calc(10pt * var(--teks)); font-weight: 300;
+    line-height: 1.35; margin-bottom: calc(1.8mm * var(--renggang));
   }
-  /* skala kemahiran: petak (bukan bulatan) supaya sepadan dengan gaya minimalis */
+  /* skala kemahiran: bulatan kecil, sepadan dengan bulet bulat rujukan */
   .lembar .cv-korporat .titik-tahap { gap: 1.6pt; }
-  .lembar .cv-korporat .titik-tahap i { width: 3pt; height: 3pt; border-radius: 0; background: #c9d3d3; }
-  .lembar .cv-korporat .titik-tahap i.penuh { background: #403f41; }
+  .lembar .cv-korporat .titik-tahap i { width: 3pt; height: 3pt; background: #c9d3d3; }
+  .lembar .cv-korporat .titik-tahap i.penuh { background: #404041; }
   /* ikon kontak: kecil dan gelap (kelas .cvb-ikon dari fungsi ikon() yang sama) */
   .lembar .cv-korporat .cvb-ikon { width: 3.2mm; height: 3.2mm; fill: #403f41; color: #403f41; }
   .lembar .cv-korporat .ck-senarai li::before {
-    content: ''; position: absolute; left: 1.9mm; top: 1.55mm;
-    width: 1.3mm; height: 1.3mm; background: #403f41;
+    content: ''; position: absolute; left: 1.8mm; top: 1.5mm;
+    width: 1.35mm; height: 1.35mm; border-radius: 50%; background: #404041;
   }
   /* ringkasan & pengalaman */
-  .lembar .cv-korporat .ck-teks { margin: 0; font-size: calc(9pt * var(--teks)); line-height: 1.45; text-align: justify; }
+  .lembar .cv-korporat .ck-teks { margin: 0; font-size: calc(9pt * var(--teks)); line-height: 1.35; text-align: justify; }
   .lembar .cv-korporat .ck-item { margin-top: calc(4.4mm * var(--renggang)); }
   .lembar .cv-korporat .ck-item:first-of-type { margin-top: 0; }
   .lembar .cv-korporat .ck-item-kepala { display: flex; justify-content: space-between; gap: 4mm; align-items: baseline; }
-  .lembar .cv-korporat .ck-item-kepala strong { font-size: calc(11pt * var(--teks)); font-weight: 600; }
-  .lembar .cv-korporat .ck-item-kepala span { font-size: calc(10pt * var(--teks)); font-weight: 300; white-space: nowrap; }
-  .lembar .cv-korporat .ck-item-sub { font-size: calc(9pt * var(--teks)); font-weight: 300; margin-top: .8mm; }
+  .lembar .cv-korporat .ck-item-kepala strong { font-size: calc(10.5pt * var(--teks)); font-weight: 600; }
+  .lembar .cv-korporat .ck-item-kepala span { font-size: calc(9.5pt * var(--teks)); font-weight: 300; white-space: nowrap; }
+  .lembar .cv-korporat .ck-item-sub { font-size: calc(9.5pt * var(--teks)); font-weight: 300; margin-top: .8mm; }
   .lembar .cv-korporat .ck-senarai-item { list-style: none; margin: 1.8mm 0 0; padding: 0; }
   .lembar .cv-korporat .ck-senarai-item li {
     position: relative; padding-left: 5.7mm; font-size: calc(9.5pt * var(--teks));
-    line-height: 1.38; margin-bottom: calc(1.6mm * var(--renggang));
+    line-height: 1.35;
   }
   .lembar .cv-korporat .ck-senarai-item li::before {
-    content: ''; position: absolute; left: 1.5mm; top: 1.5mm;
-    width: 1.2mm; height: 1.2mm; background: #403f41;
+    content: ''; position: absolute; left: 1.5mm; top: 1.6mm;
+    width: 1.2mm; height: 1.2mm; background: #313132;
   }
+  /* rujukan: blok pengalaman dalam rujukan pelanggan lebih gelap (#313132) daripada
+     teks kolum kiri dan ringkasan (#404041) - dua dakwat memang berbeza dalam fail asal */
+  .lembar .cv-korporat .blok[data-blok="pengalaman"] { color: #313132; }
   .lembar .cv-korporat .ck-pendidikan .ck-item-kepala { display: block; }
   .lembar .cv-korporat .ck-pendidikan strong { display: block; font-size: calc(8pt * var(--teks)); }
   .lembar .cv-korporat .ck-pendidikan .ck-item-sub { font-size: calc(8pt * var(--teks)); }
@@ -1103,7 +1118,7 @@
     .lembar .cv-korporat .ck-kiri, .lembar .cv-korporat .ck-kanan { position: relative; z-index: 1; }
     body[data-templat="korporat"] .cb-rel {
       display: block; position: fixed; left: 0; top: 0; bottom: 0; width: 71.3mm;
-      background: #dbe3e3; z-index: 0;
+      background: #dae3e3; z-index: 0;
     }
     body[data-templat="korporat"] .cb-jalur { display: none; }
     .lembar .cv-bersih { min-height: auto; }
@@ -2102,7 +2117,7 @@
       html: htmlBersih
     },
     korporat: {
-      kunci: 'korporat', kelas: 'cv-korporat', nama: 'Korporat Moden', aksen: '#403f41',
+      kunci: 'korporat', kelas: 'cv-korporat', nama: 'Korporat Moden', aksen: '#404041',
       nota: 'Gaya korporat moden: rel kelabu-hijau di kiri untuk foto dan kemahiran, lajur kanan untuk ringkasan dan pengalaman, dengan garis tajuk yang tegas.',
       ciri: ['Ruang putih luas - sesuai jawatan korporat dan pengurusan', 'Tajuk huruf besar dengan garis dan ikon petak'],
       urutanDua: { kiri: ['kontak', 'pendidikan', 'kemahiran', 'bahasa'], kanan: ['profil', 'pengalaman', 'rujukan'] },

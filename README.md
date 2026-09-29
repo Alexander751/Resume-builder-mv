@@ -327,6 +327,23 @@ ditambah. Semua ukuran diambil daripada PDF itu dengan PyMuPDF, bukan dianggarka
   data panjang 3 pekerjaan -> **2 halaman**, rel kelabu `#dae3e3` pada 4 ketinggian di kedua-dua halaman, nama di kaki
   halaman kelihatan pada kedua-dua halaman (1,598 piksel teks setiap halaman). Ujian **651 lulus, 0 gagal** (blok 40
   baharu; blok 14 dikemas kini daripada 2 kad kepada 3 kad).
+**Semakan visual kedua (dibandingkan dengan rujukan, bukan tekaan)**
+
+Satu laporan visual ke atas rujukan (diukur pada 5.91 px/mm) membetulkan tujuh andaian pertama saya:
+
+| Perkara | Andaian pertama | Rujukan sebenar | Kini |
+|---|---|---|---|
+| Foto | segi empat | **BULAT** penuh, tiada bingkai | `border-radius: 50%` (disahkan: 4 sudut kotak foto = warna rel) |
+| Ikon tajuk | petak gelap | **BULAT** gelap, glyph putih (orang/beg) | `border-radius: 50%` |
+| Nama | dakwat gelap, tracking .02em | kelabu-hijau **#90a6a6**, tiada tracking | `#90a6a6`, 34pt (diukur dari PDF: `#90a6a6`) |
+| Garis tajuk | garis di *sisi* tajuk | garis **di bawah** teks, mula selepas ikon (12.3mm) | `::after` bawah, `left: 12.3mm` |
+| Bulet kolum kiri | petak | **bulatan** 1.35mm pada 11.8mm | bulat 1.35mm |
+| Dakwat | satu warna | `#404041` (kiri/ringkasan) + `#313132` (blok pengalaman) | dua warna |
+| Penjajaran | tidak dikawal | CONTACT dan SUMMARY **sama paras** (58.0mm) | `min-height` kepala 36.9mm -> KONTAK 58.7mm, RINGKASAN 57.6mm |
+
+Irama menegak juga diukur semula: baris kontak 7.8mm, item kemahiran 6.4mm, baris ringkasan 4.23mm,
+bulet pengalaman 4.5mm, tajuk pengalaman 10.5pt / tarikh 9.5pt / kontak 9.5pt / pendidikan 8pt.
+
 - Skrip pengesahan disimpan dalam repo: `test/uji_templat_korporat.py` (render + bandingan dengan rujukan) dan
   `test/semak_templat_korporat.py` (geometri + pemeriksaan piksel).
 

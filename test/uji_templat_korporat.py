@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """Render templat Korporat Moden + tangkap gambar + bandingkan dengan rujukan PDF pelanggan."""
 import io, json, os, subprocess, sys
+import base64
 import pymupdf
-from PIL import Image
+from PIL import Image, ImageDraw
 
 S = r"C:/Users/ADMIN/AppData/Local/hermes/cache/scratch"
 APP = r"C:\Users\ADMIN\Documents\Resume-builder-mv\index.html"
@@ -10,7 +11,12 @@ CHROME = r"C:/Program Files/Google/Chrome/Application/chrome.exe"
 MM = 72 / 25.4
 app = io.open(APP, encoding="utf-8", newline="").read()
 
+im = Image.new("RGB", (400, 400), (150, 170, 170))
+ImageDraw.Draw(im).ellipse((70, 40, 330, 300), fill=(238, 238, 238))
+ImageDraw.Draw(im).ellipse((150, 150, 250, 250), fill=(90, 90, 90))
+foto_uji = os.path.join(S, "foto_render.jpg"); im.save(foto_uji, quality=92)
 D = {
+    "foto": "data:image/jpeg;base64," + base64.b64encode(open(foto_uji, "rb").read()).decode(),
     "nama": "Che Ku Ahmad Ridzuan Mazlan", "jawatan": "Quantity Surveyor", "templat": "korporat",
     "telefon": "+6011-5900 3242", "emel": "ridzuan.954@yahoo.com", "lokasi": "Kuala Terengganu, Terengganu",
     "ringkasan": ("Quantity surveyor dengan lebih tiga tahun pengalaman dalam projek perumahan mampu milik. "

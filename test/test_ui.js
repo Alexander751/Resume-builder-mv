@@ -1441,10 +1441,15 @@ console.log('== 40. Templat Korporat Moden (rel kelabu) ==');
 ok(/korporat: \{[\s\S]{0,320}?kelas: 'cv-korporat'/.test(html), 'templat ketiga didaftar dengan kelasnya sendiri');
 ok(/\.lembar \.cv-korporat \{[\s\S]{0,420}?--renggang: 1; --teks: 1;/.test(html),
    'REGRESI: --teks/--renggang mesti ditakrif pada templat ini, jika tidak setiap calc(... * var(--teks)) jatuh ke saiz warisan');
-ok(/flex: 0 0 71\.3mm; width: 71\.3mm; background: #dbe3e3;/.test(html), 'rel kiri 71.3mm warna #dbe3e3 (ikut ukuran rujukan PDF)');
-ok(/margin: 0 0 calc\(6mm \* var\(--renggang\)\) -4\.2mm;/.test(html), 'nama keluar 4.2mm ke kiri seperti rujukan');
+ok(/flex: 0 0 71\.3mm; width: 71\.3mm; background: #dae3e3;/.test(html), 'rel kiri 71.3mm warna #dae3e3 (ukur dari piksel rujukan)');
+ok(/margin: 0 0 0 -4\.2mm; min-height: calc\(36\.9mm - 21\.1mm\);/.test(html),
+   'kepala kolum kanan: nama keluar 4.2mm ke kiri dan tinggi minimum supaya tajuk sejajar dengan rel kiri');
 ok(/font-size: calc\(34pt \* var\(--teks\)\)/.test(html) && /calc\(16pt \* var\(--teks\)\)/.test(html), 'nama 34pt dan jawatan 16pt');
-ok(/\.ck-kanan h2::after[\s\S]{0,160}?height: \.53mm; background: #403f41;/.test(html), 'garis nipis di kanan tajuk kolum kanan');
+ok(/\.ck-kanan h2::after \{[\s\S]{0,160}?bottom: 0;[\s\S]{0,60}?height: \.53mm;/.test(html), 'garis .53mm di BAWAH teks tajuk kolum kanan');
+ok(/border-radius: 50%; \}/.test(html) || /border-radius: 50%;/.test(html), 'ikon tajuk dan foto bulat');
+ok(/color: #90a6a6/.test(html), 'nama kelabu-hijau seperti rujukan');
+ok(/width: 1\.35mm; height: 1\.35mm; border-radius: 50%/.test(html), 'bulet kolum kiri bulat 1.35mm');
+ok(/\.blok\[data-blok="pengalaman"\] \{ color: #313132; \}/.test(html), 'blok pengalaman lebih gelap (#313132) seperti rujukan');
 ok(/body\[data-templat="korporat"\] \.cb-rel \{[\s\S]{0,220}?position: fixed; left: 0; top: 0; bottom: 0; width: 71\.3mm/.test(html),
    'rel berterusan pada setiap halaman semasa cetak');
 ok(/body\[data-templat="korporat"\] \.cb-jalur \{ display: none; \}/.test(html), 'jalur atas tidak digunakan (tiada banner)');
