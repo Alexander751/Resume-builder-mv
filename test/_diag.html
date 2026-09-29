@@ -1630,13 +1630,11 @@
       .replace(/"/g, '&quot;');
   }
 
-  var LOG_MENTAH = '', LOG_JENIS = 'info';
   function tulisLog(mesej, jenis) {
     var log = el('log');
     if (!log) return;
-    LOG_MENTAH = mesej || '';
-    LOG_JENIS = jenis || 'info';
-    log.innerHTML = mesej ? '<span class="' + LOG_JENIS + '">' + esc(tbMesej(mesej)) + '</span>' : '';
+    mesej = tbMesej(mesej);          // log status juga ikut bahasa resume
+    log.innerHTML = mesej ? '<span class="' + (jenis || 'info') + '">' + esc(mesej) + '</span>' : '';
   }
 
   /* ---------- baris berulang ---------- */
@@ -1901,59 +1899,6 @@
     "Ketuk tajuk 5 kali untuk Mod Penjual": "Tap the title 5 times for Seller Mode",
   };
 
-  /* tambahan kamus: placeholder + butang + label kad yang dijana kod */
-  Object.assign(KAMUS_EN, {
-    "cth. Ahmad bin Ali": "e.g. Ahmad bin Ali",
-    "cth. 012-3456789": "e.g. 012-3456789",
-    "cth. ahmad@gmail.com": "e.g. ahmad@gmail.com",
-    "cth. Kemaman, Terengganu": "e.g. Kemaman, Terengganu",
-    "cth. Junior Quantity Surveyor": "e.g. Junior Quantity Surveyor",
-    "cth. Graduan Sarjana Muda Ukur Bahan dengan 2 tahun pengalaman...": "e.g. Quantity Surveying graduate with 2 years of experience...",
-    "cth. Quantity Surveyor": "e.g. Quantity Surveyor",
-    "cth. EPH Construction Sdn Bhd": "e.g. EPH Construction Sdn Bhd",
-    "cth. Mac 2024 - Kini": "e.g. Mar 2024 - Present",
-    "cth. Projek Hospital Rizen, Kuantan (RM 120 juta)": "e.g. Rizen Hospital Project, Kuantan (RM 120 million)",
-    "Sediakan BQ dan dokumen tawaran&#10;Nilai tuntutan kontraktor dan interim certificate setiap bulan": "Prepare BQ and tender documents&#10;Assess monthly contractor claims and interim certificates",
-    "Sediakan BQ untuk 3 projek perumahan&#10;Semak tuntutan kontraktor setiap bulan": "Prepare BQ for 3 housing projects&#10;Review monthly contractor claims",
-    "cth. Sarjana Muda Ukur Bahan": "e.g. Bachelor of Quantity Surveying",
-    "cth. UiTM Shah Alam": "e.g. UiTM Shah Alam",
-    "cth. 2021 - 2024": "e.g. 2021 - 2024",
-    "cth. AutoCAD": "e.g. AutoCAD",
-    "cth. Bahasa Melayu": "e.g. Bahasa Melayu",
-    "cth. En. Samad bin Yusof": "e.g. Mr Samad bin Yusof",
-    "cth. Pengurus Projek, EPH Construction Sdn Bhd": "e.g. Project Manager, EPH Construction Sdn Bhd",
-    "cth. 012-345 6789 atau ahmad@contoh.my": "e.g. 012-345 6789 or ahmad@example.my",
-    "cth. Projek, Sijil, Aktiviti, Latihan": "e.g. Projects, Certificates, Activities, Training",
-    "cth. Projek Perumahan Mampu Milik Kemaman (2024)&#10;Sijil AutoCAD Asas (2023)": "e.g. Kemaman Affordable Housing Project (2024)&#10;Basic AutoCAD Certificate (2023)",
-    "cth. Projek Perumahan Kemaman (2024)": "e.g. Kemaman Housing Project (2024)",
-    "Tampal kod resume di sini...": "Paste the resume code here...",
-    "URL Apps Script (berakhir dengan /exec)": "Apps Script URL (ends with /exec)",
-    "+ Tambah Pengalaman": "+ Add Experience",
-    "+ Tambah Pendidikan": "+ Add Education",
-    "+ Tambah kemahiran": "+ Add skill",
-    "+ Tambah bahasa": "+ Add language",
-    "+ Tambah rujukan": "+ Add reference",
-    "+ Tambah projek lain (cth. projek perumahan)": "+ Add another project (e.g. a housing project)",
-    "Projek (nama & tempat)": "Project (name & location)",
-    "Perkara utama anda dalam projek ini (satu baris satu poin)": "Your key responsibilities on this project (one per line)",
-    "Perkara utama (satu baris satu poin)": "Key responsibilities (one per line)",
-    "Jawatan & syarikat": "Position & company",
-    "Telefon atau e-mel": "Phone or email",
-    "Tahun": "Year",
-    "Institusi": "Institution",
-    "Kelulusan": "Qualification",
-    "Telefon": "Phone",
-    "Tajuk bahagian": "Section title",
-    "Isi (satu baris satu item)": "Content (one item per line)",
-    "Syarikat": "Company",
-    "Tempoh": "Period",
-    "Jawatan": "Position",
-    "Tulis bahagian sendiri": "Write your own section",
-    "Kemahiran Profesional": "Professional Skills",
-    "Tampal kod resume daripada pelanggan:": "Paste the customer's resume code:",
-    "Nama projek dalam setiap kad adalah": "The project name in each card is"
-  });
-
   /* tambahan kamus: mesej log, teks tahap, teks kad templat */
   Object.assign(KAMUS_EN, {
     '\u2190 Butiran Reka Bentuk': '\u2190 Design Details',
@@ -2025,15 +1970,13 @@
 
   /* senarai teks antara muka yang pernah diterjemah, untuk dipulihkan */
   var UI_ASAL = [];
-  var UI_LOMPAT = '#resume, .lembar, .kertas, #log, #galeri, #mini-';
+  var UI_LOMPAT = '#resume, .lembar, .kertas, #log, #galeri, .baris, #mini-';
 
-  /* kunci = teks Melayu yang dipangkas (dipakai untuk cari terjemahan); ms = nilai asal penuh
-     (untuk nod teks yang ada ruang/newline, kita pulihkan nilai penuh itu) */
-  function ingatUI(e, jenis, ms, kunci) {
+  function ingatUI(e, jenis, ms) {
     for (var i = 0; i < UI_ASAL.length; i++) {
       if (UI_ASAL[i].e === e && UI_ASAL[i].jenis === jenis) return;
     }
-    UI_ASAL.push({ e: e, jenis: jenis, ms: ms, kunci: kunci || ms });
+    UI_ASAL.push({ e: e, jenis: jenis, ms: ms });
   }
 
   /* kumpul teks dalam satu bekas yang ada dalam kamus (untuk bekas kecil selepas render).
@@ -2055,8 +1998,7 @@
   }
 
   function terjemahElemen(akar) {
-    if (!akar) return;
-    var en = (BAHASA === 'en');
+    if (!akar || BAHASA !== 'en') return;
     var w = document.createTreeWalker(akar, NodeFilter.SHOW_TEXT, null);
     var nod;
     while ((nod = w.nextNode())) {
@@ -2065,22 +2007,22 @@
       var ms = nod.nodeValue || '';
       var t = ms.replace(/\s+/g, ' ').trim();
       if (!t || !KAMUS_EN[t]) continue;
-      ingatUI(nod, 'teksNod', ms, t);
-      if (en) nod.nodeValue = ms.replace(t, KAMUS_EN[t]);
+      ingatUI(nod, 'teksNod', ms);
+      nod.nodeValue = ms.replace(t, KAMUS_EN[t]);
     }
     Array.prototype.forEach.call(akar.querySelectorAll('[placeholder]'), function (e) {
       if (e.closest && e.closest(UI_LOMPAT)) return;
       var t = e.getAttribute('placeholder');
-      if (t && KAMUS_EN[t]) { ingatUI(e, 'placeholder', t); if (en) e.setAttribute('placeholder', KAMUS_EN[t]); }
+      if (t && KAMUS_EN[t]) { ingatUI(e, 'placeholder', t); e.setAttribute('placeholder', KAMUS_EN[t]); }
     });
     Array.prototype.forEach.call(akar.querySelectorAll('[title]'), function (e) {
       var t = e.getAttribute('title');
-      if (t && KAMUS_EN[t]) { ingatUI(e, 'title', t); if (en) e.setAttribute('title', KAMUS_EN[t]); }
+      if (t && KAMUS_EN[t]) { ingatUI(e, 'title', t); e.setAttribute('title', KAMUS_EN[t]); }
     });
     Array.prototype.forEach.call(akar.querySelectorAll('[aria-label]'), function (e) {
       if (e.closest && e.closest(UI_LOMPAT)) return;
       var t = e.getAttribute('aria-label');
-      if (t && KAMUS_EN[t]) { ingatUI(e, 'aria', t); if (en) e.setAttribute('aria-label', KAMUS_EN[t]); }
+      if (t && KAMUS_EN[t]) { ingatUI(e, 'aria', t); e.setAttribute('aria-label', KAMUS_EN[t]); }
     });
   }
 
@@ -2112,17 +2054,13 @@
   function terjemahAntaraMuka() {
     var en = (BAHASA === 'en');
     UI_ASAL.forEach(function (o) {
-      var nilai = en ? (KAMUS_EN[o.kunci || o.ms] || o.kunci || o.ms) : (o.kunci || o.ms);
-      if (o.jenis === 'teksNod') o.e.nodeValue = (o.ms || '').replace(o.kunci || o.ms, nilai);
+      var nilai = en ? (KAMUS_EN[o.ms] || o.ms) : o.ms;
+      if (o.jenis === 'teksNod') o.e.nodeValue = nilai;
       else if (o.jenis === 'teks') o.e.textContent = nilai;
       else if (o.jenis === 'placeholder') o.e.setAttribute('placeholder', nilai);
       else if (o.jenis === 'title') o.e.setAttribute('title', nilai);
       else if (o.jenis === 'aria') o.e.setAttribute('aria-label', nilai);
     });
-    /* imbasan penuh: menangkap teks yang dibina/ditukar selepas render (kad borang, mesej)
-       yang belum didaftarkan. Teks Inggeris tidak akan didaftarkan semula kerana kunci kamus
-       semuanya Bahasa Melayu - jadi menukar balik ke Melayu tetap betul. */
-    terjemahElemen(document.body);
   }
 
   function terapkanBahasa() {
@@ -2154,10 +2092,6 @@
     var kiraKad = el('galeri-kira');         // teks yang dijana kod
     if (kiraKad) kiraKad.textContent = Object.keys(TEMPLAT).length + (BAHASA === 'en' ? ' designs' : ' reka bentuk');
     kemasTeksKad();                          // kad reka bentuk (nota + ciri) ikut bahasa, TANPA bina semula
-    if (typeof tunjukLangkah === 'function' && typeof langkahKini !== 'undefined') {
-      tunjukLangkah(langkahKini);            // bar langkah kecil (Step N / 8, tajuk langkah, butang)
-    }
-    if (LOG_MENTAH) tulisLog(LOG_MENTAH, LOG_JENIS);   // log status ikut bahasa, tanpa hilang mesej
                                              // (bina semula akan membuang rujukan elemen & pilihan semasa)
     var selLabel = el('label-projek');       // pilihan label projek ikut bahasa juga
     if (selLabel) {
@@ -2308,7 +2242,6 @@
       b.remove();
       kemasSemula();
     });
-    terjemahElemen(b);
     return b;
   }
 
@@ -2323,7 +2256,8 @@
       return r.split('\n').map(function (x) { return x.trim(); }).filter(Boolean)
         .map(function (x) { return { nama: x, jawatan: '', telefon: '' }; });
     }
-    return [];
+    terjemahElemen(b);
+    return b;
   }
 
   function barisPendidikan(data) {
@@ -3389,7 +3323,7 @@
         bahasaResume: (o.bh === 'ms' || o.bh === 'en') ? o.bh : null   // kod lama tiada bahasa: guna tetapan semasa
       };
     } catch (e) {
-      return null;
+      return { RALAT: String(e && e.stack) };
     }
   }
 
@@ -4439,8 +4373,7 @@
   kemasSemula();
   kemasSek();
   try { BAHASA = (localStorage.getItem(KUNCI_BAHASA) === 'ms') ? 'ms' : 'en'; } catch (e) { BAHASA = 'en'; }
-  kumpulTeksUI();          // kumpul teks elemen (legend/label/nota/butang)
-  terjemahElemen(document.body);   // + nod teks (termasuk di dalam elemen ber-markup)
+  kumpulTeksUI();          // kumpul teks statik (legend/label/nota/butang) untuk dwibahasa
   terapkanBahasa();
   susunSkalaSisi();
   tunjukLangkah(1);

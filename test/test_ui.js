@@ -1562,6 +1562,37 @@ ok(w.ResumeMV.kiraHalaman(0) === 1 && w.ResumeMV.kiraHalaman(undefined) === 1, '
   ok(/pengalaman kerja/i.test(el('resume').textContent), 'kembali ke Bahasa Melayu: tajuk resume Melayu semula');
   ok(el('label-projek').options[0].text.indexOf('Projek:') === 0, 'pilihan label projek juga bertukar bahasa');
 
+  // ---- blok 46: SELURUH antara muka bertukar English, bukan hanya tajuk resume ----
+  console.log('== 46. Seluruh halaman bertukar English (borang, butang, nota, langkah) ==');
+  w.ResumeMV.gunaBahasa('en');
+  const tks = (sel) => { const e = d.querySelector(sel); return e ? e.textContent.replace(/\s+/g, ' ').trim() : ''; };
+  ok(/Personal Details/.test(tks('#borang legend')), 'legend borang: Personal Details');
+  ok(/Work Experience/.test(tks('#borang fieldset[data-sek="pengalaman"] legend')), 'legend pengalaman: Work Experience');
+  ok(tks('label[for="nama"]').replace('*', '').trim() === 'Name', 'label Nama -> Name');
+  ok(tks('label[for="telefon"]').replace('*', '').trim() === 'Phone Number', 'label Nombor Telefon -> Phone Number');
+  ok(/e\.g\./.test(el('nama').getAttribute('placeholder')), 'placeholder bertukar (cth. -> e.g.)');
+  ok(/Remove/.test(d.querySelector('#senarai-pengalaman .btn-hapus').textContent), 'butang Hapus -> Remove');
+  ok(/Remove project/.test(d.querySelector('#senarai-pengalaman .btn-hapus-projek').textContent), 'butang Hapus projek -> Remove project');
+  ok(/Add Experience/.test(el('tambah-pengalaman').textContent), 'butang + Tambah Pengalaman -> + Add Experience');
+  ok(/Arrange blocks/.test(el('togol-susun').textContent), 'butang Susun blok -> Arrange blocks');
+  ok(/Print PDF/.test(el('cetak-pdf').textContent), 'butang Cetak PDF -> Print PDF');
+  ok(/Step \d+ \/ 8/.test(el('lk-kira').textContent), 'penunjuk langkah kecil: Step N / 8');
+  ok(/Choose your resume design/.test(tks('#hal-1 .galeri-kepala h2')), 'tajuk halaman 1 English');
+  ok(/designs/.test(el('galeri-kira').textContent), 'kiraan reka bentuk: "designs"');
+  ok(/Two columns|spacious single-column|modern corporate/.test(tks('#galeri')), 'nota kad reka bentuk English');
+  d.querySelector('.pb-btn[data-bahasa="ms"]').click();   // tulis log dalam Bahasa Melayu dahulu
+  w.ResumeMV.gunaBahasa('en');                            // kemudian tukar ke English
+  ok(!/Bahasa resume: Bahasa Melayu/.test(el('log').textContent),
+     'log status tidak lagi dalam Bahasa Melayu selepas tukar ke English');
+  ok(/PREVIEW/.test(d.querySelector('#cap-air').textContent), 'tanda air: PREVIEW (bukan PRATONTON)');
+  // tukar kembali: semua pulih ke Bahasa Melayu
+  w.ResumeMV.gunaBahasa('ms');
+  ok(tks('label[for="nama"]').replace('*', '').trim() === 'Nama', 'kembali Melayu: label Nama semula');
+  ok(/Hapus/.test(d.querySelector('#senarai-pengalaman .btn-hapus').textContent), 'kembali Melayu: butang Hapus semula');
+  ok(/Personal Details|Butiran Peribadi/.test(tks('#borang legend')), 'legend borang pulih');
+  ok(!/PREVIEW/.test(d.querySelector('#cap-air').textContent), 'tanda air kembali ke PRATONTON');
+  w.ResumeMV.gunaBahasa('en');
+
   // data lama (poin tanpa projek) mesti kekal berfungsi
   d.querySelector('.kad-pilih[data-templat="biru"]').click();
   w.ResumeMV.isi({ nama: 'Data Lama', telefon: '011-000 0000', templat: 'biru',

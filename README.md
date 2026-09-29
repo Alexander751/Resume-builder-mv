@@ -968,6 +968,31 @@ Korporat Moden (CONTACT / SUMMARY / WORK EXPERIENCE / EDUCATION / KEY SKILLS / L
 tajuk Bahasa Melayu. Ujian jsdom kini memulakan suite dengan semakan lalai English, kemudian bertukar
 ke Bahasa Melayu untuk jangkaan ciri lama: **768 lulus, 0 gagal**.
 
+## Fasa 45 — seluruh antara muka bertukar English (bukan hanya tajuk resume)
+
+Pilihan bahasa di halaman 1 kini menukar SELURUH halaman pelanggan:
+
+- **Kamus `KAMUS_EN`** (lebih 170 entri) menukar teks statik: legend borang (Personal Details, Work
+  Experience, Education, Skills, Languages, References), label medan, placeholder, nota, butang
+  (Remove, Add Experience, Arrange blocks, Print PDF, Back, Next) dan teks halaman pesanan.
+- **Teks yang dijana kod** melalui `tb()`: butang dalam kad (Hapus / Hapus projek / + Tambah ...),
+  kepala kad (Pengalaman 1, Projek 2), teks tahap (Level 3 / 5, Not selected), bar langkah
+  (Step 3 / 8), kiraan reka bentuk dan nota kad reka bentuk (nota + ciri setiap templat).
+- **Log status** ditulis semula melalui `tbMesej()` — mesej Melayu yang dibina dengan gabungan teks
+  (cth "Reka bentuk dipilih: X") ditukar frasa demi frasa.
+- **Tanda air** pratonton menjadi PREVIEW &middot; Resume Builder MV &middot; NOT PAID.
+- Tukar balik ke Bahasa Melayu memulihkan teks asal (setiap elemen/nod teks mengingat teks Melayu
+  asalnya), dan satu imbasan penuh dijalankan setiap kali bahasa bertukar supaya teks yang dibina
+  selepas render (kad borang baharu) juga diterjemah.
+
+Diuji: jsdom blok 46 (20 semakan) — legend borang, label Name/Phone Number, placeholder, butang
+Remove / Remove project / Add Experience / Arrange blocks / Print PDF, bar langkah Step N / 8, nota
+kad reka bentuk, tanda air PREVIEW, dan pemulihan penuh ke Bahasa Melayu. Jumlah suite:
+**788 lulus, 0 gagal**.
+
+Nota: teks dalam panel **Mod Penjual** juga menuruti kamus yang sama; beberapa mesej teknikal yang
+jarang dilihat pelanggan masih Melayu.
+
 ## Belum ada (fasa seterusnya)
 
 - Penjana PDF terus tanpa dialog cetak
