@@ -707,6 +707,45 @@ var HARGA = 29.90;               // harga jualan PDF bersih (RM)
 | Kotak URL dan tarikh muncul atas banner | `@page` dimulakan pada margin 0 supaya banner boleh penuh ke tepi | Dalam dialog cetak, buka *More settings* → **matikan** *Headers and footers* |
 | Foto tidak naik | Fail melebihi 6 MB atau bukan gambar | Kecilkan gambar (JPG/PNG), kemudian cuba lagi |
 
+## Fasa 36 — tajuk bahagian "hilang" di puncak halaman (jalur berwarna)
+
+**Gejala** (laporan pengguna, templat Biru Bersih): tajuk `BAHASA` tiada dalam PDF, tetapi senarai
+`Malay` / `English` ada. Perkataan itu sebenarnya **tertutup**, bukan hilang.
+
+**Punca (disahkan dengan piksel, bukan andaian).** Jalur berwarna di puncak setiap halaman cetakan
+ialah elemen `position: fixed` setinggi 5mm. Chrome meletakkan tajuk bahagian yang jatuh pada
+pemisah halaman pada **y = 0.4mm** di puncak halaman baharu, jadi 5mm pertamanya berada di bawah
+jalur. Warna tajuk Biru Bersih (`#00366d`) sama dengan jalur → tajuk menjadi halimunan sepenuhnya.
+Perkataan itu **masih ada dalam lapisan teks PDF**, sebab itu semua pemeriksaan berasaskan teks
+(termasuk 90 konfigurasi sapuan awal) melaporkan "tiada masalah" — hanya ujian piksel dapat
+mengesannya.
+
+**Cubaan yang gagal (direkod supaya tidak diulang).** `@page { margin: 5mm 0 0 0 }` **tidak**
+menyelesaikan masalah: elemen `fixed` turut beralih 5mm ke bawah, jadi jalur masih menutup 5mm
+pertama kandungan. Meletakkan jalur di kawasan margin (`top: -5mm`) pula tidak dilukis langsung
+oleh Chrome (halaman itu keluar putih kosong).
+
+**Pembetulan.**
+| Fail / bahagian | Perubahan |
+|---|---|
+| `.lembar .cv-bersih` | `box-decoration-break: clone` — padding atas 10mm berulang pada SETIAP halaman |
+| `.lembar .cv-biru` | `padding-top: 5mm` + `box-decoration-break: clone`; banner 50→**45mm**, `.cvb-nama` top 11→**6mm**, `.cvb-foto` 21.2→**16.2mm** (halaman 1 kekal sama) |
+| Korporat Moden | Tiada perubahan — jalurnya tersembunyi (`display: none`), tiada apa menutup kandungan |
+| Geometri JS | `JIDAR_HAL = { bersih: 38, biru: 19, korporat: 0 }`; `kiraPotong()` tolak jidar untuk halaman ≥ 3; `kiraHalaman()` kira kapasiti `TINGGI_KERTAS - jidar` |
+| Pratonton | `.kertas-tambahan .sambungan { top: var(--jidar-hal, 0) }` supaya pratonton = cetakan |
+
+**Pengesahan.**
+- `test/semak_dakwat_jalur.py` — 27 konfigurasi (3 templat × panjang bulet × bilangan kemahiran):
+  **0 piksel dakwat** dalam jalur 0.3–4.7mm (sebelum pembetulan: tajuk berada pada 0.4mm).
+- `test/uji_jalur_halaman.py` — kes pengguna: tajuk `BAHASA` pada halaman 2 dari y=0.4mm →
+  **10.1mm**; bilangan halaman app = bilangan halaman cetakan (2 = 2).
+- `test/uji_jalur_minimum.py` — halaman minimum tanpa JS: baris pertama halaman 2 berpindah
+  0.4mm → 5.4mm dengan `clone`, kekal 0.4mm tanpanya.
+- Halaman 1 tidak berubah: Biru Bersih 9.5mm, Biru & Kelabu 11.6mm, Korporat Moden KONTAK 14.0mm /
+  RINGKASAN 57.6mm (rujukan 58.0mm).
+- `test/test_ui.js` blok 41 mengunci pembetulan ini; jumlah **662 lulus, 0 gagal**.
+
+
 ## Belum ada (fasa seterusnya)
 
 - Penjana PDF terus tanpa dialog cetak

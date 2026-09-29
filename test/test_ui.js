@@ -1475,6 +1475,28 @@ ok(k0.querySelectorAll('.ck-kanan .blok[data-blok]').length >= 2, 'blok lajur ka
 ok(w.ResumeMV.templat() === 'korporat' && isFinite(w.ResumeMV.halaman()) && isFinite(w.ResumeMV.renggang()),
    'templat ketiga boleh dipilih dan pengiraan halaman/renggang berfungsi');
 
+
+  // ---- blok 41: kandungan halaman 2+ mesti bermula di bawah jalur berwarna ----
+  // Pepijat yang dilindungi: jalur di puncak setiap halaman cetakan ialah elemen `position: fixed`
+  // 5mm. Tanpa padding atas yang berulang, kandungan halaman baharu bermula pada y=0 dan 5mm
+  // pertamanya (termasuk tajuk bahagian berwarna sama dengan jalur) ditutup sepenuhnya -
+  // teks masih ada dalam fail PDF, jadi hanya ujian piksel dapat mengesannya.
+  ok(/\.lembar \.cv-bersih \{[\s\S]{0,1400}box-decoration-break: clone/.test(html),
+     'Biru Bersih: padding atas berulang pada setiap halaman (box-decoration-break: clone)');
+  ok(/\.lembar \.cv-biru \{[\s\S]{0,300}padding-top: 5mm;/.test(html)
+     && /\.lembar \.cv-biru \{[\s\S]{0,400}box-decoration-break: clone/.test(html),
+     'Biru & Kelabu: kandungan mula 5mm di bawah jalur pada setiap halaman');
+  ok(/JIDAR_HAL = \{ bersih: 38, biru: 19, korporat: 0 \}/.test(html),
+     'jidar setiap templat sepadan dengan padding yang di-clone (10mm / 5mm / 0)');
+  ok(/--jidar-hal: 10mm/.test(html) && /--jidar-hal: 5mm/.test(html) && /--jidar-hal: 0mm/.test(html),
+     'pemboleh ubah --jidar-hal ditetapkan bagi ketiga-tiga templat');
+  ok(/\.kertas-tambahan \.sambungan \{ top: var\(--jidar-hal, 0\); \}/.test(html),
+     'tingkap pratonton halaman 2+ bermula pada jidar yang sama seperti cetakan');
+  ok(/TINGGI_KERTAS - \(h >= 3 \? j : 0\)/.test(html) && /1 \+ Math\.ceil\(\(t - TINGGI_KERTAS\) \/ \(TINGGI_KERTAS - j\)\)/.test(html),
+     'kiraan titik potong dan bilangan halaman mengambil kira kapasiti halaman yang menyusut');
+  ok(/height: 45mm/.test(html) && /left: 82\.8mm; top: 6mm/.test(html) && /left: 7\.8mm; top: 16\.2mm/.test(html),
+     'halaman 1 templat Biru kekal sama (banner dan kandungannya dianjak 5mm ke atas)');
+
   Promise.resolve().then(function () {
     console.log('\n' + pass + ' lulus, ' + fail + ' gagal, ' + skip + ' dilangkau');
     process.exit(fail ? 1 : 0);
