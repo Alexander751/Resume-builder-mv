@@ -277,13 +277,14 @@ ok(dom6.window.document.querySelector('#resume .cvb-kiri').textContent.includes(
 console.log('== 14. Daftar templat: Biru & Kelabu + Biru Bersih ==');
 ok(!/cv-klasik|cv-eksekutif|cv-minimalis|cv-kemahiran/.test(html), 'tiada sisa kelas templat lama dalam fail');
 ok(!/htmlKlasik|htmlEksekutif|htmlMinimalis|htmlKemahiran|PELUKIS/.test(html), 'tiada sisa fungsi templat lama');
+ok(html.includes('function htmlKorporat') && html.includes('.cv-korporat'), 'templat ketiga (Korporat Moden) wujud');
 ok(!/var TEMPLAT = \[/.test(html), 'senarai TEMPLAT sudah dibuang');
 ok(!/<select id="templat"/.test(html), 'borang tiada pemilih templat');
 ok(/var isi = htmlTemplat\(d\);/.test(html) && /el\('resume'\)\.innerHTML = isi;/.test(html) && /sisi\.innerHTML = isi;/.test(html),
    'papar() menulis resume yang sama ke kertas utama dan kertas pratonton di sisi');
 ok(/var TEMPLAT = \{/.test(html) && /bersih: \{/.test(html), 'daftar TEMPLAT (peta) wujud dalam kod');
 ok(html.includes('function htmlBersih') && html.includes('.cv-bersih'), 'templat kedua (Biru Bersih) wujud');
-ok(d.querySelectorAll('.kad-pilih[data-templat]').length === 2, 'dua kad reka bentuk di halaman 1');
+ok(d.querySelectorAll('.kad-pilih[data-templat]').length === 3, 'tiga kad reka bentuk di halaman 1');
 ok(!/r-sek|r-nama|\.chip/.test(html), 'tiada sisa gaya templat Klasik');
 ok(html.includes('function htmlBiru') && html.includes('.cv-biru'), 'reka bentuk Biru & Kelabu kekal utuh');
 ok(html.includes('.cvb-lencana') && html.includes('.cvb-titik') && html.includes('ikonLencana'),
@@ -843,7 +844,7 @@ el('mula-isi').click();
 el('nama').value = 'Ujian Nota'; el('telefon').value = '012-000 0000';
 el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
 ok(el('nota-lapang').hidden === true, 'nota tersembunyi bila isi penuh/dalam templat dua lajur');
-ok(w.ResumeMV.tempat().length === 2 && w.ResumeMV.tempat().indexOf('bersih') >= 0, 'daftar templat boleh dibaca dari luar');
+ok(w.ResumeMV.tempat().length === 3 && w.ResumeMV.tempat().indexOf('bersih') >= 0 && w.ResumeMV.tempat().indexOf('korporat') >= 0, 'daftar templat boleh dibaca dari luar');
 
 console.log('== 26. Isi terlalu banyak: auto-padat + nota melebihi halaman ==');
 ok(/--teks: 1;/.test(html), 'pemboleh --teks (skala fon) wujud');
@@ -1435,6 +1436,39 @@ ok(/body\[data-templat="biru"\] \.cb-garis \{[\s\S]{0,220}?z-index: 3;/.test(cet
    'garis pemisah kolum di atas lajur (supaya kelihatan penuh pada setiap halaman)');
 ok(/\.lembar \.cvb-kiri, \.lembar \.cvb-kanan \{ position: relative; z-index: 1; \}/.test(cetak2),
    'lajur kekal z-index 1 (di atas rel kelabu, di bawah hiasan berulang)');
+
+console.log('== 40. Templat Korporat Moden (rel kelabu) ==');
+ok(/korporat: \{[\s\S]{0,320}?kelas: 'cv-korporat'/.test(html), 'templat ketiga didaftar dengan kelasnya sendiri');
+ok(/\.lembar \.cv-korporat \{[\s\S]{0,420}?--renggang: 1; --teks: 1;/.test(html),
+   'REGRESI: --teks/--renggang mesti ditakrif pada templat ini, jika tidak setiap calc(... * var(--teks)) jatuh ke saiz warisan');
+ok(/flex: 0 0 71\.3mm; width: 71\.3mm; background: #dbe3e3;/.test(html), 'rel kiri 71.3mm warna #dbe3e3 (ikut ukuran rujukan PDF)');
+ok(/margin: 0 0 calc\(6mm \* var\(--renggang\)\) -4\.2mm;/.test(html), 'nama keluar 4.2mm ke kiri seperti rujukan');
+ok(/font-size: calc\(34pt \* var\(--teks\)\)/.test(html) && /calc\(16pt \* var\(--teks\)\)/.test(html), 'nama 34pt dan jawatan 16pt');
+ok(/\.ck-kanan h2::after[\s\S]{0,160}?height: \.53mm; background: #403f41;/.test(html), 'garis nipis di kanan tajuk kolum kanan');
+ok(/body\[data-templat="korporat"\] \.cb-rel \{[\s\S]{0,220}?position: fixed; left: 0; top: 0; bottom: 0; width: 71\.3mm/.test(html),
+   'rel berterusan pada setiap halaman semasa cetak');
+ok(/body\[data-templat="korporat"\] \.cb-jalur \{ display: none; \}/.test(html), 'jalur atas tidak digunakan (tiada banner)');
+ok(/urutanDua: \{ kiri: \['kontak', 'pendidikan', 'kemahiran', 'bahasa'\]/.test(html), 'pendidikan di rel kiri seperti rujukan');
+w.ResumeMV.isi({ nama: 'Ujian Korporat', jawatan: 'Quantity Surveyor', templat: 'korporat',
+  telefon: '012-000 0000', emel: 'a@b.com', lokasi: 'Kemaman, Terengganu',
+  ringkasan: 'Ringkasan ujian untuk templat ketiga supaya susun atur diuji dengan betul dan lengkap.',
+  pengalaman: [{ syarikat: 'Syarikat Ujian', jawatan: 'QS', tempoh: '2024 - Kini', poin: ['Satu bulet ujian.', 'Dua bulet ujian.'] }],
+  pendidikan: [{ kelulusan: 'Sarjana Muda Ukur Bahan', institusi: 'UTM', tahun: '2018' }],
+  kemahiran: [{ nama: 'Excel', tahap: 4 }], bahasa: [{ nama: 'Melayu', tahap: 5 }] });
+el('mula-isi').click();
+el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+el('ke-3').click();
+var korp = d.querySelectorAll('.lembar .cv-korporat');
+ok(korp.length >= 1, 'templat Korporat dirender dalam pratonton');
+var k0 = korp[0];
+ok(k0.querySelector('.ck-kiri') && k0.querySelector('.ck-kanan'), 'dua kolum (rel kiri + lajur kanan) wujud');
+var namaKorp = [].map.call(d.querySelectorAll('.ck-nama'), function (x) { return (x.textContent || '').toUpperCase(); }).join(' | ');
+ok(/UJIAN KORPORAT/.test(namaKorp), 'nama pelanggan muncul dalam lajur kanan (dijumpai: ' + namaKorp.slice(0, 60) + ')');
+ok(k0.querySelector('.ck-kiri h2') && /KONTAK/i.test(k0.querySelector('.ck-kiri h2').textContent), 'tajuk Kontak dalam rel kiri');
+ok(k0.querySelectorAll('.ck-kiri .blok[data-blok]').length >= 2, 'blok rel kiri boleh disusun semula');
+ok(k0.querySelectorAll('.ck-kanan .blok[data-blok]').length >= 2, 'blok lajur kanan boleh disusun semula');
+ok(w.ResumeMV.templat() === 'korporat' && isFinite(w.ResumeMV.halaman()) && isFinite(w.ResumeMV.renggang()),
+   'templat ketiga boleh dipilih dan pengiraan halaman/renggang berfungsi');
 
   Promise.resolve().then(function () {
     console.log('\n' + pass + ' lulus, ' + fail + ' gagal, ' + skip + ' dilangkau');

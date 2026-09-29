@@ -298,6 +298,38 @@ ditengahkan menegak), (3) kalau isi terlalu banyak, halaman kedua mesti berdesig
   dikira betul. Cetakan PDF kekal 1 halaman (borang tidak dicetak).
 - **Ujian** - blok 35. Jumlah **583 lulus, 0 gagal**.
 
+**Fasa 35 - templat ketiga: Korporat Moden (dibina daripada PDF rujukan pelanggan)**
+
+Pelanggan hantar `Minimalist Professional Corporate ATS Resume.pdf` (403 KB, 1 halaman A4) dan minta templat itu
+ditambah. Semua ukuran diambil daripada PDF itu dengan PyMuPDF, bukan dianggarkan:
+
+| ciri | rujukan pelanggan | templat kita |
+|---|---|---|
+| rel kiri | 0 - 71.3mm, `#dbe3e3`, rata sepanjang halaman | sama |
+| teks kolum kiri | 10mm dari tepi; kontak 15mm, kemahiran/bahasa 16mm | sama |
+| nama | 34pt Poppins Light, huruf besar, mula 79.6mm | sama (keluar 4.2mm ke kiri) |
+| jawatan | 16pt Poppins Light | sama |
+| teks kolum kanan | 83.7mm - 199.6mm | sama |
+| tajuk bahagian | 13pt Poppins Medium, huruf besar, `.53mm` garis di kanan (kolum kanan) | sama |
+| dakwat | `#403f41` | sama |
+
+- **Fon Poppins** ditambah pada pautan Google Fonts (berat 300/400/500/600). `h1, h2, h3 { font-family: Montserrat }`
+  di peringkat global mengalahkan keluarga fon pada akar templat, jadi keluarga Poppins mesti dinyatakan semula pada
+  `.ck-nama` dan `.ck-h2` - kalau tidak nama dirender dengan Montserrat tanpa sebarang ralat.
+- **Daftar templat jadi generik**: `larasRuang()` sebelum ini mencari `.cv-bersih` dan `.cv-biru` secara berkod tetap,
+  jadi templat ketiga tidak dikesan langsung. Setiap templat kini ada medan `kelas`, dan ukuran tinggi kandungan
+  templat dua lajur jatuh ke `scrollHeight` apabila tiada `.cvb-banner`/`.cvb-kiri`.
+- **Susunan asas sendiri**: medan `urutanDua { kiri, kanan }` meletakkan Pendidikan dalam rel kiri bersama Kontak
+  (mengikut rujukan), bukan dalam lajur kanan seperti templat Biru & Kelabu.
+- **Rel kelabu berterusan**: `body[data-templat="korporat"] .cb-rel` (fixed, 71.3mm) memastikan warna rel muncul pada
+  setiap halaman cetakan; jalur atas (`cb-jalur`) dimatikan kerana templat ini tiada banner.
+- **Pengesahan sebenar**: render 1 halaman (nama 34pt Poppins, jawatan 16pt, tajuk 13pt Medium, x 79.6/83.7/10.0mm);
+  data panjang 3 pekerjaan -> **2 halaman**, rel kelabu `#dae3e3` pada 4 ketinggian di kedua-dua halaman, nama di kaki
+  halaman kelihatan pada kedua-dua halaman (1,598 piksel teks setiap halaman). Ujian **651 lulus, 0 gagal** (blok 40
+  baharu; blok 14 dikemas kini daripada 2 kad kepada 3 kad).
+- Skrip pengesahan disimpan dalam repo: `test/uji_templat_korporat.py` (render + bandingan dengan rujukan) dan
+  `test/semak_templat_korporat.py` (geometri + pemeriksaan piksel).
+
 **Fasa 34 - Rantaian email lengkap (Apps Script + helper PC) + pembetulan kaki halaman**
 
 Fail baharu: `EmailResume.gs` (+ `PANDUAN-EMAIL-RESUME.md`), `backend_email/resume_pdf_helper.py`,
