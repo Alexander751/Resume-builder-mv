@@ -856,6 +856,42 @@ Rujukan menunjukkan REKA BENTUK; tahap kemahiran ialah DATA. Kalau rujukan tiada
 sudah isi, reka bentukkan elemen itu mengikut bahasa reka bentuk templat tersebut (warna dakwat templat,
 saiz sebaris dengan elemen lain) - jangan matikan.
 
+## Fasa 41 — dua lapisan susunan blok: RASMI (penjual) lawan susunan pelanggan
+
+Permintaan: penjual boleh menyusun blok dan susunan itu menjadi susunan rasmi untuk semua; pelanggan juga
+boleh menyusun, tetapi hanya untuk resumenya sendiri. Apabila kod pelanggan dibuka di mod penjual dan
+dicetak, susunan pelanggan diikut - tanpa mengubah susunan rasmi.
+
+| Lapisan | Disimpan di mana | Siapa boleh ubah | Kesan |
+|---|---|---|---|
+| **Susunan rasmi** (`KUNCI_SUSUN = 'resume-mv-susun-rasmi'`) | `localStorage` penjual, satu set bagi SETIAP templat | hanya mod penjual - `simpanSusunRasmi()` menolak bila bukan penjual | menjadi susunan lalai untuk semua dokumen baru |
+| **Susunan dokumen** (`SUSUN`) | dalam kod pesanan pelanggan (medan `y`) | pelanggan sendiri, atau penjual | hanya memberi kesan pada resume itu |
+
+Keutamaan dalam `urutan()`: **susunan dokumen** -> **susunan rasmi** -> susunan asas templat. Jadi:
+
+- pelanggan baru (tiada `y` dalam kod) menerima susunan rasmi;
+- kod pelanggan yang sudah menyusun menerima susunannya sendiri, dan `localStorage` penjual tidak disentuh;
+- kod pesanan hanya membawa susunan pelanggan (`y`) - susunan rasmi tidak pernah masuk ke dalam kod.
+
+Kawalan penjual: buka pratonton, tekan **Susun blok**, atur, kemudian tekan **Jadikan susunan rasmi**
+(butang hanya muncul dalam mod penjual + mod susun). Ada juga **Buang susunan rasmi** (semua pelanggan baru
+kembali ke susunan asal templat), dan butang "Tetapkan semula" bertukar label menjadi **Ikut susunan rasmi**
+bila susunan rasmi wujud. Panel Mod Penjual memaparkan status susunan rasmi templat yang sedang aktif;
+pelanggan pula diberi nota "Susunan blok ini hanya untuk resume anda - susunan rasmi tidak berubah".
+
+Diuji dengan mencetak dua PDF daripada kandungan yang SAMA (templat Biru Bersih, satu lajur, supaya urutan
+tajuk boleh dibaca dari teks PDF):
+
+| Kes | Susunan tajuk dalam PDF | Ikut |
+|---|---|---|
+| tiada susunan pelanggan | KEMAHIRAN, RINGKASAN, PENGALAMAN KERJA, PENDIDIKAN, BAHASA | **susunan rasmi** |
+| ada susunan pelanggan | PENDIDIKAN, RINGKASAN, PENGALAMAN KERJA, KEMAHIRAN, BAHASA | **susunan pelanggan** |
+
+Ujian jsdom (blok 43, 16 semakan) mengunci: penolakan tulisan oleh bukan-penjual, keutamaan susunan,
+kod membawa susunan pelanggan sahaja, butang tersembunyi untuk pelanggan, dan set berasingan bagi setiap
+templat. API ujian: `ResumeMV.susunRasmi()`, `ResumeMV.simpanSusunRasmi()`, `ResumeMV.susun()`,
+`ResumeMV.penjual()`.
+
 ## Belum ada (fasa seterusnya)
 
 - Penjana PDF terus tanpa dialog cetak

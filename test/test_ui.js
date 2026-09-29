@@ -1371,6 +1371,83 @@ ok(w.ResumeMV.kiraHalaman(0) === 1 && w.ResumeMV.kiraHalaman(undefined) === 1, '
      'teks kaki pada helaian pratonton sama dengan cetakan (tiada nombor halaman yang tidak tercetak)');
   ok(/body\[data-templat="korporat"\] \.pr-berulang \.cb-kaki \{ display: none; \}/.test(html),
      'kaki halaman Korporat disembunyikan pada pratonton juga (sama seperti cetakan)');
+
+  // ---- blok 43: DUA LAPISAN susunan blok (rasmi penjual lawan susunan pelanggan) ----
+  console.log('== 43. Susunan blok: rasmi (penjual) lawan pelanggan ==');
+  ok(typeof w.ResumeMV.simpanSusunRasmi === 'function' && typeof w.ResumeMV.susunRasmi === 'function' &&
+     typeof w.ResumeMV.penjual === 'function', 'API susunan rasmi didedahkan untuk ujian');
+  ok(w.ResumeMV.penjual() === false, 'dom utama = pelanggan (bukan mod penjual)');
+  ok(w.ResumeMV.simpanSusunRasmi({ kiri: ['kemahiran', 'kontak'], kanan: [] }) === false,
+     'PELANGGAN tidak boleh menyimpan susunan rasmi (fungsi menolak)');
+  ok(w.ResumeMV.susunRasmi() === null, 'susunan rasmi kekal kosong selepas cubaan pelanggan');
+  ok(el('susun-rasmi').hidden === true && el('susun-rasmi-buang').hidden === true,
+     'butang susunan rasmi tersembunyi untuk pelanggan');
+
+  // satu "pelayar" dikongsi antara dom: localStorage tiruan yang sama
+  const simpananSusun = {};
+  const domSusun = (url) => new JSDOM(html, {
+    runScripts: 'dangerously', url,
+    beforeParse(x) {
+      x.print = () => {}; x.confirm = () => true;
+      Object.defineProperty(x, 'localStorage', {
+        configurable: true,
+        value: { getItem: k => (k in simpananSusun ? simpananSusun[k] : null),
+                 setItem: (k, v) => { simpananSusun[k] = String(v); },
+                 removeItem: k => { delete simpananSusun[k]; } }
+      });
+    }
+  });
+  const DATA_SUSUN = {
+    nama: 'Ujian Susun Blok', telefon: '011-111 2222', templat: 'biru', ringkasan: 'Ringkasan ujian.',
+    kemahiran: [{ nama: 'AutoCAD', tahap: 5 }], bahasa: [{ nama: 'Bahasa Melayu', tahap: 4 }],
+    pengalaman: [{ syarikat: 'EPH Construction', jawatan: 'QS', tempoh: '2024', poin: ['Poin satu'] }],
+    pendidikan: [{ kelulusan: 'Diploma', institusi: 'Politeknik', tahun: '2020' }], rujukan: [], tambahan: []
+  };
+  const domJ = domSusun('https://alexander751.github.io/Resume-builder-mv/#penjual');
+  const wJ = domJ.window, dJ = wJ.document;
+  ok(wJ.ResumeMV.penjual() === true, 'dom penjual: mod penjual aktif');
+  dJ.getElementById('togol-susun-3').click();
+  ok(dJ.getElementById('susun-rasmi-3').hidden === false,
+     'mod penjual + mod susun: butang "Jadikan susunan rasmi" kelihatan');
+  const RASMI = { kiri: ['kemahiran', 'kontak', 'bahasa'], kanan: ['profil', 'pengalaman', 'pendidikan', 'rujukan'] };
+  ok(wJ.ResumeMV.simpanSusunRasmi(RASMI) === true, 'penjual boleh menyimpan susunan rasmi');
+  ok(JSON.stringify(wJ.ResumeMV.susunRasmi()) === JSON.stringify(RASMI), 'susunan rasmi tersimpan seperti yang diatur');
+  ok(/Susunan rasmi/.test(dJ.getElementById('nota-rasmi-penjual').textContent),
+     'panel mod penjual memaparkan status susunan rasmi');
+
+  // pelanggan BARU tanpa susunan sendiri: menerima susunan rasmi
+  const domB = domSusun('https://alexander751.github.io/Resume-builder-mv/');
+  domB.window.ResumeMV.isi(JSON.parse(JSON.stringify(DATA_SUSUN)));
+  domB.window.document.getElementById('borang').dispatchEvent(new domB.window.Event('input', { bubbles: true }));
+  const blokB = [...domB.window.document.querySelectorAll('#resume .blok[data-blok]')].map(x => x.getAttribute('data-blok'));
+  ok(blokB.indexOf('kemahiran') < blokB.indexOf('kontak'),
+     'pelanggan baru TANPA susunan sendiri menerima susunan RASMI (kemahiran sebelum kontak)');
+
+  // pelanggan dengan susunan sendiri: susunannya menang, susunan rasmi tidak berubah
+  const dataC = JSON.parse(JSON.stringify(DATA_SUSUN));
+  dataC.nama = 'Pelanggan Susun Sendiri';
+  dataC.susun = { kiri: ['kontak', 'kemahiran', 'bahasa'], kanan: ['pendidikan', 'profil', 'pengalaman', 'rujukan'] };
+  const domC = domSusun('https://alexander751.github.io/Resume-builder-mv/');
+  domC.window.ResumeMV.isi(dataC);
+  domC.window.document.getElementById('borang').dispatchEvent(new domC.window.Event('input', { bubbles: true }));
+  const blokC = [...domC.window.document.querySelectorAll('#resume .blok[data-blok]')].map(x => x.getAttribute('data-blok'));
+  ok(blokC.indexOf('kontak') < blokC.indexOf('kemahiran'),
+     'pelanggan yang susun sendiri: susunannya diutamakan (kontak dahulu)');
+  ok(JSON.stringify(wJ.ResumeMV.susunRasmi()) === JSON.stringify(RASMI),
+     'susunan RASMI penjual TIDAK berubah oleh susunan pelanggan');
+
+  // kod pesanan membawa susunan PELANGGAN sahaja
+  const kodC = domC.window.ResumeMV.kod(domC.window.ResumeMV.kumpul());
+  const balikC = domC.window.ResumeMV.dariKod(kodC);
+  ok(balikC && balikC.susun && balikC.susun.kiri[0] === 'kontak',
+     'kod pesanan membawa susunan PELANGGAN, bukan susunan rasmi penjual');
+  ok(kodC.length < 3000, 'kod pesanan kekal pendek walaupun membawa susunan (g: ' + kodC.length + ' aksara)');
+
+  // susunan rasmi disimpan MENGIKUT TEMPLAT (bukan satu set untuk semua)
+  const domK = domSusun('https://alexander751.github.io/Resume-builder-mv/#penjual');
+  domK.window.document.querySelector('.kad-pilih[data-templat="korporat"]').click();
+  ok(domK.window.ResumeMV.susunRasmi() === null,
+     'susunan rasmi satu templat tidak bocor ke templat lain (set berasingan bagi setiap templat)');
 ok(/\.kertas-tambahan \{ position: relative; \}/.test(html), 'helaian tambahan jadi rujukan kedudukan');
 ok(/\.kertas \.sambungan \{[\s\S]{0,200}height: var\(--tinggi-hal, 100%\); overflow: hidden;[\s\S]{0,20}\}/.test(html),
    'tingkap sambungan dipotong pada tinggi yang ditetapkan JS');

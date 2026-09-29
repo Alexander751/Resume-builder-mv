@@ -1398,6 +1398,14 @@
       fotonya kekal &mdash; tidak perlu muat naik semula.</p>
 
       <hr class="garis-penjual">
+      <p class="harga"><strong>Susunan blok rasmi</strong> &mdash; susunan yang diterima SEMUA pelanggan baru.</p>
+      <p class="nota">Buka pratonton, tekan <strong>Susun blok</strong>, atur ikut kehendak anda, kemudian tekan
+      <strong>Jadikan susunan rasmi</strong>. Susunan yang pelanggan buat sendiri (dalam kod pesanan mereka)
+      mengubah resume mereka sahaja &mdash; apabila kod pelanggan itu dibuka di sini, ia dicetak mengikut
+      susunan pelanggan, dan susunan rasmi anda tidak tersentuh.</p>
+      <p class="nota" id="nota-rasmi-penjual">Belum ada susunan rasmi &mdash; templat menggunakan susunan asal.</p>
+
+      <hr class="garis-penjual">
       <p class="harga"><strong>Email resume automatik</strong> &mdash; tampal sekali sahaja. Selepas ini, setiap
       pelanggan yang menekan butang WhatsApp akan menghantar resume (bersama data dan kod) ke email anda
       secara automatik.</p>
@@ -1417,6 +1425,8 @@
         <span class="sisi-alat">
           <button type="button" class="btn-alat" id="togol-susun" aria-pressed="false">Susun blok</button>
           <button type="button" class="btn-alat" id="susun-reset" hidden>Tetapkan semula</button>
+          <button type="button" class="btn-alat" id="susun-rasmi" hidden>Jadikan susunan rasmi</button>
+          <button type="button" class="btn-alat" id="susun-rasmi-buang" hidden>Buang susunan rasmi</button>
           <button type="button" class="btn-alat" id="tutup-sisi">Tutup</button>
         </span>
       </div>
@@ -1429,6 +1439,7 @@
         </div>
       </div>
       <p class="nota-susun" id="nota-susun" hidden>Seret blok untuk pindah tempat (atau tekan anak panah pada setiap blok). Susunan ini yang akan dicetak.</p>
+      <p class="nota-susun" id="nota-rasmi" hidden></p>
     </aside>
     </div>
 
@@ -1452,6 +1463,8 @@
       </div>
       <div class="bar-butang">
         <button type="button" class="btn-alat" id="togol-susun-3" aria-pressed="false">Susun blok</button>
+  <button type="button" class="btn-alat" id="susun-rasmi-3" hidden>Jadikan susunan rasmi</button>
+  <button type="button" class="btn-alat" id="susun-rasmi-buang-3" hidden>Buang susunan rasmi</button>
         <button type="button" class="btn-undur" id="balik-3">&larr; Kembali edit</button>
         <button type="button" class="btn-utama" id="ke-4">Seterusnya: Hantar &rarr;</button>
       </div>
@@ -2162,6 +2175,7 @@
     salinLaras();          // jarak & saiz fon sama pada semua helaian
     susunSkala();
     susunSkalaSisi();
+    tandaSusunRasmi();     // butang + nota susunan rasmi ikut peranan (penjual/pelanggan) dan templat
   }
 
   /* ---------- templat 2: Biru & Kelabu ---------- */
@@ -2193,7 +2207,14 @@
   }
 
   /* ---------- susunan blok resume (boleh dialih oleh pelanggan) ---------- */
-  var SUSUN = null;                 // { kiri: [id...], kanan: [id...] } — null bermakna susunan asas
+  /* Dua lapisan susunan blok:
+       SUSUN        = susunan DOKUMEN ini sahaja. Ia datang daripada kod pesanan pelanggan (atau aturan
+                      yang pelanggan buat dalam pratonton) dan hanya memberi kesan pada resume itu.
+       SUSUN RASMI  = disimpan oleh PENJUAL (localStorage, satu set bagi setiap templat). Ia menjadi
+                      susunan lalai untuk SEMUA dokumen baru, dan pelanggan tidak boleh mengubahnya.
+     null bermakna "ikut susunan rasmi"; kalau tiada susunan rasmi, susunan asal templat digunakan. */
+  var SUSUN = null;                 // { kiri: [id...], kanan: [id...] } — null bermakna ikut susunan rasmi
+  var KUNCI_SUSUN = 'resume-mv-susun-rasmi';
   var MOD_SUSUN = false;            // mod alih: blok boleh diseret / digerak
   var URUTAN_ASAS = { kiri: ['kontak', 'kemahiran', 'bahasa'], kanan: ['profil', 'pengalaman', 'pendidikan', 'rujukan'] };
 
@@ -2268,13 +2289,80 @@
     return { kiri: URUTAN_ASAS.kiri.slice(), kanan: kanan };
   }
 
-  // susunan sebenar: ikut pilihan pelanggan, kemudian lengkapkan blok yang belum disusun
+  /* ---------- susunan rasmi (penjual) lawan susunan dokumen (pelanggan) ---------- */
+  function bacaSusunRasmi() {
+    try {
+      var o = JSON.parse(localStorage.getItem(KUNCI_SUSUN) || '{}') || {};
+      var s = o[KUNCI_TEMPLAT];
+      if (s && (s.kiri || s.kanan)) return { kiri: (s.kiri || []).slice(), kanan: (s.kanan || []).slice() };
+    } catch (e) { /* storan dihalang - bukan ralat maut */ }
+    return null;
+  }
+
+  /* Hanya mod penjual boleh menulis. Ini yang menjamin susunan pelanggan tidak pernah
+     mengubah susunan rasmi walaupun dia membuka kodnya di peranti sendiri. */
+  function simpanSusunRasmi(susun) {
+    if (!penjual) return false;
+    try {
+      var o = {};
+      try { o = JSON.parse(localStorage.getItem(KUNCI_SUSUN) || '{}') || {}; } catch (e) { o = {}; }
+      if (susun && (susun.kiri || susun.kanan)) {
+        o[KUNCI_TEMPLAT] = { kiri: (susun.kiri || []).slice(), kanan: (susun.kanan || []).slice() };
+      } else {
+        delete o[KUNCI_TEMPLAT];
+      }
+      localStorage.setItem(KUNCI_SUSUN, JSON.stringify(o));
+    } catch (e) {
+      return false;
+    }
+    tandaSusunRasmi();
+    return true;
+  }
+
+  function rasmiUntukTemplatIni() { return bacaSusunRasmi(); }
+
+  /* Butang + nota: penjual nampak kawalan susunan rasmi, pelanggan diberitahu aturannya hanya untuk dia. */
+  function tandaSusunRasmi() {
+    var rasmi = rasmiUntukTemplatIni();
+    var boleh = penjual && MOD_SUSUN;
+    ['susun-rasmi', 'susun-rasmi-3'].forEach(function (id) {
+      var b = el(id);
+      if (b) b.hidden = !boleh;
+    });
+    ['susun-rasmi-buang', 'susun-rasmi-buang-3'].forEach(function (id) {
+      var b = el(id);
+      if (b) b.hidden = !(boleh && rasmi);
+    });
+    var teks = '';
+    if (penjual) {
+      teks = rasmi
+        ? 'Susunan rasmi sedang digunakan untuk semua pelanggan baru. Pelanggan boleh susun untuk dirinya sendiri tanpa mengubah susunan ini.'
+        : 'Belum ada susunan rasmi - templat ini memakai susunan asal. Susun blok, kemudian tekan "Jadikan susunan rasmi".';
+    } else if (SUSUN) {
+      teks = 'Susunan blok ini hanya untuk resume anda - susunan rasmi tidak berubah.';
+    }
+    ['nota-rasmi', 'nota-rasmi-3'].forEach(function (id) {
+      var n = el(id);
+      if (!n) return;
+      n.textContent = teks;
+      n.hidden = !teks;
+    });
+    var np = el('nota-rasmi-penjual');
+    if (np) np.textContent = rasmi
+      ? 'Susunan rasmi untuk templat ' + tmp().nama + ' sedang aktif. Pelanggan baru menerimanya.'
+      : 'Belum ada susunan rasmi untuk templat ' + tmp().nama + ' - susunan asal templat digunakan.';
+    var reset = el('susun-reset');
+    if (reset) reset.textContent = rasmi ? 'Ikut susunan rasmi' : 'Tetapkan semula';
+  }
+
+  // susunan sebenar: susunan dokumen ini dahulu, kemudian susunan RASMI penjual, kemudian asas templat
   function urutan(d) {
     var asas = idBlok(d), hasil = { kiri: [], kanan: [] };
     function sudah(id) { return hasil.kiri.indexOf(id) >= 0 || hasil.kanan.indexOf(id) >= 0; }
-    if (SUSUN) {
+    var pilihan = SUSUN || bacaSusunRasmi();
+    if (pilihan) {
       ['kiri', 'kanan'].forEach(function (k) {
-        (SUSUN[k] || []).forEach(function (id) {
+        (pilihan[k] || []).forEach(function (id) {
           if (sudah(id)) return;
           if (asas.kiri.indexOf(id) < 0 && asas.kanan.indexOf(id) < 0) return;   // blok sudah tiada
           hasil[k].push(id);
@@ -2652,6 +2740,7 @@
     if (reset) reset.hidden = !MOD_SUSUN;
     var nota = el('nota-susun');
     if (nota) nota.hidden = !MOD_SUSUN;
+    tandaSusunRasmi();
     kemasSemula();
     if (MOD_SUSUN) tulisLog('Mod susun hidup: seret blok dalam pratonton, atau tekan anak panah pada blok.', 'info');
   }
@@ -3052,7 +3141,36 @@
   el('susun-reset').addEventListener('click', function () {
     SUSUN = null;
     kemasSemula();
-    tulisLog('Susunan blok dikembalikan ke susunan asal.', 'info');
+    tulisLog(bacaSusunRasmi()
+      ? 'Susunan blok dikembalikan ke susunan RASMI (susunan yang pelanggan baru terima).'
+      : 'Susunan blok dikembalikan ke susunan asal templat.', 'info');
+  });
+  /* Jadikan apa yang dilihat sekarang sebagai susunan rasmi - hanya dalam mod penjual. */
+  ['susun-rasmi', 'susun-rasmi-3'].forEach(function (id) {
+    var b = el(id);
+    if (!b) return;
+    b.addEventListener('click', function () {
+      var u = urutan(kumpul());
+      if (simpanSusunRasmi(u)) {
+        tulisLog('Susunan blok sekarang disimpan sebagai susunan RASMI untuk templat ' + tmp().nama +
+                 '. Semua pelanggan baru akan menerimanya.', 'ok');
+      } else {
+        tulisLog('Susunan rasmi hanya boleh diubah dalam mod penjual.', 'ralat');
+      }
+      kemasSemula();
+    });
+  });
+  /* Buang susunan rasmi: templat kembali ke susunan asal untuk semua pelanggan. */
+  ['susun-rasmi-buang', 'susun-rasmi-buang-3'].forEach(function (id) {
+    var b = el(id);
+    if (!b) return;
+    b.addEventListener('click', function () {
+      if (!penjual) return;
+      if (!window.confirm('Buang susunan rasmi templat ini? Semua pelanggan baru akan kembali ke susunan asal.')) return;
+      simpanSusunRasmi(null);
+      kemasSemula();
+      tulisLog('Susunan rasmi dibuang - templat kembali ke susunan asal.', 'info');
+    });
   });
   el('buka-sisi').addEventListener('click', function () {
     el('sisi').classList.add('buka');
@@ -3631,6 +3749,9 @@
     halaman: function () { return HALAMAN; }, kiraHalaman: kiraHalaman,
     potong: function () { return POTONG.slice(); }, titikPotong: kiraPotong,
     tinggiIsi: function () { return TINGGI_ISI; },
+    susun: function () { return SUSUN ? { kiri: SUSUN.kiri.slice(), kanan: SUSUN.kanan.slice() } : null; },
+    susunRasmi: bacaSusunRasmi, simpanSusunRasmi: simpanSusunRasmi,
+    penjual: function () { return penjual; }, tandaSusunRasmi: tandaSusunRasmi,
     tempat: function () { return Object.keys(TEMPLAT); }, urutan: urutan, pindah: pindahBlok };
   kemasSemula();
   kemasSek();
