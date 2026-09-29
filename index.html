@@ -1108,6 +1108,17 @@
 
   .poin-nota { margin: 6px 0 0; font-size: 12.1px; color: var(--muted); }
   
+  /* ---------- bahagian mod "nama + detail": nama kemahiran dahulu, kemudian detailnya ---------- */
+  .dua-kotak { display: grid; gap: 9px; margin: 2px 0 0; }
+  .baris-dua { border: 1px solid var(--line); border-left: 3px solid var(--brand); border-radius: 10px; padding: 8px 11px 10px; background: #fbfcfe; }
+  .baris-dua .kepala-dua { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 2px; }
+  .baris-dua .bd-tajuk { font-size: 12.4px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: var(--muted); }
+  .baris-dua label { margin-top: 5px; }
+  .baris-dua .btn-hapus-dua { padding: 4px 9px; font-size: 12px; }
+  .btn-tambah-dua { margin-top: 8px; }
+  .lembar .cv-dua { margin: 1.1mm 0 0; font-size: calc(9.5pt * var(--teks)); line-height: 1.35; }
+  .lembar .cv-dua strong { font-weight: 700; }
+
   /* ---------- kad projek dalam borang pengalaman ---------- */
   .projek-kotak { display: grid; gap: 10px; margin: 2px 0 0; }
   .baris-projek {
@@ -1408,7 +1419,11 @@
       <legend>Bahagian Tambahan (pilihan)</legend>
       <p class="nota-tambah">Ada apa-apa lagi nak ditambah? Tekan kad di bawah &#8212; boleh tekan lebih daripada satu. Kalau tak ada, terus tekan <strong>Seterusnya</strong>.</p>
       <div class="cepat-tambah">
-        <button type="button" class="cip" data-tajuk="Kemahiran Profesional">
+        <button type="button" class="cip" data-mod="dua" data-tajuk="Kemahiran Profesional">
+          <span class="cip-ikon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M4 5.5h16v2.6H4zM4 10.7h10v2.6H4zM4 15.9h13v2.6H4z"/></svg></span>
+          <span class="cip-teks">Kemahiran (nama + detail)</span>
+        </button>
+        <button type="button" class="cip" data-tajuk="Kemahiran Profesional" hidden>
           <span class="cip-ikon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2.4l2.9 6.1 6.7.9-4.9 4.6 1.3 6.6L12 17.4l-6 3.2 1.3-6.6-4.9-4.6 6.7-.9z"/></svg></span>
           <span class="cip-teks">Kemahiran Profesional</span>
         </button>
@@ -1638,20 +1653,74 @@
     });
   }
 
+  /* satu item mod "nama + detail": nama kemahiran dahulu, kemudian detailnya */
+  function barisDua(data) {
+    data = data || {};
+    var d = document.createElement('div');
+    d.className = 'baris-dua';
+    d.innerHTML =
+      '<div class="kepala-dua"><strong class="bd-tajuk">Item</strong>' +
+      '<button type="button" class="btn-hapus btn-hapus-dua">Hapus</button></div>' +
+      '<label>Kemahiran / tajuk kecil</label>' +
+      '<input class="bd-nama" type="text" placeholder="cth. Pengurusan Kos">' +
+      '<label>Detail</label>' +
+      '<textarea class="bd-detail" rows="2" placeholder="cth. Menyedia BQ, mengawal kos dan lapor bulanan"></textarea>';
+    d.querySelector('.bd-nama').value = data.nama || '';
+    d.querySelector('.bd-detail').value = data.detail || '';
+    d.querySelector('.btn-hapus-dua').addEventListener('click', function () {
+      var kotak = d.parentNode;
+      d.remove();
+      kemasDua(kotak);
+      kemasSemula();
+    });
+    terjemahElemen(d);
+    return d;
+  }
+
+  function kemasDua(kotak) {
+    if (!kotak) return;
+    var semua = kotak.querySelectorAll('.baris-dua');
+    Array.prototype.forEach.call(semua, function (d, i) {
+      var t2 = d.querySelector('.bd-tajuk');
+      if (t2) t2.textContent = 'Item ' + (i + 1);
+      var h = d.querySelector('.btn-hapus-dua');
+      if (h) h.hidden = semua.length < 2;
+    });
+  }
+
   function barisTambahan(data) {
     data = data || {};
     bilTambahan++;
+    var dua = (data.mod === 'dua');
     var b = document.createElement('div');
     b.className = 'baris';
+    b.setAttribute('data-mod', dua ? 'dua' : '');
     b.innerHTML =
       '<div class="kepala"><strong>Bahagian ' + bilTambahan + '</strong>' +
       '<button type="button" class="btn-hapus">Hapus</button></div>' +
       '<label>Tajuk bahagian</label>' +
-      '<input class="t-tajuk" type="text" placeholder="cth. Projek, Sijil, Aktiviti, Latihan">' +
-      '<label>Isi (satu baris satu item)</label>' +
-      '<textarea class="t-isi" rows="4" placeholder="cth. Projek Perumahan Mampu Milik Kemaman (2024)&#10;Sijil AutoCAD Asas (2023)"></textarea>';
+      '<input class="t-tajuk" type="text" placeholder="cth. Kemahiran Profesional, Projek, Sijil">' +
+      (dua
+        ? '<label>Kemahiran &amp; detail</label><div class="dua-kotak"></div>' +
+          '<button type="button" class="btn-tambah btn-tambah-dua">+ Tambah kemahiran</button>'
+        : '<label>Isi (satu baris satu item)</label>' +
+          '<textarea class="t-isi" rows="4" placeholder="cth. Projek Perumahan Mampu Milik Kemaman (2024)&#10;Sijil AutoCAD Asas (2023)"></textarea>');
     b.querySelector('.t-tajuk').value = data.t || '';
-    b.querySelector('.t-isi').value = data.b || '';
+    if (dua) {
+      var kotak = b.querySelector('.dua-kotak');
+      var senaraiAwal = (data.bahagian && data.bahagian.length) ? data.bahagian : [{ nama: '', detail: '' }];
+      senaraiAwal.forEach(function (o) { kotak.appendChild(barisDua(o)); });
+      kemasDua(kotak);
+      b.querySelector('.btn-tambah-dua').addEventListener('click', function () {
+        var baru2 = barisDua({ nama: '', detail: '' });
+        kotak.appendChild(baru2);
+        kemasDua(kotak);
+        baru2.querySelector('.bd-nama').focus();
+        kemasSemula();
+      });
+    } else {
+      b.querySelector('.t-isi').value = data.b || '';
+    }
     terjemahElemen(b);
     b.querySelector('.btn-hapus').addEventListener('click', function () {
       b.remove();
@@ -2488,10 +2557,22 @@
       if (o.kelulusan || o.institusi || o.tahun) d.pendidikan.push(o);
     });
     Array.prototype.forEach.call(document.querySelectorAll('#senarai-tambahan .baris'), function (b) {
+      var modDua = (b.getAttribute('data-mod') === 'dua');
+      var bahagian = [];
+      if (modDua) {
+        Array.prototype.forEach.call(b.querySelectorAll('.baris-dua'), function (d2) {
+          var nama = d2.querySelector('.bd-nama').value.trim();
+          var detail = d2.querySelector('.bd-detail').value.split('\n').join(' ').trim();
+          if (nama || detail) bahagian.push({ nama: nama, detail: detail });
+        });
+      }
       var o = {
         t: b.querySelector('.t-tajuk').value.trim(),
-        b: b.querySelector('.t-isi').value.split('\n').map(function (x) { return x.trim(); }).filter(Boolean).join('\n')
+        b: modDua
+          ? bahagian.map(function (x) { return x.nama + (x.detail ? (x.nama ? ' \u2014 ' : '') + x.detail : ''); }).join('\n')
+          : b.querySelector('.t-isi').value.split('\n').map(function (x) { return x.trim(); }).filter(Boolean).join('\n')
       };
+      if (modDua) { o.mod = 'dua'; o.bahagian = bahagian; }
       if (o.t || o.b) d.tambahan.push(o);
     });
     ['kemahiran', 'bahasa'].forEach(function (kunci) {
@@ -3219,10 +3300,18 @@
     (d.tambahan || []).forEach(function (o, i) {
       var tajuk = String(o.t || '').trim();
       var item = String(o.b || '').split('\n').map(function (x) { return x.trim(); }).filter(Boolean);
-      if (!tajuk || !item.length) return;
-      blok['t' + i] = '<h2>' + esc(tajuk) + '</h2>' + (item.length === 1
-        ? '<p class="cvb-teks">' + esc(item[0]) + '</p>'
-        : '<ul class="cvb-bullet">' + item.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>');
+      if (o.mod === 'dua' && Array.isArray(o.bahagian) && o.bahagian.length) {
+        /* mod nama + detail: nama kemahiran tebal, detail selepasnya */
+        blok['t' + i] = '<h2>' + esc(tajuk) + '</h2>' + o.bahagian.map(function (x) {
+          return '<p class="cv-dua"><strong>' + esc(x.nama) + '</strong>' +
+                 (x.detail ? (x.nama ? ' &#8212; ' : '') + esc(x.detail) : '') + '</p>';
+        }).join('');
+      } else {
+        if (!tajuk || !item.length) return;
+        blok['t' + i] = '<h2>' + esc(tajuk) + '</h2>' + (item.length === 1
+          ? '<p class="cvb-teks">' + esc(item[0]) + '</p>'
+          : '<ul class="cvb-bullet">' + item.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>');
+      }
     });
 
     // blok dipaparkan ikut susunan pelanggan (boleh dialih dalam pratonton)
@@ -3299,10 +3388,18 @@
     (d.tambahan || []).forEach(function (o, i) {
       var tajuk = String(o.t || '').trim();
       var item = String(o.b || '').split('\n').map(function (x) { return x.trim(); }).filter(Boolean);
-      if (!tajuk || !item.length) return;
-      blok['t' + i] = '<h2>' + esc(tajuk) + '</h2>' + (item.length === 1
-        ? '<p class="cvs-teks">' + esc(item[0]) + '</p>'
-        : '<ul class="cvs-senarai">' + item.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>');
+      if (o.mod === 'dua' && Array.isArray(o.bahagian) && o.bahagian.length) {
+        /* mod nama + detail: nama kemahiran tebal, detail selepasnya */
+        blok['t' + i] = '<h2>' + esc(tajuk) + '</h2>' + o.bahagian.map(function (x) {
+          return '<p class="cv-dua"><strong>' + esc(x.nama) + '</strong>' +
+                 (x.detail ? (x.nama ? ' &#8212; ' : '') + esc(x.detail) : '') + '</p>';
+        }).join('');
+      } else {
+        if (!tajuk || !item.length) return;
+        blok['t' + i] = '<h2>' + esc(tajuk) + '</h2>' + (item.length === 1
+          ? '<p class="cvs-teks">' + esc(item[0]) + '</p>'
+          : '<ul class="cvs-senarai">' + item.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>');
+      }
     });
 
     // satu lajur: semua blok mengikut satu aliran (kiri kemudian kanan)
@@ -3404,10 +3501,18 @@
     (d.tambahan || []).forEach(function (o, i) {
       var tajuk = String(o.t || '').trim();
       var item = String(o.b || '').split('\n').map(function (x) { return x.trim(); }).filter(Boolean);
-      if (!tajuk || !item.length) return;
-      blok['t' + i] = '<h2>' + ikonKorp('petak') + esc(tajuk) + '</h2>' + (item.length === 1
-        ? '<p class="ck-teks">' + esc(item[0]) + '</p>'
-        : '<ul class="ck-senarai-item">' + item.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>');
+      if (o.mod === 'dua' && Array.isArray(o.bahagian) && o.bahagian.length) {
+        /* mod nama + detail: nama kemahiran tebal, detail selepasnya */
+        blok['t' + i] = '<h2>' + ikonKorp('petak') + esc(tajuk) + '</h2>' + o.bahagian.map(function (x) {
+          return '<p class="cv-dua"><strong>' + esc(x.nama) + '</strong>' +
+                 (x.detail ? (x.nama ? ' &#8212; ' : '') + esc(x.detail) : '') + '</p>';
+        }).join('');
+      } else {
+        if (!tajuk || !item.length) return;
+        blok['t' + i] = '<h2>' + ikonKorp('petak') + esc(tajuk) + '</h2>' + (item.length === 1
+          ? '<p class="ck-teks">' + esc(item[0]) + '</p>'
+          : '<ul class="ck-senarai-item">' + item.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>');
+      }
     });
 
     /* --- susun: rel kiri (foto + blok kiri) dan lajur kanan (nama + blok kanan) --- */
@@ -3974,8 +4079,8 @@
     el('sisi').classList.remove('buka');
     susunSkalaSisi();
   });
-  function tambahBahagian(tajuk) {
-    el('senarai-tambahan').appendChild(barisTambahan({ t: tajuk || '' }));
+  function tambahBahagian(tajuk, mod) {
+    el('senarai-tambahan').appendChild(barisTambahan({ t: tajuk || '', mod: mod || '' }));
     kemasSemula();
     var baris = el('senarai-tambahan').lastElementChild;
     if (!baris) return;
@@ -4004,7 +4109,7 @@
   el('borang').addEventListener('click', function (e) {
     var c = (e.target && e.target.closest) ? e.target.closest('.cip[data-tajuk]') : null;
     if (!c) return;
-    tambahBahagian(c.getAttribute('data-tajuk'));
+    tambahBahagian(c.getAttribute('data-tajuk'), c.getAttribute('data-mod') || '');
   });
   // buang / tambah balik bahagian piawai (delegasi: butang ada dalam setiap fieldset)
   el('borang').addEventListener('click', function (e) {
@@ -4443,6 +4548,9 @@
         poin: ['Bantu penyediaan anggaran kos dan pengiraan bahan.',
                'Rekod kemajuan kerja mingguan di tapak projek.'] },
     ],
+    tambahan: [{ t: 'Kemahiran Profesional', mod: 'dua', bahagian: [
+      { nama: 'Pengurusan Kos', detail: 'Sedia BQ, kawal kos dan lapor bulanan.' },
+      { nama: 'Penyeliaan Tapak', detail: 'Ukur kerja sebenar dan sahkan tuntutan kerja.' }] }],
     pendidikan: [
       { kelulusan: 'Sarjana Muda Ukur Bahan (Kepujian)', institusi: 'Universiti Teknologi MARA, Shah Alam', tahun: '2021 - 2024' },
       { kelulusan: 'Diploma Kejuruteraan Awam', institusi: 'Politeknik Sultan Haji Ahmad Shah', tahun: '2018 - 2021' }

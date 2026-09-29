@@ -743,30 +743,51 @@ el('mula-isi').click();
 el('kosongkan').click();          // mula bersih supaya bahagian baharu jadi t0
 isi('#nama', 'Nurul Ain'); isi('#telefon', '012-3456789');
 el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
-ok(d.querySelectorAll('.cepat-tambah .cip').length === 4, 'empat cadangan satu klik disediakan');
-ok(d.querySelector('.cip[data-tajuk="Kemahiran Profesional"]') !== null, 'cadangan "Kemahiran Profesional" ada');
-const bilSebelum = d.querySelectorAll('#senarai-tambahan .baris').length;
-d.querySelector('.cip[data-tajuk="Kemahiran Profesional"]').click();
-ok(d.querySelectorAll('#senarai-tambahan .baris').length === bilSebelum + 1, 'satu klik menambah baris bahagian baharu');
-const barisKP = d.querySelector('#senarai-tambahan .baris:last-child');
-ok(barisKP.querySelector('.t-tajuk').value === 'Kemahiran Profesional', 'tajuk sudah diisi automatik (tak perlu taip)');
-isi('#senarai-tambahan .baris:last-child .t-isi', 'AutoCAD - penyediaan pelan kerja\nMS Project - jadual projek\nPengurusan kontrak (PAM 2018)');
-el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
-ok(resume().includes('Kemahiran Profesional'), 'tajuk "Kemahiran Profesional" muncul dalam resume');
-ok(resume().includes('Pengurusan kontrak (PAM 2018)'), 'senarai kemahiran profesional muncul dalam resume');
-ok(d.querySelectorAll('#resume .cvb-kanan .blok[data-blok="t0"] .cvb-bullet li').length === 3,
-   'tiga item dipaparkan sebagai senarai bulet');
-// boleh dialih ke rel kiri seperti blok lain
-el('togol-susun').click();
-d.querySelector('#sisi-kertas [data-blok="t0"] [data-gerak="kiri"]').click();
-ok(d.querySelector('#sisi-kertas .cvb-kiri [data-blok="t0"]') !== null, 'bahagian kemahiran profesional boleh dialih ke rel kiri');
-el('susun-reset').click();
-el('togol-susun').click();
-// cadangan lain masih kosong tajuknya? (hanya Kemahiran Profesional diisi)
-d.querySelector('.cip[data-tajuk="Projek"]').click();
-ok(d.querySelector('#senarai-tambahan .baris:last-child .t-tajuk').value === 'Projek', 'cadangan "Projek" mengisi tajuknya');
-d.querySelector('#senarai-tambahan .baris:last-child .btn-hapus').click();
-ok(d.querySelectorAll('#senarai-tambahan .baris').length === bilSebelum + 1, 'baris cadangan boleh dihapus');
+  ok(d.querySelectorAll('.cepat-tambah .cip').length === 5, 'lima cip disediakan (4 ringkas + 1 nama+detail)');
+  ok(d.querySelectorAll('.cepat-tambah .cip:not([hidden])').length === 4, 'empat cip kelihatan (satu cip lama disembunyikan)');
+  ok(d.querySelector('.cip[data-mod="dua"]') !== null, 'cip "Kemahiran (nama + detail)" ada');
+  const bilSebelum = d.querySelectorAll('#senarai-tambahan .baris').length;
+  /* (a) mod NAMA + DETAIL */
+  d.querySelector('.cip[data-mod="dua"]').click();
+  ok(d.querySelectorAll('#senarai-tambahan .baris').length === bilSebelum + 1, 'satu klik menambah bahagian baharu');
+  const barisKP = d.querySelector('#senarai-tambahan .baris:last-child');
+  ok(barisKP.querySelector('.t-tajuk').value === 'Kemahiran Profesional', 'tajuk sudah diisi automatik');
+  ok(!!barisKP.querySelector('.baris-dua .bd-nama') && !!barisKP.querySelector('.baris-dua .bd-detail'),
+     'mod nama + detail: ada medan nama kemahiran DAN medan detail');
+  ok(barisKP.querySelectorAll('.baris-dua').length === 1, 'bermula dengan satu item');
+  barisKP.querySelector('.btn-tambah-dua').click();
+  ok(barisKP.querySelectorAll('.baris-dua').length === 2, '"+ Tambah kemahiran" menambah item kedua');
+  ok(barisKP.querySelectorAll('.baris-dua')[1].querySelector('.btn-hapus-dua').hidden === false,
+     'butang hapus item muncul bila ada dua item');
+  barisKP.querySelectorAll('.baris-dua')[1].querySelector('.btn-hapus-dua').click();
+  ok(barisKP.querySelectorAll('.baris-dua').length === 1, 'butang hapus item membuang item itu');
+  barisKP.querySelector('.baris-dua .bd-nama').value = 'Pengurusan Kos';
+  barisKP.querySelector('.baris-dua .bd-detail').value = 'Menyedia BQ dan mengawal kos projek';
+  barisKP.querySelector('.btn-tambah-dua').click();
+  const itemDua2 = barisKP.querySelectorAll('.baris-dua')[1];
+  itemDua2.querySelector('.bd-nama').value = 'AutoCAD';
+  itemDua2.querySelector('.bd-detail').value = 'Lukisan kerja siap dan pengukuran tapak';
+  el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+  ok(resume().includes('Kemahiran Profesional'), 'tajuk bahagian muncul dalam resume');
+  ok(/Pengurusan Kos\s*\u2014\s*Menyedia BQ/.test(resume().replace(/\s+/g, ' ')),
+     'nama kemahiran DULU, kemudian detailnya (dipisah dash)');
+  ok(resume().includes('AutoCAD') && resume().includes('Lukisan kerja siap'), 'item kedua juga dicetak');
+  const tambahanDua = w.ResumeMV.kumpul().tambahan.filter(function (o) { return o.mod === 'dua'; })[0];
+  ok(tambahanDua && tambahanDua.bahagian.length === 2 && tambahanDua.bahagian[0].nama === 'Pengurusan Kos',
+     'kumpul(): mod dua disimpan sebagai senarai {nama, detail}');
+  ok(w.ResumeMV.dariKod(w.ResumeMV.kod(w.ResumeMV.kumpul())).tambahan[0].bahagian[1].nama === 'AutoCAD',
+     'kod pesanan membawa item nama + detail');
+  /* (b) mod senarai ringkas masih berfungsi */
+  d.querySelector('.cip[data-tajuk="Sijil & Latihan"]').click();
+  const barisSijil = d.querySelector('#senarai-tambahan .baris:last-child');
+  ok(!!barisSijil.querySelector('.t-isi') && !barisSijil.querySelector('.baris-dua'),
+     'mod senarai ringkas masih guna medan isi sahaja');
+  isi('#senarai-tambahan .baris:last-child .t-isi', 'Sijil AutoCAD Asas (2023)');
+  el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+  ok(resume().includes('Sijil AutoCAD Asas (2023)'), 'mod ringkas masih dicetak seperti dahulu');
+  barisSijil.querySelector('.btn-hapus').click();
+  ok(d.querySelectorAll('#senarai-tambahan .baris').length === bilSebelum + 1, 'baris boleh dihapus');
+
 
 console.log('== 24. Tukar reka bentuk + templat Biru Bersih (satu lajur) ==');
 el('kosongkan').click();
@@ -824,8 +845,10 @@ el('togol-susun').click();
 
 d.querySelector('.sek[data-sek="bahasa"] .sek-buang').click();
 ok(!/Bahasa Melayu/.test(d.querySelector('#resume .cv-bersih').textContent), 'bahagian dibuang tidak muncul dalam templat bersih');
-d.querySelector('.cip[data-tajuk="Kemahiran Profesional"]').click();
-isi('#senarai-tambahan .baris:last-child .t-isi', 'AutoCAD\nUkur kuantiti (BQ)');
+  d.querySelector('.cip[data-mod="dua"]').click();
+  const barisBersih = d.querySelector('#senarai-tambahan .baris:last-child');
+  barisBersih.querySelector('.baris-dua .bd-nama').value = 'AutoCAD';
+  barisBersih.querySelector('.baris-dua .bd-detail').value = 'Ukur kuantiti (BQ)';
 el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
 ok(d.querySelector('#resume .cv-bersih .cvs-badan').textContent.includes('Kemahiran Profesional'),
    'bahagian tambahan muncul sebagai tajuk sendiri dalam templat bersih');
@@ -1131,8 +1154,8 @@ ok(/\.cip-ikon \{[\s\S]{0,200}border-radius: 50%/.test(html), 'ikon kad cadangan
 ok(/\.cepat-tambah \{[\s\S]{0,120}grid-template-columns: repeat\(auto-fit/.test(html), 'kad cadangan disusun sebagai grid');
 ok(/\.sek-bahagian \.cip:hover \{[\s\S]{0,120}translateY\(-2px\)/.test(html), 'kad cadangan ada gerak bila ditunjuk (hover)');
 ok(/\@media screen and \(max-width: 620px\)[\s\S]{0,400}cepat-tambah \{ grid-template-columns: 1fr 1fr/.test(html), 'di telefon kad susun dua lajur');
-ok(d.querySelectorAll('.sek-bahagian .cip[data-tajuk]').length === 4, '4 kad cadangan siap-pakai');
-ok(d.querySelectorAll('.sek-bahagian .cip svg').length === 4, 'setiap kad ada ikon sendiri (bukan emoji)');
+ok(d.querySelectorAll('.sek-bahagian .cip[data-tajuk]').length === 5, '5 kad cadangan (4 ringkas + 1 nama+detail)');
+ok(d.querySelectorAll('.sek-bahagian .cip svg').length === 5, 'setiap kad ada ikon sendiri (bukan emoji)');
 ok(!!d.querySelector('.cip-ikon.plus'), 'kad "tulis sendiri" ada bulatan +');
 ok(/Tulis bahagian sendiri/.test(html), 'kad terakhir berlabel "Tulis bahagian sendiri"');
 // kad masih berfungsi selepas disusun semula
