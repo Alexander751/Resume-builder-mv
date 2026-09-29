@@ -1540,9 +1540,8 @@ ok(w.ResumeMV.kiraHalaman(0) === 1 && w.ResumeMV.kiraHalaman(undefined) === 1, '
      'tanda \u2022, "-" dan "*" yang pelanggan taip dibuang (cetakan tidak keluar dua titik)');
   ok(w.ResumeMV.bersihPoin('\u2022\u2022 Poin berganda') === 'Poin berganda', 'tanda bertindih juga dibuang');
   ok(w.ResumeMV.bersihPoin('-1.5% kos berkurang') === '-1.5% kos berkurang', 'tanda "-" tanpa jarak tidak dibuang (bukan bulet)');
-  ok(kadPoin.querySelectorAll('.poin-preview .pp-baris').length === 4, 'pratonton grafik poin menunjukkan 4 baris');
-  ok(kadPoin.querySelectorAll('.poin-preview .pp-titik').length === 4, 'setiap baris pratonton ada grafik titiknya');
-  ok(/jangan taip/.test(kadPoin.querySelector('.poin-nota').textContent), 'nota mengingatkan jangan taip tanda titik sendiri');
+  ok(!kadPoin.querySelector('.poin-preview'), 'tiada pratonton poin di bawah medan (sudah dilihat di pratonton langsung)');
+  ok(/jangan taip/i.test(kadPoin.querySelector('.poin-nota').textContent), 'nota mengingatkan jangan taip tanda titik sendiri');
 
   // dwibahasa
   const kadBhs = d.querySelector('#pilih-bahasa');
