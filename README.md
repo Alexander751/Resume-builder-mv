@@ -813,6 +813,27 @@ beberapa bulatan serupa menjadi satu objek laluan, jadi 15 bulet boleh dilaporka
 Sahkan bilangan sebenar dengan pemeriksaan piksel (jalur `x=10-15mm` pada 200 dpi) atau dengan melihat
 PDF; audit membandingkan geometri (saiz, x, warna) bukan bilangan objek.
 
+## Fasa 39 — pratonton langsung = PDF cetak (satu sumber ukuran, satu kiraan halaman)
+
+Aduan: "ada beza antara pratonton langsung dan cetak PDF". Puncanya tiga, semuanya dalam **ukuran**,
+bukan dalam reka bentuk:
+
+| Punca | Kesan | Pembetulan |
+|---|---|---|
+| Ukuran tinggi diambil daripada helaian pratonton yang sedang **diskalakan** (`zoom`) - yang pertama dijumpai | Bilangan halaman berubah ikut saiz tetingkap **dan** ikut sama ada panel pratonton sisi terbuka (1114px lawan 1119px untuk kandungan yang sama) | Helaian **pengukur** tersembunyi pada `zoom: 1` - satu-satunya sumber ukuran |
+| `kiraHalaman` memaksa minimum **2 halaman** untuk kandungan 1113-1123px | Kandungan yang sebenarnya muat satu halaman dilaporkan 2 halaman; pratonton menunjukkan halaman 2 yang tidak ada dalam PDF | Bilangan halaman = bilangan potongan sebenar (`POTONG.length`), dikira pada helaian pengukur |
+| Tinggi templat dua lajur = `banner + lajur tertinggi + 20px` | Kandungan yang berakhir tepat di hujung halaman (cth Biru & Kelabu dengan 1 pekerjaan) dilaporkan 2 halaman sedangkan PDF 1 halaman | Guna tinggi kotak sebenar: `max(offsetHeight, scrollHeight)` |
+
+Turut diselaraskan: kaki halaman Korporat Moden disembunyikan pada pratonton juga (sama seperti cetakan),
+dan teks kaki pratonton sama dengan cetakan (`sambungan halaman`, tiada nombor halaman yang tidak tercetak).
+
+Ujian baharu `test/semak_pratonton_vs_pdf.py` membandingkan 3 templat x 1-6 pekerjaan: `halaman()`,
+bilangan helaian pratonton utama, bilangan helaian pratonton sisi, nombor dalam nota dan bilangan halaman
+PDF sebenar - **18/18 padan**. Had yang diakui: titik pecahan tepat *dalam* sesuatu halaman boleh berbeza
+kira-kira satu baris (Chrome memutuskan sendiri); bilangan halaman, bilangan helaian dan nota tidak lagi
+bercanggah. Kod ujian dalam app: `lembarUkur()`, `hitungTinggiIsi()`, `ResumeMV.potong()`,
+`ResumeMV.tinggiIsi()`.
+
 ## Belum ada (fasa seterusnya)
 
 - Penjana PDF terus tanpa dialog cetak

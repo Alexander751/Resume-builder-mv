@@ -1,0 +1,140 @@
+{
+ "nama": "OLIVIA SANCHEZ",
+ "jawatan": "Administrative Manager",
+ "templat": "korporat",
+ "telefon": "123-456-7890",
+ "emel": "hello@reallygreatsite.com",
+ "lokasi": "123 Anywhere St., Any City",
+ "ringkasan": "Detail-oriented administrative professional with over three years of experience providing comprehensive support to executive teams and office operations. Proven track record of managing administrative tasks efficiently and maintaining strict confidentiality. Strong organizational skills coupled with excellent communication abilities to coordinate office activities and facilitate smooth workflow.",
+ "pengalaman": [
+  {
+   "jawatan": "Accounting Executive",
+   "syarikat": "Borcelle Industries",
+   "tempoh": "Jan 2024 - Present",
+   "poin": [
+    "Implemented cost-control measures resulting in a 15% reduction in operational expenses.",
+    "Streamlined financial reporting processes, enhancing overall efficiency by 20%.",
+    "Led a team in successfully navigating a complex audit, ensuring compliance with industry regulations."
+   ]
+  },
+  {
+   "jawatan": "Accountant",
+   "syarikat": "Timmerman Industries",
+   "tempoh": "Jun 2022 - Jan 2024",
+   "poin": [
+    "Managed month-end close processes, reducing closing time by 25%.",
+    "Implemented a new financial forecasting system, improving accuracy by 18%.",
+    "Collaborated with cross-functional teams to develop and implement financial strategies, resulting in a 10% increase in revenue.",
+    "Spearheaded automation, decreasing manual workload by 30%."
+   ]
+  },
+  {
+   "jawatan": "Junior Accountant",
+   "syarikat": "Borcelle Industries",
+   "tempoh": "Jan 2020- Jun 2022",
+   "poin": [
+    "Managed month-end close processes, reducing closing time by 25%.",
+    "Implemented a new financial forecasting system, improving accuracy by 18%.",
+    "Collaborated with cross-functional teams to develop and implement financial strategies, resulting in a 10% increase in revenue.",
+    "Spearheaded automation, decreasing manual workload by 30%."
+   ]
+  },
+  {
+   "jawatan": "Junior Accountant",
+   "syarikat": "Borcelle Industries",
+   "tempoh": "Jan 2020- Jun 2022",
+   "poin": [
+    "Managed month-end close processes, reducing closing time by 25%.",
+    "Implemented a new financial forecasting system, improving accuracy by 18%.",
+    "Collaborated with cross-functional teams to develop and implement financial strategies, resulting in a 10% increase in revenue.",
+    "Spearheaded automation, decreasing manual workload by 30%."
+   ]
+  }
+ ],
+ "pendidikan": [
+  {
+   "institusi": "Borcelle University",
+   "kelulusan": "Bachelor of Business Management",
+   "tahun": "2020 - 2023"
+  },
+  {
+   "institusi": "Wardiere University",
+   "kelulusan": "Bachelor of Business Management",
+   "tahun": "2016 - 2020"
+  }
+ ],
+ "kemahiran": [
+  {
+   "nama": "Client Acquisition",
+   "tahap": 0
+  },
+  {
+   "nama": "B2B Sales",
+   "tahap": 0
+  },
+  {
+   "nama": "Negotiation",
+   "tahap": 0
+  },
+  {
+   "nama": "Relationship Management",
+   "tahap": 0
+  },
+  {
+   "nama": "Market Analysis",
+   "tahap": 0
+  },
+  {
+   "nama": "Negotiation Skills",
+   "tahap": 0
+  },
+  {
+   "nama": "Problem-Solving",
+   "tahap": 0
+  },
+  {
+   "nama": "Time Management",
+   "tahap": 0
+  },
+  {
+   "nama": "Presentation Skills",
+   "tahap": 0
+  },
+  {
+   "nama": "Networking",
+   "tahap": 0
+  },
+  {
+   "nama": "Market Research",
+   "tahap": 0
+  }
+ ],
+ "bahasa": [
+  {
+   "nama": "English (Fluent)",
+   "tahap": 0
+  },
+  {
+   "nama": "Malay (Fluent)",
+   "tahap": 0
+  },
+  {
+   "nama": "Mandarin (Proficient)",
+   "tahap": 0
+  }
+ ],
+ "rujukan": [],
+ "tambahan": [],
+ "susun": {
+  "kiri": [
+   "kontak",
+   "pendidikan",
+   "kemahiran",
+   "bahasa"
+  ],
+  "kanan": [
+   "profil",
+   "pengalaman"
+  ]
+ }
+}

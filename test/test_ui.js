@@ -1323,12 +1323,42 @@ ok(!/width: [0-9]/.test(el('ringkasan').getAttribute('style') || ''), 'ringkasan
 console.log('== 36. Pratonton 2 halaman (pratonton + pratonton langsung) ==');
 ok(typeof w.ResumeMV.kiraHalaman === 'function', 'kiraHalaman didedahkan untuk ujian');
 ok(w.ResumeMV.kiraHalaman(800) === 1, 'kandungan 800px = 1 halaman');
-ok(w.ResumeMV.kiraHalaman(1123) === 2, 'kandungan melebihi A4 (1123px) = 2 halaman');
+/* PENTING (Fasa 39): kandungan TEPAT satu A4 (1123px) mesti 1 halaman. Kod lama memaksa
+   2 halaman untuk apa-apa kandungan antara 1113-1123px, dan ujian ini mengekodkan pepijat
+   itu - kandungan sebegitu sebenarnya muat satu halaman, dan pratonton jadi bercanggah
+   dengan PDF cetak. */
+ok(w.ResumeMV.kiraHalaman(1123) === 1, 'kandungan tepat satu A4 (1123px) = 1 halaman (bukan dipaksa 2)');
+ok(w.ResumeMV.kiraHalaman(1124) === 2, 'kandungan yang benar-benar melebihi A4 (1124px) = 2 halaman');
 ok(w.ResumeMV.kiraHalaman(1123 * 2 + 200) === 3, 'kandungan ~2.2 halaman = 3 halaman');
 ok(w.ResumeMV.kiraHalaman(1123 * 9) === 4, 'kiraan halaman dihadkan kepada 4 (kes ekstrem)');
 ok(w.ResumeMV.kiraHalaman(0) === 1 && w.ResumeMV.kiraHalaman(undefined) === 1, 'kandungan kosong = 1 halaman');
 // CSS: helaian tambahan + tingkap sambungan
-ok(/\.papan-kertas \{ display: flex; flex-wrap: wrap/.test(html), 'papan kertas boleh bungkus (2 helaian sebaris, tindan bila sempit)');
+  ok(/\.papan-kertas \{ display: flex; flex-wrap: wrap/.test(html), 'papan kertas boleh bungkus (2 helaian sebaris, tindan bila sempit)');
+
+  // ---- blok 42: pratonton langsung mesti sama dengan PDF cetak ----
+  console.log('== 42. Pratonton langsung = cetak (ukuran stabil, kiraan halaman sama) ==');
+  ok(!!el('kertas-ukur') && !!el('ukur-lembar'), 'helaian pengukur tersembunyi wujud');
+  ok(/\.ukur-kertas \{[\s\S]{0,220}?zoom: 1 !important;[\s\S]{0,160}?visibility: hidden;/.test(html),
+     'helaian pengukur tidak diskalakan (zoom 1) dan tidak kelihatan - ukuran tidak berubah ikut saiz tetingkap');
+  ok(/class="kertas ukur-kertas no-print"/.test(html), 'helaian pengukur ditanda no-print (tidak tercetak)');
+  ok(html.indexOf("var kertas = [el('kertas-ukur')") >= 0,
+     'ukuran diambil daripada helaian pengukur dahulu, bukan pratonton yang sedang diskalakan');
+  ok(/function lembarUkur\(\)/.test(html) && /var lembar = lembarUkur\(\);/.test(html),
+     'kiraPotong mengukur pada helaian pengukur (skala sebenar)');
+  ok(/HALAMAN = Math\.max\(1, Math\.min\(4, POTONG\.length\)\)/.test(html),
+     'bilangan halaman datang daripada bilangan potongan cetakan sebenar');
+  ok(/if \(tinggi <= had \+ 0\.5\) break;/.test(html), 'gelung potongan berhenti sebaik isi habis (tiada halaman hantu)');
+  ok(/LEBIH = HALAMAN > 1;/.test(html), 'nota "N halaman" mengikut bilangan potongan, bukan anggaran tinggi');
+  ok(!/Math\.max\(2, Math\.min\(4, Math\.ceil/.test(html), 'tiada lagi paksaan minimum 2 halaman dalam kiraan');
+  ok(/hd = Math\.max\(dua\.offsetHeight \|\| 0, dua\.scrollHeight \|\| 0\)/.test(html),
+     'tinggi templat dua lajur = tinggi kotak sebenar (bukan anggaran + 20px)');
+  ok(/if \(ukur\) ukur\.innerHTML = isi;/.test(html), 'helaian pengukur menerima resume yang sama setiap render');
+  ok(/querySelectorAll\('\.kertas-tambahan \.sambungan > \.lembar > \*, #ukur-lembar > \*'\)/.test(html),
+     '--renggang/--teks disalin ke helaian pengukur juga (jarak sama seperti pratonton)');
+  ok(html.indexOf('class="cb-sambung">sambungan halaman</span>') >= 0 && html.indexOf("sambungan halaman ' + n") < 0,
+     'teks kaki pada helaian pratonton sama dengan cetakan (tiada nombor halaman yang tidak tercetak)');
+  ok(/body\[data-templat="korporat"\] \.pr-berulang \.cb-kaki \{ display: none; \}/.test(html),
+     'kaki halaman Korporat disembunyikan pada pratonton juga (sama seperti cetakan)');
 ok(/\.kertas-tambahan \{ position: relative; \}/.test(html), 'helaian tambahan jadi rujukan kedudukan');
 ok(/\.kertas \.sambungan \{[\s\S]{0,200}height: var\(--tinggi-hal, 100%\); overflow: hidden;[\s\S]{0,20}\}/.test(html),
    'tingkap sambungan dipotong pada tinggi yang ditetapkan JS');

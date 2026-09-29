@@ -713,6 +713,14 @@
      apa yang pelanggan lihat di sini sama dengan apa yang tercetak. */
   .papan-kertas { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; align-items: flex-start; }
   .papan-kertas .kertas { margin: 0; }
+  /* helaian pengukur: tidak kelihatan, tidak diskalakan, tidak dicetak, tiada klip -
+     supaya tinggi isi yang diukur sama dengan tinggi yang dicetak */
+  .ukur-kertas {
+    position: fixed; left: -12000px; top: 0; width: 794px; height: auto;
+    zoom: 1 !important; overflow: visible; box-shadow: none; visibility: hidden;
+  }
+  .ukur-kertas .sambungan { position: static; height: auto; overflow: visible; top: 0; }
+  .ukur-kertas .sambungan > .lembar { margin-top: 0 !important; }
   .kertas-tambahan { position: relative; }
   /* "Tingkap" kandungan: tinggi ditetapkan oleh JS pada titik cetakan sebenarnya memotong
      (bukan sekadar 297mm), supaya ayat/bulet yang tidak boleh dipecah berlaku sama seperti cetakan. */
@@ -750,6 +758,9 @@
     background: #dae3e3; z-index: 0;
   }
   body[data-templat="korporat"] .pr-berulang .cb-jalur { display: none; }
+  /* sama seperti cetakan: rujukan Korporat Moden tiada kaki halaman - jangan tunjuk kaki
+     pada helaian pratonton halaman 2 kalau ia tidak akan tercetak */
+  body[data-templat="korporat"] .pr-berulang .cb-kaki { display: none; }
   /* garis pemisah kolum: diteruskan penuh sampai hujung halaman pada setiap helaian */
   body[data-templat="biru"] .pr-berulang .cb-garis {
     display: block; position: absolute; left: 73.3mm; top: 50mm; bottom: 0; width: 0;
@@ -1794,10 +1805,15 @@
      Nilai disimpan dalam --renggang pada helaian, jadi cetakan pun sama. */
   /* berapa halaman kandungan setinggi ini? Toleransi 10px sama seperti siling auto-fit,
      supaya resume yang berjaya dipadatkan ke satu halaman tidak dilaporkan 2 halaman. */
+  /* Anggaran KASAR sahaja: nilai sebenar datang daripada kiraPotong() yang mensimulasi
+     pemotongan cetakan (termasuk elemen yang tidak boleh dipecah). Jangan kembali ke siling
+     "TINGGI_KERTAS - 10": kandungan yang berakhir antara 1113-1123px (cth Korporat Moden
+     dengan 4 pekerjaan) sebenarnya muat SATU halaman, tetapi siling itu memaksa 2 halaman -
+     dan pratonton jadi bercanggah dengan PDF. */
   function kiraHalaman(t) {
     var j = jidarHal();
-    if (!t || t <= TINGGI_KERTAS - 10) return 1;
-    if (j <= 0) return Math.max(2, Math.min(4, Math.ceil(t / TINGGI_KERTAS)));
+    if (!t || t <= TINGGI_KERTAS) return 1;
+    if (j <= 0) return Math.max(1, Math.min(4, Math.ceil(t / TINGGI_KERTAS)));
     /* Halaman 1 memakai 297mm penuh aliran; setiap halaman berikutnya kehilangan jidar atas
        yang berulang, jadi kapasitinya TINGGI_KERTAS - jidar. */
     return Math.max(2, Math.min(4, 1 + Math.ceil((t - TINGGI_KERTAS) / (TINGGI_KERTAS - j))));
@@ -1877,21 +1893,47 @@
     return Math.max(0, Math.floor(potong));
   }
 
+  /* helaian pengukur (skala 1, tidak kelihatan) - sumber semua ukuran tinggi */
+  function lembarUkur() {
+    var a = el('ukur-lembar');
+    if (!a) return null;
+    var q = a.querySelector('.' + tmp().kelas);
+    return q || a.firstElementChild;
+  }
+
+  /* tinggi isi satu lembar pada skala sebenar (foto mutlak diabaikan) */
+  function hitungTinggiIsi(lembar) {
+    var bawah = 0;
+    Array.prototype.forEach.call(lembar.children, function (a) {
+      if (a.classList.contains('cvs-foto')) return;      // foto diletak mutlak di penjuru
+      bawah = Math.max(bawah, a.offsetTop + a.offsetHeight);
+    });
+    return bawah + 40;                                   // + sedikit ruang bawah
+  }
+
+  /* Bilangan halaman = bilangan potongan cetakan + 1. Helaian pratonton, nota "akan dicetak
+     N halaman" dan bilangan halaman datang daripada simulasi YANG SAMA, jadi pratonton tidak
+     boleh bercanggah dengan PDF. */
   function kiraPotong() {
     POTONG = [0];
-    var n = Math.max(1, Math.min(4, HALAMAN || 1));
-    var lembar = el('resume') ? el('resume').firstElementChild : null;
-    if (!lembar || n < 2) return;
+    var lembar = lembarUkur();
+    if (!lembar) { HALAMAN = 1; return; }
     POTONG = tanpaSkala(function () {
       var senarai = [0];
       var j = jidarHal();
-      for (var h = 2; h <= n; h++) {
+      var tinggi = TINGGI_ISI || hitungTinggiIsi(lembar);
+      for (var h = 2; h <= 4; h++) {
         /* h = 2: hujung halaman 1 (padding pertama sudah dikira dalam aliran).
            h >= 3: setiap halaman seterusnya menyusut jidar px kerana padding berulang. */
-        senarai.push(titikPotongDalam(lembar, senarai[h - 2] + TINGGI_KERTAS - (h >= 3 ? j : 0)));
+        var had = senarai[h - 2] + TINGGI_KERTAS - (h >= 3 ? j : 0);
+        if (tinggi <= had + 0.5) break;                  // isi habis sebelum sempadan ini
+        var potong = titikPotongDalam(lembar, had);
+        if (potong <= senarai[h - 2] + 1) potong = had;   // tiada potongan lebih awal
+        senarai.push(potong);
       }
       return senarai;
     });
+    HALAMAN = Math.max(1, Math.min(4, POTONG.length));
   }
 
   /* Tinggi tingkap helaian h: sampai titik potong seterusnya (jadi ada ruang kosong di
@@ -1916,7 +1958,7 @@
     kartu.innerHTML = '<div class="pr-berulang" aria-hidden="true">'
       + '<div class="cb-jalur"></div><div class="cb-rel"></div><div class="cb-garis"></div>'
       + '<div class="cb-kaki"><span class="pr-kaki-nama"></span>'
-      + '<span class="cb-sambung">sambungan halaman ' + n + '</span></div></div>'
+      + '<span class="cb-sambung">sambungan halaman</span></div></div>'
       + '<div class="sambungan" style="--potong: ' + (-Math.round(POTONG[n - 1] || 0)) + 'px; '
       + '--tinggi-hal: ' + Math.round(tinggiHal(n)) + 'px">'
       + '<article class="lembar"></article></div>'
@@ -1934,6 +1976,9 @@
   function susunHalaman() {
     var n = Math.max(1, Math.min(4, HALAMAN || 1));
     kiraPotong();
+    /* nota "N halaman" mesti ikut bilangan potongan sebenar, bukan anggaran tinggi */
+    LEBIH = HALAMAN > 1;
+    tandaLapang();
     var tanda = ISI_TERKINI + '|' + POTONG.join(',');
     if (ISI_DIBINA === tanda && HALAMAN_DIBINA === n) return;   // tiada perubahan
     ISI_DIBINA = tanda; HALAMAN_DIBINA = n;
@@ -1969,7 +2014,7 @@
   function salinLaras() {
     var asal = el('resume') ? el('resume').firstElementChild : null;
     if (!asal) return;
-    var senarai = document.querySelectorAll('.kertas-tambahan .sambungan > .lembar > *');
+    var senarai = document.querySelectorAll('.kertas-tambahan .sambungan > .lembar > *, #ukur-lembar > *');
     Array.prototype.forEach.call(senarai, function (a) { a.style.cssText = asal.style.cssText; });
   }
 
@@ -1983,7 +2028,7 @@
   }
 
   function larasRuangDalam() {
-    var kertas = [el('sisi-kertas'), el('resume')];
+    var kertas = [el('kertas-ukur'), el('sisi-kertas'), el('resume')];
     var lembar = null;
     RENGGANG = 1;
     for (var i = 0; i < kertas.length && !lembar; i++) {
@@ -2001,11 +2046,13 @@
       if (dua) {
         var ban = dua.querySelector('.cvb-banner'), ki = dua.querySelector('.cvb-kiri'), ka = dua.querySelector('.cvb-kanan');
         var hd;
-        if (ban || ki || ka) {
-          hd = (ban ? ban.offsetHeight : 0) + Math.max(ki ? ki.offsetHeight : 0, ka ? ka.offsetHeight : 0) + 20;
-        } else {
-          hd = dua.scrollHeight || dua.offsetHeight;   // templat dua lajur lain (cth Korporat Moden)
-        }
+        /* Tinggi sebenar templat dua lajur = tinggi kotak terbesarnya. Jangan guna jumlah
+           anggaran + 20px: lebihan itu menjadikan kandungan yang berakhir tepat pada hujung
+           halaman (cth Biru & Kelabu dengan 1 pekerjaan) dilaporkan 2 halaman sedangkan PDF
+           1 halaman - dan pratonton jadi bercanggah dengan cetakan. scrollHeight diambil
+           supaya limpahan tersembunyi tetap dikira (offsetHeight sahaja boleh memendekkan). */
+        hd = Math.max(dua.offsetHeight || 0, dua.scrollHeight || 0);
+        if (!hd) hd = (ban ? ban.offsetHeight : 0) + Math.max(ki ? ki.offsetHeight : 0, ka ? ka.offsetHeight : 0);
         PENUH = hd / TINGGI_KERTAS;
         LEBIH = hd > TINGGI_KERTAS - 10;
         TINGGI_ISI = hd;
@@ -2022,14 +2069,7 @@
       tandaLapang();
       return RENGGANG;
     }
-    function tinggiIsi() {
-      var bawah = 0;
-      Array.prototype.forEach.call(lembar.children, function (a) {
-        if (a.classList.contains('cvs-foto')) return;      // foto diletak mutlak di penjuru
-        bawah = Math.max(bawah, a.offsetTop + a.offsetHeight);
-      });
-      return bawah + 40;                                   // + sedikit ruang bawah
-    }
+    function tinggiIsi() { return hitungTinggiIsi(lembar); }
     TEKS = 1; LEBIH = false;
     lembar.style.setProperty('--renggang', '1');
     lembar.style.setProperty('--teks', '1');
@@ -2110,6 +2150,8 @@
     el('resume').innerHTML = isi;
     var sisi = el('sisi-kertas');
     if (sisi) sisi.innerHTML = isi;
+    var ukur = el('ukur-lembar');          // helaian pengukur (tidak kelihatan)
+    if (ukur) ukur.innerHTML = isi;
     document.body.setAttribute('data-templat', KUNCI_TEMPLAT);
     var kakiNama = el('cb-nama');
     if (kakiNama) kakiNama.textContent = (d.nama || 'Resume') + (d.jawatan ? ' \u00b7 ' + d.jawatan : '');
@@ -3585,6 +3627,8 @@
     penuh: function () { return PENUH; }, teks: function () { return TEKS; },
     lebih: function () { return LEBIH; },
     halaman: function () { return HALAMAN; }, kiraHalaman: kiraHalaman,
+    potong: function () { return POTONG.slice(); }, titikPotong: kiraPotong,
+    tinggiIsi: function () { return TINGGI_ISI; },
     tempat: function () { return Object.keys(TEMPLAT); }, urutan: urutan, pindah: pindahBlok };
   kemasSemula();
   kemasSek();
@@ -3599,6 +3643,17 @@
 
 <!-- Elemen berulang pada SETIAP halaman cetakan: jalur atas + kaki halaman.
      Ini menjadikan halaman 2 (dan seterusnya) berdesign sama seperti halaman 1. -->
+ <!-- Helaian PENGUKUR tersembunyi: satu-satunya tempat tinggi resume diukur.
+      Ia tidak diskalakan (zoom: 1) dan tidak kelihatan, supaya bilangan halaman dan titik
+      potong tidak berubah mengikut saiz tetingkap atau sama ada pratonton sisi terbuka.
+      Kalau ukuran diambil daripada helaian pratonton yang sedang diskalakan, pratonton dan
+      PDF boleh melaporkan bilangan halaman yang berbeza. -->
+ <div class="kertas ukur-kertas no-print" id="kertas-ukur" aria-hidden="true">
+   <div class="sambungan" id="sambung-ukur">
+     <article class="lembar" id="ukur-lembar"></article>
+   </div>
+ </div>
+
 <div class="cetak-berulang" id="cetak-berulang" aria-hidden="true">
   <div class="cb-jalur"></div>
   <div class="cb-rel"></div>
