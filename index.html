@@ -1279,11 +1279,11 @@
       <p class="hal-sub" id="sub-bahasa">Bahasa ini menentukan tajuk dan label di dalam resume anda
         (cth <strong>KONTAK</strong> atau <strong>CONTACT</strong>). Boleh tukar bila-bila masa.</p>
       <div class="pb-pilihan" id="pb-pilihan">
-        <button type="button" class="pb-btn" data-bahasa="ms" aria-pressed="true">
+        <button type="button" class="pb-btn" data-bahasa="ms" aria-pressed="false">
           <strong>Bahasa Melayu</strong>
           <span>KONTAK &middot; RINGKASAN &middot; PENGALAMAN KERJA &middot; PENDIDIKAN</span>
         </button>
-        <button type="button" class="pb-btn" data-bahasa="en" aria-pressed="false">
+        <button type="button" class="pb-btn" data-bahasa="en" aria-pressed="true">
           <strong>English</strong>
           <span>CONTACT &middot; SUMMARY &middot; WORK EXPERIENCE &middot; EDUCATION</span>
         </button>
@@ -2503,7 +2503,7 @@
      BAHASA menentukan tajuk & label di dalam resume. Templat Korporat Moden memakai ejaan fail
      rujukan Canva (CONTACT / SUMMARY / KEY SKILLS / LANGUAGE / WORK EXPERIENCE) bila bahasa Inggeris
      dipilih - TAJUK_KORP - supaya kesetiaan kepada rujukan tidak hilang. */
-  var BAHASA = 'ms';
+  var BAHASA = 'en';        // lalai ENGLISH (pelanggan boleh tukar ke Bahasa Melayu di halaman 1)
   var TAJUK_BHS = {
     ms: { kontak: 'Kontak', profil: 'Ringkasan', pengalaman: 'Pengalaman Kerja', pendidikan: 'Pendidikan',
           kemahiran: 'Kemahiran', bahasa: 'Bahasa', rujukan: 'Rujukan' },
@@ -3018,7 +3018,7 @@
       x: d.buang || [],                                                                 // bahagian dibuang
       y: (d.susun && (d.susun.kiri || d.susun.kanan)) ? d.susun : null,                  // susunan blok
       lp: d.labelProjek || LABEL_PROJEK || 'projek',                                     // label nama projek
-      bh: d.bahasaResume || BAHASA || 'ms'                                               // bahasa resume
+      bh: d.bahasaResume || BAHASA || 'en'                                               // bahasa resume
     };
     var b64 = window.btoa(unescape(encodeURIComponent(JSON.stringify(ringkas))));
     return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -3043,7 +3043,7 @@
         tambahan: Array.isArray(o.a) ? o.a : [], buang: Array.isArray(o.x) ? o.x : [],
         susun: (o.y && (o.y.kiri || o.y.kanan)) ? { kiri: o.y.kiri || [], kanan: o.y.kanan || [] } : null,
         labelProjek: (o.lp === 'klien' || o.lp === 'projek-klien' || o.lp === 'tiada') ? o.lp : 'projek',
-        bahasaResume: (o.bh === 'en') ? 'en' : 'ms'
+        bahasaResume: (o.bh === 'ms' || o.bh === 'en') ? o.bh : null   // kod lama tiada bahasa: guna tetapan semasa
       };
     } catch (e) {
       return null;
@@ -4095,7 +4095,7 @@
     tempat: function () { return Object.keys(TEMPLAT); }, urutan: urutan, pindah: pindahBlok };
   kemasSemula();
   kemasSek();
-  try { BAHASA = (localStorage.getItem(KUNCI_BAHASA) === 'en') ? 'en' : 'ms'; } catch (e) { BAHASA = 'ms'; }
+  try { BAHASA = (localStorage.getItem(KUNCI_BAHASA) === 'ms') ? 'ms' : 'en'; } catch (e) { BAHASA = 'en'; }
   terapkanBahasa();
   susunSkalaSisi();
   tunjukLangkah(1);

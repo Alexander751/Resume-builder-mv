@@ -22,6 +22,13 @@ const dom = new JSDOM(html, {
   }
 });
 const w = dom.window, d = w.document;
+// Fasa 44: lalai bahasa resume kini ENGLISH (pelanggan boleh tukar ke Bahasa Melayu di halaman 1).
+// Semakan di bawah mengunci lalai itu, kemudian suite bertukar ke Melayu kerana jangkaan ciri-ciri
+// lama ditulis dalam Bahasa Melayu.
+ok(w.ResumeMV.bahasa() === 'en', 'LALAI bahasa resume = English (butang English ditanda di halaman 1)');
+ok(d.querySelector('.pb-btn[data-bahasa="en"]').getAttribute('aria-pressed') === 'true',
+   'butang English bertanda aktif semasa mula');
+w.ResumeMV.gunaBahasa('ms');
 const el = (id) => d.getElementById(id);
 const isi = (sel, val) => { d.querySelector(sel).value = val; };
 const isiTahap = (kunci, senarai) => {          // [[nama, tahap], ...]
@@ -501,7 +508,8 @@ ok(elU('nota-simpan').hidden === false, 'pelanggan ulangan: nota simpanan keliha
 ok(elU('nota-simpan').textContent.indexOf('Ahmad bin Ali') >= 0, 'nota sebut nama resume tersimpan');
 ok(!!elU('buang-simpanan'), 'ada pautan eksplisit untuk mula kosong');
 ok(elU('nama').value === 'Ahmad bin Ali', 'borang sudah berisi detail lama (autosimpan peranti)');
-ok(elU('mula-isi').textContent.indexOf('Mula Isi Butiran') >= 0, 'CTA sama untuk pelanggan ulangan');
+ok(elU('mula-isi').textContent.indexOf('Mula Isi Butiran') >= 0 || elU('mula-isi').textContent.indexOf('Start filling') >= 0,
+     'CTA sama untuk pelanggan ulangan (teks ikut bahasa resume yang dipilih)');
 elU('mula-isi').click();
 ok(elU('hal-2').hidden === false, 'CTA membawa terus ke halaman butiran (tiada langkah tambahan)');
 
@@ -1744,8 +1752,9 @@ var k0 = korp[0];
 ok(k0.querySelector('.ck-kiri') && k0.querySelector('.ck-kanan'), 'dua kolum (rel kiri + lajur kanan) wujud');
 var namaKorp = [].map.call(d.querySelectorAll('.ck-nama'), function (x) { return (x.textContent || '').toUpperCase(); }).join(' | ');
 ok(/UJIAN KORPORAT/.test(namaKorp), 'nama pelanggan muncul dalam lajur kanan (dijumpai: ' + namaKorp.slice(0, 60) + ')');
-ok(k0.querySelector('.ck-kiri h2') && /^KONTAK$/i.test(k0.querySelector('.ck-kiri h2').textContent.trim()),
-     'tajuk bahagian rel kiri = KONTAK dalam bahasa Melayu (lalai)');
+w.ResumeMV.gunaBahasa('ms');
+ok(/^KONTAK$/i.test(d.querySelector('#resume .ck-kiri h2').textContent.trim()),
+   'tajuk bahagian rel kiri = KONTAK selepas pelanggan pilih Bahasa Melayu');
   w.ResumeMV.gunaBahasa('en');
   ok(/^CONTACT$/i.test(d.querySelector('#resume .ck-kiri h2').textContent.trim()),
      'bahasa English: tajuk = CONTACT, ejaan verbatim fail rujukan Canva');

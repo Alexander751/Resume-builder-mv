@@ -946,6 +946,28 @@ grafik, pertukaran bahasa, kod pesanan) dan cetakan sebenar — PDF Melayu menga
 PENGALAMAN KERJA / PENDIDIKAN / KEMAHIRAN, PDF English mengandungi CONTACT / WORK EXPERIENCE / EDUCATION /
 PROJECT.
 
+## Fasa 44 — lalai bahasa resume kini ENGLISH untuk semua templat
+
+Permintaan pelanggan: templat pun patut bermula dalam bahasa Inggeris. Sebelum ini lalai ialah Bahasa
+Melayu, jadi templat Korporat Moden tidak sama dengan fail rujukan Canva sehingga pelanggan menekan
+**English** sendiri. Sekarang:
+
+- `BAHASA` bermula sebagai `'en'` (dan begitulah juga apabila tiada tetapan tersimpan), butang
+  **English** ditanda aktif pada muatan.
+- Pelanggan tetap boleh tukar ke **Bahasa Melayu** di kad pilihan bahasa (paling awal halaman 1);
+  pilihannya disimpan dalam pelayar dan dibawa dalam kod pesanan (medan `bh`).
+- **Kod pesanan lama** (tiada medan `bh`) kekal dihormati: `dariKod()` memulangkan `bahasaResume = null`,
+  jadi resume lama dirender dengan tetapan bahasa yang sedang aktif - bukan dipaksa bertukar rupa.
+- Audit ketepatan Korporat (`test/semak_ketepatan_korporat.py`) tetap merender dalam mod English supaya
+  ia sentiasa mengukur kesetiaan kepada fail rujukan Canva.
+
+Disahkan dengan mencetak tiga templat daripada dokumen yang SAMA (tiada bahasa dinyatakan):
+ketiga-tiganya keluar dengan tajuk Inggeris - Biru & Kelabu (CONTACT / WORK EXPERIENCE / EDUCATION /
+KEY SKILLS / LANGUAGE), Biru Bersih (SUMMARY / WORK EXPERIENCE / EDUCATION / KEY SKILLS / LANGUAGE),
+Korporat Moden (CONTACT / SUMMARY / WORK EXPERIENCE / EDUCATION / KEY SKILLS / LANGUAGE) - dan sifar
+tajuk Bahasa Melayu. Ujian jsdom kini memulakan suite dengan semakan lalai English, kemudian bertukar
+ke Bahasa Melayu untuk jangkaan ciri lama: **768 lulus, 0 gagal**.
+
 ## Belum ada (fasa seterusnya)
 
 - Penjana PDF terus tanpa dialog cetak
