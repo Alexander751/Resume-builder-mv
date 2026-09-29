@@ -935,7 +935,7 @@
        bulet pengalaman : PETAK kecil #313132
        dakwat        : #404041 (kiri, ringkasan, tajuk) dan #313132 (blok pengalaman) */
   .lembar .cv-korporat {
-    display: flex; background: #fff; color: #403f41;
+    display: flex; background: #fff; color: #414042;
     /* --renggang dan --teks diurus oleh larasRuang() seperti templat lain; templat dua lajur
        tidak dilaraskan automatik, tetapi pemboleh ubah ini MESTI ada - tanpa ia, setiap
        calc(... * var(--teks)) menjadi tidak sah dan semua saiz fon jatuh ke saiz warisan. */
@@ -955,25 +955,25 @@
   .lembar .cv-korporat.tanpa-foto .ck-foto { display: none; }
   /* Kepala kolum kanan: tinggi minimum 36.9mm (rujukan: mula teks 21.1mm -> tajuk SUMMARY 58.0mm)
      supaya RINGKASAN sejajar mendatar dengan KONTAK dalam rel kiri. */
-  .lembar .cv-korporat .ck-kepala { margin: 0 0 0 -4.2mm; min-height: calc(36.9mm - 21.1mm); }
+  .lembar .cv-korporat .ck-kepala { margin: 0 0 0 -4.2mm; padding-top: 3.1mm; min-height: 36mm; }
   .lembar .cv-korporat .ck-nama {
-    margin: 0; font-size: calc(34pt * var(--teks)); font-weight: 300; line-height: 1.05;
+    margin: 0; font-size: calc(34pt * var(--teks)); font-weight: 300; line-height: .9;
     font-family: "Poppins", "Inter", "Segoe UI", Arial, sans-serif;
-    text-transform: uppercase; color: #90a6a6;
+    text-transform: uppercase; color: #91a6a6;
   }
   .lembar .cv-korporat .ck-jawatan {
-    margin: calc(2.6mm * var(--renggang)) 0 0; font-size: calc(16pt * var(--teks));
-    font-weight: 300; color: #403f41;
+    margin: 0; font-size: calc(16pt * var(--teks));
+    font-weight: 300; color: #414042;
   }
   /* tajuk bahagian: huruf besar, TANPA jarak huruf (rujukan tidak bertracking). Garis nipis berada
      DI BAWAH teks tajuk kolum kanan dan bermula selepas ikon (12.3mm), bukan mengiringi teks. */
   .lembar .cv-korporat h2 {
-    display: flex; align-items: center; gap: 4mm; margin: 0 0 calc(2.8mm * var(--renggang));
+    display: flex; align-items: center; gap: 3.6mm; margin: 0 0 calc(2.8mm * var(--renggang));
     font-size: calc(13pt * var(--teks)); font-weight: 500;
     font-family: "Poppins", "Inter", "Segoe UI", Arial, sans-serif;
-    text-transform: uppercase; color: #404041; break-after: avoid; page-break-after: avoid;
+    text-transform: uppercase; color: #414042; break-after: avoid; page-break-after: avoid;
   }
-  .lembar .cv-korporat .ck-kanan h2 { position: relative; padding-bottom: 1.5mm; }
+  .lembar .cv-korporat .ck-kanan h2 { position: relative; padding-bottom: 1.5mm; margin-left: -4.2mm; }
   .lembar .cv-korporat .ck-kanan h2::after {
     content: ''; position: absolute; left: 12.3mm; right: 0; bottom: 0;
     height: .53mm; background: #403f40;
@@ -987,7 +987,7 @@
   /* kontak: ikon kecil + teks menjorok */
   .lembar .cv-korporat .ck-kontak { list-style: none; margin: 0; padding: 0; }
   .lembar .cv-korporat .ck-kontak li {
-    display: flex; gap: 1.9mm; align-items: flex-start; font-size: calc(9.5pt * var(--teks));
+    display: flex; gap: 1.9mm; align-items: flex-start; font-size: calc(9pt * var(--teks));
     line-height: 1.4; margin-bottom: calc(3.4mm * var(--renggang));
   }
   .lembar .cv-korporat .ck-kontak .ck-ikon-kecil { width: 3.2mm; height: 3.2mm; flex: 0 0 3.2mm; margin-top: .5mm; }
@@ -996,14 +996,16 @@
   .lembar .cv-korporat .ck-senarai li {
     position: relative; display: flex; align-items: center; justify-content: space-between; gap: 3mm;
     padding-left: 6.1mm; font-size: calc(10pt * var(--teks)); font-weight: 300;
-    line-height: 1.35; margin-bottom: calc(1.8mm * var(--renggang));
+    line-height: 1.35; margin-bottom: calc(1.6mm * var(--renggang));
   }
   /* skala kemahiran: bulatan kecil, sepadan dengan bulet bulat rujukan */
+  /* rujukan TIADA skala titik: kemahiran dan bahasa ialah senarai teks biasa */
+  .lembar .cv-korporat .titik-tahap { display: none; }
   .lembar .cv-korporat .titik-tahap { gap: 1.6pt; }
   .lembar .cv-korporat .titik-tahap i { width: 3pt; height: 3pt; background: #c9d3d3; }
   .lembar .cv-korporat .titik-tahap i.penuh { background: #404041; }
   /* ikon kontak: kecil dan gelap (kelas .cvb-ikon dari fungsi ikon() yang sama) */
-  .lembar .cv-korporat .cvb-ikon { width: 3.2mm; height: 3.2mm; fill: #403f41; color: #403f41; }
+  .lembar .cv-korporat .cvb-ikon { width: 3.2mm; height: 3.2mm; fill: #404041; color: #404041; }
   .lembar .cv-korporat .ck-senarai li::before {
     content: ''; position: absolute; left: 1.8mm; top: 1.5mm;
     width: 1.35mm; height: 1.35mm; border-radius: 50%; background: #404041;
@@ -1012,9 +1014,10 @@
   .lembar .cv-korporat .ck-teks { margin: 0; font-size: calc(9pt * var(--teks)); line-height: 1.35; text-align: justify; }
   .lembar .cv-korporat .ck-item { margin-top: calc(4.4mm * var(--renggang)); }
   .lembar .cv-korporat .ck-item:first-of-type { margin-top: 0; }
-  .lembar .cv-korporat .ck-item-kepala { display: flex; justify-content: space-between; gap: 4mm; align-items: baseline; }
-  .lembar .cv-korporat .ck-item-kepala strong { font-size: calc(10.5pt * var(--teks)); font-weight: 600; }
-  .lembar .cv-korporat .ck-item-kepala span { font-size: calc(9.5pt * var(--teks)); font-weight: 300; white-space: nowrap; }
+  /* rujukan: tarikh berada di BAWAH tajuk kerja, rata kiri pada x=83.7mm (bukan di kanan) */
+  .lembar .cv-korporat .ck-item-kepala { display: block; }
+  .lembar .cv-korporat .ck-item-kepala strong { font-size: calc(11pt * var(--teks)); font-weight: 600; color: #333132; }
+  .lembar .cv-korporat .ck-item-kepala span { display: block; font-size: calc(10pt * var(--teks)); font-weight: 300; margin-top: calc(1.2mm * var(--renggang)); }
   .lembar .cv-korporat .ck-item-sub { font-size: calc(9.5pt * var(--teks)); font-weight: 300; margin-top: .8mm; }
   .lembar .cv-korporat .ck-senarai-item { list-style: none; margin: 1.8mm 0 0; padding: 0; }
   .lembar .cv-korporat .ck-senarai-item li {
@@ -1023,11 +1026,11 @@
   }
   .lembar .cv-korporat .ck-senarai-item li::before {
     content: ''; position: absolute; left: 1.5mm; top: 1.6mm;
-    width: 1.2mm; height: 1.2mm; background: #313132;
+    width: 1.2mm; height: 1.2mm; border-radius: 50%; background: #313131;
   }
   /* rujukan: blok pengalaman dalam rujukan pelanggan lebih gelap (#313132) daripada
      teks kolum kiri dan ringkasan (#404041) - dua dakwat memang berbeza dalam fail asal */
-  .lembar .cv-korporat .blok[data-blok="pengalaman"] { color: #313132; }
+  .lembar .cv-korporat .blok[data-blok="pengalaman"] { color: #313131; }
   .lembar .cv-korporat .ck-pendidikan .ck-item-kepala { display: block; }
   .lembar .cv-korporat .ck-pendidikan strong { display: block; font-size: calc(8pt * var(--teks)); }
   .lembar .cv-korporat .ck-pendidikan .ck-item-sub { font-size: calc(8pt * var(--teks)); }

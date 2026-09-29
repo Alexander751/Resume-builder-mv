@@ -746,6 +746,34 @@ oleh Chrome (halaman itu keluar putih kosong).
 - `test/test_ui.js` blok 41 mengunci pembetulan ini; jumlah **662 lulus, 0 gagal**.
 
 
+## Fasa 37 — audit ketepatan templat Korporat Moden (ukuran tepat lawan anggaran piksel)
+
+Templat ini mula dibina daripada ukuran PyMuPDF **dan** laporan visual. Laporan visual memberi *anggaran*
+piksel; lapisan teks PDF menyimpan saiz, warna dan kedudukan yang **tepat**. Fasa 37 mengukur semula
+kedua-duanya dan membetulkan nilai yang menyimpang:
+
+| Perkara | Sebelum | Selepas (nilai rujukan) |
+|---|---|---|
+| Nama | `#90a6a6` | **`#91a6a6`** |
+| Dakwat teks/jawatan/tajuk | `#403f41` / `#404041` | **`#414042`** (satu dakwat) |
+| Tajuk kerja | 10.5pt, dakwat warisan | **11pt, `#333132`** |
+| Tarikh kerja | 9.5pt, **rata kanan** | **10pt `#313131`, di bawah tajuk, rata kiri x=83.7mm** |
+| Bulet pengalaman | segi empat | **bulat, `#313131`** |
+| Kontak | 9.5pt | **9pt** (irama baris 7.85mm) |
+| Jarak ikon ke teks tajuk | 4mm (teks x=96.0mm) | **3.6mm (teks x=91.4mm)** |
+| Nama / jawatan / tajuk kanan | 18.9 / 36.1 / 45.2mm | **21.0 / 34.8 / 57.9mm** (rujukan 21.1 / 34.8 / 58.8) |
+| Skala titik kemahiran & bahasa | dipaparkan | **disembunyikan** — rujukan tiada titik |
+
+Sauh yang kini padan: saiz teks (34 / 16 / 13 / 11 / 10 / 9.5 / 9 / 8pt), warna, dan kedudukan x
+(79.5 / 83.7 / 89.4 / 10.0 / 15.0 / 16.0mm).
+
+**Perbezaan yang tinggal (memang tidak boleh dihapuskan):** rujukan meletakkan seksyen rel kiri pada
+kedudukan **tetap** (jarak 22mm / 5mm / 8.6mm antara seksyen) manakala templat app **mengalir** supaya
+boleh menampung kandungan apa-apa panjang — irama seragam 6.6mm. Tajuk seksyen juga Bahasa Melayu
+(`KONTAK`, `RINGKASAN`) kerana semua templat app memakai label Melayu.
+
+Ujian: `python test/semak_ketepatan_korporat.py ["laluan PDF rujukan"]` — cetak jadual sauh dan bezanya.
+
 ## Belum ada (fasa seterusnya)
 
 - Penjana PDF terus tanpa dialog cetak
