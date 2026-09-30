@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Resume Builder MV</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@500;700;800&family=Inter:wght@400;600;700&family=Poppins:wght@300;400;500;600&family=Bricolage+Grotesque:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@500;700;800&family=Inter:wght@400;600;700&family=Poppins:wght@300;400;500;600&family=Bricolage+Grotesque:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --ink: #16202c;
@@ -1174,6 +1174,83 @@
   .lembar .cv-gelap .gd-rujukan { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm 8mm; }
   .lembar .cv-gelap .gd-ruj strong { font-size: calc(10pt * var(--teks)); font-weight: 700; }
   .lembar .cv-gelap .gd-ruj .gd-sub { font-size: calc(10pt * var(--teks)); }
+
+  /* ---------- templat: Hijau Sage (rujukan "Green Simple Family Wellness Counselor Resume.pdf";
+     semua nombor di bawah ialah ukuran sebenar fail rujukan) ---------- */
+  .lembar .cv-hijau {
+    position: relative; display: flex; align-items: stretch; min-height: calc(297mm - 1px);
+    background: #f8f7f2; color: #000;
+    --renggang: 1; --teks: 1;
+    font-family: "DM Sans", Poppins, Arial, sans-serif;
+  }
+  .lembar .cv-hijau .hj-kiri { flex: 0 0 87.65mm; width: 87.65mm; position: relative; z-index: 2; }
+  .lembar .cv-hijau .hj-beige { background: #ede2d9; padding: 9mm 10mm 8mm 9.7mm; }
+  .lembar .cv-hijau .hj-foto { width: 65.6mm; height: 65.6mm; overflow: hidden; background: #fff; }
+  .lembar .cv-hijau .hj-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .lembar .cv-hijau.tanpa-foto .hj-foto { display: none; }
+  .lembar .cv-hijau .hj-kontak { list-style: none; margin: 0; padding: 0; }
+  .lembar .cv-hijau .hj-kontak li {
+    display: flex; align-items: center; gap: 2.4mm; font-size: calc(12pt * var(--teks));
+    border-top: .26pt solid #2e3729; padding: 3.4mm 0 3.4mm 0;
+  }
+  .lembar .cv-hijau .hj-kontak .cvb-ikon { width: 6.88mm; height: 6.88mm; flex: 0 0 6.88mm; }
+  .lembar .cv-hijau .hj-blok-kiri { padding: 3mm 10mm 5mm 9.7mm; }
+  .lembar .cv-hijau h2 {
+    margin: 0 0 3.6mm; padding-bottom: 2.1mm; font-size: calc(19pt * var(--teks)); font-weight: 700;
+    color: #000; border-bottom: .26pt solid #2e3729; break-after: avoid; page-break-after: avoid;
+  }
+  .lembar .cv-hijau .blok + .blok > h2 { margin-top: calc(5.4mm * var(--renggang)); }
+  .lembar .cv-hijau .hj-senarai { list-style: none; margin: 0; padding: 0; }
+  .lembar .cv-hijau .hj-senarai li {
+    display: flex; align-items: center; justify-content: space-between; gap: 2mm;
+    font-size: calc(13pt * var(--teks)); line-height: 6mm; margin-bottom: calc(2.85mm * var(--renggang));
+  }
+  .lembar .cv-hijau .hj-bahasa li { font-size: calc(12pt * var(--teks)); }
+  .lembar .cv-hijau .hj-senarai .titik-tahap i { background: #d6cfc4; }
+  .lembar .cv-hijau .hj-senarai .titik-tahap i.penuh { background: #555d50; }
+  /* lajur kanan: band hijau yang menjulur ke kiri (dari x=41.5mm) + kandungan x=99mm */
+  .lembar .cv-hijau .hj-kanan { flex: 1 1 auto; min-width: 0; overflow: hidden; }
+  .lembar .cv-hijau .hj-kepala {
+    background: #555d50; margin-left: -46.15mm; padding: 12mm 22mm 11.8mm 57.3mm;
+    min-height: 74.5mm; box-sizing: border-box;
+  }
+  .lembar .cv-hijau .hj-nama { margin: 0; font-size: calc(34pt * var(--teks)); font-weight: 700; color: #fff; line-height: 15.6mm; }
+  .lembar .cv-hijau .hj-jawatan { margin: 0; font-size: calc(12pt * var(--teks)); font-weight: 700; color: #ede2d9; }
+  .lembar .cv-hijau .hj-garis { width: 16.38mm; height: .26pt; background: #fff; margin: 4.1mm 0 0; }
+  .lembar .cv-hijau .hj-intro { margin: 4.6mm 0 0; font-size: calc(12pt * var(--teks)); color: #fff; line-height: 5.83mm; max-width: 96mm; }
+  .lembar .cv-hijau .hj-kandungan { padding: 5.2mm 10mm 10mm 11.35mm; }
+  /* isi lajur kanan: teks pada x=107.5mm, bulet bulatan hijau pada x=99mm */
+  .lembar .cv-hijau .hj-baris { display: flex; align-items: baseline; justify-content: space-between; gap: 4mm; padding-left: 8.5mm; }
+  .lembar .cv-hijau .hj-baris strong { font-size: calc(12pt * var(--teks)); font-weight: 700; }
+  .lembar .cv-hijau .hj-baris-sub span { font-size: calc(12pt * var(--teks)); font-weight: 400; }
+  .lembar .cv-hijau .hj-teks { margin: 0; padding-left: 8.5mm; font-size: calc(12pt * var(--teks)); line-height: 6.6mm; text-align: justify; }
+  .lembar .cv-hijau .hj-pendidikan { margin-top: 4.2mm; }
+  .lembar .cv-hijau .hj-pendidikan:first-of-type { margin-top: 0; }
+  .lembar .cv-hijau .hj-kerja { margin-top: calc(5.2mm * var(--renggang)); }
+  .lembar .cv-hijau .hj-kerja:first-of-type { margin-top: 0; }
+  .lembar .cv-hijau .hj-syarikat { display: block; padding-left: 8.5mm; font-size: calc(12pt * var(--teks)); font-weight: 700; margin-top: 2.9mm; }
+  .lembar .cv-hijau .hj-projek { padding-left: 8.5mm; font-size: calc(12pt * var(--teks)); font-weight: 700; margin-top: 2.4mm; }
+  .lembar .cv-hijau .hj-poin { list-style: none; margin: 2.4mm 0 0; padding: 0; }
+  .lembar .cv-hijau .hj-poin li {
+    position: relative; padding-left: 8.5mm; font-size: calc(12pt * var(--teks));
+    line-height: 6.3mm; text-align: justify; margin-bottom: 1.6mm; break-inside: avoid;
+  }
+  .lembar .cv-hijau .hj-poin li::before {
+    content: ''; position: absolute; left: 0; top: 1.7mm; width: 3mm; height: 3mm;
+    border-radius: 50%; background: #555d50;
+  }
+  .lembar .cv-hijau .hj-cip {
+    display: inline-block; background: #555d50; color: #fff; font-size: calc(12pt * var(--teks));
+    font-weight: 400; padding: 1.5mm 4.2mm; white-space: nowrap;
+  }
+  .lembar .cv-hijau .hj-item-utama { margin: 4mm 0 0; font-size: calc(12pt * var(--teks)); font-weight: 700; }
+  .lembar .cv-hijau .hj-item-sub { margin: 2.4mm 0 0; font-size: calc(11pt * var(--teks)); }
+  .lembar .cv-hijau .hj-dua { margin: 2mm 0 0; font-size: calc(12pt * var(--teks)); }
+  /* band hijau di kaki kertas (rujukan: 283.7-297mm) */
+  .lembar .cv-hijau::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 13.3mm;
+    background: #555d50; z-index: 0;
+  }
 
   /* ---------- nama projek di dalam pengalaman (setiap templat warna sendiri) ----------
      Susunan setiap item pengalaman: jawatan/syarikat + tempoh -> PROJEK -> perkara utama
@@ -3144,6 +3221,8 @@
      Korporat Moden (bila bahasa Inggeris) mengekalkan ejaan fail rujukan Canva. */
   var TAJUK_TEMPLAT_KHAS = {
     biru: { ms: { profil: 'Profil' }, en: { profil: 'Profile' } },
+    hijau: { en: { kontak: 'Contact', profil: 'Professional Summary', pengalaman: 'Experience',
+                  pendidikan: 'Education', kemahiran: 'Skills', bahasa: 'Language', rujukan: 'Reference' } },
     gelap: { en: { kontak: 'Contact', profil: 'About me', pengalaman: 'Experience', pendidikan: 'Education',
                    kemahiran: 'Skills', bahasa: 'Language', rujukan: 'Reference' } },
     korporat: { en: { kontak: 'Contact', profil: 'Summary', pengalaman: 'Work Experience',
@@ -3301,6 +3380,81 @@
             "foto": ''
       },
       html: htmlGelap
+    },
+    hijau: {
+      kunci: 'hijau', kelas: 'cv-hijau', nama: 'Hijau Sage', aksen: '#555d50',
+      nota: 'Reka bentuk hijau sage: foto besar di blok beige, band hijau untuk nama dan ringkasan, '
+        + 'cip tahun pada pengalaman dan pendidikan.',
+      ciri: ['Foto besar di blok beige', 'Cip tahun hijau dan tajuk bergaris'],
+      urutanDua: { kiri: ['kemahiran', 'bahasa'], kanan: ['pendidikan', 'pengalaman', 'rujukan'] },
+      /* data contoh 1:1 daripada fail rujukan pelanggan */
+      contoh: {
+            "nama": "Juliana Silva",
+            "jawatan": "Family Wellness Counselor",
+            "telefon": "+123-456-7890",
+            "emel": "hello@reallygreatsite.com",
+            "lokasi": "123 Anywhere St., Any City, ST 12345",
+            "ringkasan": "A compassionate Family Wellness Counselor with a strong background in providing support and guidance to families facing various challenges.",
+            "pengalaman": [
+                  {
+                        "jawatan": "Family Wellness Counselor",
+                        "syarikat": "Giggling Platypus Co., Any City",
+                        "tempoh": "2022",
+                        "poin": [
+                              "Conducted individual and family counseling sessions, addressing issues such as domestic violence, abuse, and others.",
+                              "Collaborated with a multidisciplinary team to develop holistic treatment plans for families.",
+                              "Collaborated with a multidisciplinary team to develop holistic treatment plans for families."
+                        ]
+                  }
+            ],
+            "pendidikan": [
+                  {
+                        "kelulusan": "Master of Science in Marriage and Family Counseling",
+                        "institusi": "Rimberio University",
+                        "tahun": "2021"
+                  }
+            ],
+            "kemahiran": [
+                  {
+                        "nama": "Family Assessment",
+                        "tahap": 5
+                  },
+                  {
+                        "nama": "Conflict Resolution",
+                        "tahap": 5
+                  },
+                  {
+                        "nama": "Communication Improvement",
+                        "tahap": 4
+                  },
+                  {
+                        "nama": "Crisis Intervention",
+                        "tahap": 4
+                  },
+                  {
+                        "nama": "Group Therapy",
+                        "tahap": 3
+                  },
+                  {
+                        "nama": "Case Management",
+                        "tahap": 4
+                  }
+            ],
+            "bahasa": [],
+            "rujukan": [],
+            "tambahan": [
+                  {
+                        "t": "Certification",
+                        "b": "Certified Family Counselor\nArowwai Industries Training Center, Any City"
+                  },
+                  {
+                        "t": "Membership",
+                        "b": "AMFT Member\nAssociation for Marriage and Family Therapy"
+                  }
+            ],
+            "foto": ""
+      },
+      html: htmlHijau
     }
   };
   var KUNCI_TEMPLAT = 'biru';
@@ -3640,6 +3794,106 @@
        pengalaman               13pt Bold + tarikh 10pt rata kanan, syarikat 10pt, perenggan 9pt
        panel kiri               10pt putih (kemahiran 7.4mm, bahasa 6.4mm, pendidikan baris 4.2mm)
        rujukan                  dua blok sebaris @ x85.5 dan x160.6 */
+  /* ---------- templat: Hijau Sage ----------
+     Rujukan pelanggan "Green Simple Family Wellness Counselor Resume.pdf" (diukur PyMuPDF):
+       halaman krim #f8f7f2; blok beige #ede2d9 0-87.65mm x 0-133.7mm; band hijau #555d50 dari
+       41.5mm ke tepi kanan, tinggi 74.5mm (nama 34pt putih @ x98.8 y14.6, garisan putih 16.4mm,
+       jawatan 12pt #ede2d9 @ y29.5, ringkasan putih 12pt jarak baris 5.83mm); band hijau bawah
+       283.7-297mm; foto SEGI EMPAT 65.6mm @ x9.7 y9.0; kontak 12pt x21.5 dengan ikon 6.88mm dan
+       garis #2e3729 0.26pt (y 80.4 / 94.8 / 111.7, lebar 65.58mm); tajuk bahagian 19pt Bold +
+       garis 0.26pt ~11mm di bawahnya; isi lajur kanan x107.5 dengan bulet bulatan hijau;
+       cip tahun hijau 20.24 x 9.06mm teks putih 12pt; kemahiran 13pt tanpa bulet (jarak 8.85mm). */
+  function htmlHijau(d) {
+    var h = '<div class="cv-hijau' + (d.foto ? '' : ' tanpa-foto') + '">';
+    var blok = {};
+
+    /* --- panel kiri: kemahiran, bahasa, bahagian tambahan --- */
+    ['kemahiran', 'bahasa'].forEach(function (kunci) {
+      var senarai = senaraiTahap(d, kunci);
+      if (!senarai.length || dibuang(d, kunci)) return;
+      blok[kunci] = '<h2>' + tt(kunci) + '</h2><ul class="hj-senarai hj-' + kunci + '">' +
+        senarai.map(function (o) {
+          return '<li><span>' + esc(o.nama) + '</span>' + titikTahap(o.tahap) + '</li>';
+        }).join('') + '</ul>';
+    });
+    (d.tambahan || []).forEach(function (o, i) {
+      var tajuk = String(o.t || '').trim();
+      var item = String(o.b || '').split('\n').map(function (x) { return x.trim(); }).filter(Boolean);
+      if (o.mod === 'dua' && Array.isArray(o.bahagian) && o.bahagian.length) {
+        blok['t' + i] = '<h2>' + esc(tajuk) + '</h2>' + o.bahagian.map(function (x) {
+          return '<p class="hj-dua"><strong>' + esc(x.nama) + '</strong>' +
+                 (x.detail ? (x.nama ? ' &#8212; ' : '') + esc(x.detail) : '') + '</p>';
+        }).join('');
+        return;
+      }
+      if (!tajuk || !item.length) return;
+      /* baris pertama = item utama (tebal), baris seterusnya = baris kecil - seperti rujukan */
+      blok['t' + i] = '<h2>' + esc(tajuk) + '</h2>' + item.map(function (x, k) {
+        return '<p class="' + (k === 0 ? 'hj-item-utama' : 'hj-item-sub') + '">' + esc(x) + '</p>';
+      }).join('');
+    });
+
+    /* --- lajur kanan: pendidikan, pengalaman, rujukan --- */
+    if (d.pendidikan.length && !dibuang(d, 'pendidikan')) {
+      blok.pendidikan = '<h2>' + tt('pendidikan') + '</h2>' + d.pendidikan.map(function (o) {
+        var x = '<div class="hj-pendidikan">';
+        x += '<div class="hj-baris"><strong>' + esc(o.kelulusan || '(Kelulusan)') + '</strong>' +
+             (o.tahun ? '<span class="hj-cip">' + esc(o.tahun) + '</span>' : '') + '</div>';
+        if (o.institusi) x += '<div class="hj-baris hj-baris-sub"><span>' + esc(o.institusi) + '</span></div>';
+        return x + '</div>';
+      }).join('');
+    }
+    if (d.pengalaman.length && !dibuang(d, 'pengalaman')) {
+      blok.pengalaman = '<h2>' + tt('pengalaman') + '</h2>' + d.pengalaman.map(function (o) {
+        var x = '<div class="hj-kerja">';
+        x += '<div class="hj-baris"><strong>' + esc((o.jawatan || '') + (o.syarikat ? ' at' : '')) + '</strong>' +
+             (o.tempoh ? '<span class="hj-cip">' + esc(o.tempoh) + '</span>' : '') + '</div>';
+        if (o.syarikat) x += '<strong class="hj-syarikat">' + esc(o.syarikat) + '</strong>';
+        senaraiProjek(o).forEach(function (pk) {
+          if (pk.nama || pk.klien) x += '<div class="hj-projek">' + esc(teksProjek(pk)) + '</div>';
+          if (pk.poin.length) {
+            x += '<ul class="hj-poin">' + pk.poin.map(function (k) { return '<li>' + esc(k) + '</li>'; }).join('') + '</ul>';
+          }
+        });
+        return x + '</div>';
+      }).join('');
+    }
+    var ruj = senaraiRujukan(d);
+    if (ruj.length && !dibuang(d, 'rujukan')) {
+      blok.rujukan = '<h2>' + tt('rujukan') + '</h2>' + ruj.map(function (o) {
+        return '<p class="hj-item-utama">' + esc(o.nama || '(Rujukan)') + '</p>' +
+               '<p class="hj-item-sub">' + esc(o.jawatan) + (o.telefon ? ' \u00b7 ' + esc(o.telefon) : '') + '</p>';
+      }).join('');
+    }
+
+    var kontak = '';
+    if (d.telefon && !dibuang(d, 'kontak')) kontak += '<li>' + ikon('telefon') + '<span>' + esc(d.telefon) + '</span></li>';
+    if (d.emel && !dibuang(d, 'kontak')) kontak += '<li>' + ikon('emel') + '<span>' + esc(d.emel) + '</span></li>';
+    if (d.lokasi && !dibuang(d, 'kontak')) kontak += '<li>' + ikon('lokasi') + '<span>' + esc(d.lokasi) + '</span></li>';
+    h += '<div class="hj-kiri"><div class="hj-beige"><div class="hj-foto">' +
+         (d.foto ? '<img src="' + d.foto + '" alt="">' : '') + '</div>';
+    if (kontak) h += '<ul class="hj-kontak">' + kontak + '</ul>';
+    h += '</div><div class="hj-blok-kiri">' + blokKiri(d, blok) + '</div></div>';
+    h += '<div class="hj-kanan"><div class="hj-kepala"><h1 class="hj-nama">' + esc(d.nama || '') + '</h1>';
+    if (d.jawatan) h += '<div class="hj-jawatan">' + esc(d.jawatan) + '</div>';
+    h += '<div class="hj-garis"></div>';
+    if (d.ringkasan && !dibuang(d, 'ringkasan')) h += '<p class="hj-intro">' + esc(d.ringkasan) + '</p>';
+    h += '</div>';
+    h += '<div class="hj-kandungan">' + blokKanan(d, blok) + '</div></div>';
+    return h + '</div>';
+  }
+
+  function blokKiri(d, blok) {
+    var u = urutan(d);
+    var tambahan = u.kanan.filter(function (x) { return /^t\d+$/.test(x); });
+    return u.kiri.concat(tambahan).map(function (id) { return blokHtml(id, blok[id], 'kiri'); }).join('');
+  }
+  function blokKanan(d, blok) {
+    var u = urutan(d);
+    return u.kanan.filter(function (x) { return !/^t\d+$/.test(x); })
+      .map(function (id) { return blokHtml(id, blok[id], 'kanan'); }).join('');
+  }
+
   function htmlGelap(d) {
     var h = '<div class="cv-gelap' + (d.foto ? '' : ' tanpa-foto') + '">';
     var band = '';
@@ -5010,6 +5264,8 @@
     susunRasmi: bacaSusunRasmi, simpanSusunRasmi: simpanSusunRasmi,
     penjual: function () { return penjual; }, tandaSusunRasmi: tandaSusunRasmi,
     bahasa: function () { return BAHASA; }, gunaBahasa: gunaBahasa, bersihPoin: bersihPoin,
+    /* data contoh sesebuah templat (1:1 daripada fail rujukan) - untuk ujian/audit */
+    contohTemplat: function (k) { return (TEMPLAT[k] || {}).contoh || null; },
     kamus: function (k) { return KAMUS_EN[k]; }, uiAsal: function () { return UI_ASAL.length; },
     tempat: function () { return Object.keys(TEMPLAT); }, urutan: urutan, pindah: pindahBlok };
   kemasSemula();

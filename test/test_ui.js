@@ -291,7 +291,7 @@ ok(/var isi = htmlTemplat\(d\);/.test(html) && /el\('resume'\)\.innerHTML = isi;
    'papar() menulis resume yang sama ke kertas utama dan kertas pratonton di sisi');
 ok(/var TEMPLAT = \{/.test(html) && /bersih: \{/.test(html), 'daftar TEMPLAT (peta) wujud dalam kod');
 ok(html.includes('function htmlBersih') && html.includes('.cv-bersih'), 'templat kedua (Biru Bersih) wujud');
-ok(d.querySelectorAll('.kad-pilih[data-templat]').length === 4, 'empat kad reka bentuk di halaman 1');
+ok(d.querySelectorAll('.kad-pilih[data-templat]').length === 5, 'empat kad reka bentuk di halaman 1');
 ok(!/r-sek|r-nama|\.chip/.test(html), 'tiada sisa gaya templat Klasik');
 ok(html.includes('function htmlBiru') && html.includes('.cv-biru'), 'reka bentuk Biru & Kelabu kekal utuh');
 ok(html.includes('.cvb-lencana') && html.includes('.cvb-titik') && html.includes('ikonLencana'),
@@ -789,6 +789,30 @@ el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
   ok(d.querySelectorAll('#senarai-tambahan .baris').length === bilSebelum + 1, 'baris boleh dihapus');
 
 
+
+  // ---- blok 49: templat kelima "Hijau Sage" ----
+  console.log('== 49. Templat Hijau Sage (daripada PDF rujukan) ==');
+  ok(w.ResumeMV.tempat().indexOf('hijau') >= 0, 'templat hijau didaftarkan');
+  const cHijau = w.ResumeMV.contohTemplat('hijau');
+  ok(cHijau && cHijau.nama === 'Juliana Silva', 'data contoh 1:1 daripada rujukan (Juliana Silva)');
+  w.ResumeMV.isi(JSON.parse(JSON.stringify(cHijau)));
+  d.querySelector('.kad-pilih[data-templat="hijau"]').click();
+  d.getElementById('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
+  const hj = d.querySelector('#resume .cv-hijau');
+  ok(!!hj, 'templat hijau dirender');
+  ok(!!hj.querySelector('.hj-beige') && !!hj.querySelector('.hj-foto') && !!hj.querySelector('.hj-kontak'),
+     'panel kiri: blok beige + foto + kontak bergaris');
+  ok(!!hj.querySelector('.hj-kepala') && !!hj.querySelector('.hj-nama') && !!hj.querySelector('.hj-intro'),
+     'band hijau: nama + jawatan + ringkasan');
+  ok(hj.querySelectorAll('.blok[data-blok]').length === 5, '5 blok dirender (kemahiran, 2 tambahan, pengalaman, pendidikan)');
+  ok(hj.querySelectorAll('.hj-senarai li').length === 6, 'kemahiran: 6 baris');
+  ok(hj.querySelectorAll('.hj-poin li').length === 3, 'pengalaman: 3 poin');
+  ok(hj.querySelectorAll('.hj-cip').length >= 2, 'cip tahun pada pendidikan/pengalaman');
+  w.ResumeMV.gunaBahasa('en');
+  ok(/Experience/.test(hj.textContent) && /Education/.test(hj.textContent) && /Skills/.test(hj.textContent),
+     'ejaan tajuk BI ikut fail rujukan');
+  w.ResumeMV.gunaBahasa('ms');
+  d.querySelector('.kad-pilih[data-templat="biru"]').click();
 console.log('== 24. Tukar reka bentuk + templat Biru Bersih (satu lajur) ==');
 el('kosongkan').click();
 isi('#nama', 'Muhammad Irfan bin Salleh');
@@ -878,7 +902,7 @@ el('mula-isi').click();
 el('nama').value = 'Ujian Nota'; el('telefon').value = '012-000 0000';
 el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
 ok(el('nota-lapang').hidden === true, 'nota tersembunyi bila isi penuh/dalam templat dua lajur');
-  ok(w.ResumeMV.tempat().length === 4 && w.ResumeMV.tempat().indexOf('gelap') >= 0, 'daftar templat boleh dibaca dari luar (4 reka bentuk)');
+  ok(w.ResumeMV.tempat().length === 5 && w.ResumeMV.tempat().indexOf('hijau') >= 0, 'daftar templat boleh dibaca dari luar (4 reka bentuk)');
 
 console.log('== 26. Isi terlalu banyak: auto-padat + nota melebihi halaman ==');
 ok(/--teks: 1;/.test(html), 'pemboleh --teks (skala fon) wujud');
