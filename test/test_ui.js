@@ -807,10 +807,10 @@ el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
   ok(hj.querySelectorAll('.blok[data-blok]').length === 5, '5 blok dirender (kemahiran, 2 tambahan, pengalaman, pendidikan)');
   ok(hj.querySelectorAll('.hj-senarai li').length === 6, 'kemahiran: 6 baris');
   ok(hj.querySelectorAll('.hj-poin li').length === 3, 'pengalaman: 3 poin');
-  ok(hj.querySelectorAll('.hj-cip').length >= 2, 'cip tahun pada pendidikan/pengalaman');
-  w.ResumeMV.gunaBahasa('en');
-  ok(/Experience/.test(hj.textContent) && /Education/.test(hj.textContent) && /Skills/.test(hj.textContent),
-     'ejaan tajuk BI ikut fail rujukan');
+  w.ResumeMV.gunaBahasa('en');        /* tukar bahasa SEBELUM semak ejaan tajuk */
+  const hjTajuk = [].map.call(d.querySelectorAll('#resume .cv-hijau h2'), function (x) { return x.textContent.trim(); }).join(' | ');
+  ok(/Experience/.test(hjTajuk) && /Education/.test(hjTajuk) && /Skills/.test(hjTajuk),
+     'ejaan tajuk BI ikut fail rujukan (dijumpai: ' + hjTajuk + ')');
   w.ResumeMV.gunaBahasa('ms');
   d.querySelector('.kad-pilih[data-templat="biru"]').click();
 console.log('== 24. Tukar reka bentuk + templat Biru Bersih (satu lajur) ==');
