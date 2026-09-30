@@ -1175,6 +1175,17 @@
   .lembar .cv-gelap .gd-ruj strong { font-size: calc(10pt * var(--teks)); font-weight: 700; }
   .lembar .cv-gelap .gd-ruj .gd-sub { font-size: calc(10pt * var(--teks)); }
 
+  /* ---------- cip tarikh bahagian tambahan (pilihan; warna ikut templat) ---------- */
+  .lembar .cv-cip {
+    display: inline-block; font-size: calc(9pt * var(--teks)); padding: .7mm 2.4mm;
+    border-radius: 0; white-space: nowrap; margin-left: 1.4mm;
+  }
+  .lembar .cv-biru .cv-cip { background: #e4e4e4; color: #323b4c; }
+  .lembar .cv-bersih .cv-cip { background: #e6eef6; color: #00366d; }
+  .lembar .cv-korporat .cv-cip { background: #dae3e3; color: #414042; }
+  .lembar .cv-gelap .cv-cip { background: #323b4c; color: #fff; }
+  .lembar .cv-hijau .cv-cip { background: #555d50; color: #fff; font-size: calc(12pt * var(--teks)); padding: 1.5mm 4.2mm; }
+
   /* ---------- templat: Hijau Sage (rujukan "Green Simple Family Wellness Counselor Resume.pdf";
      semua nombor di bawah ialah ukuran sebenar fail rujukan) ---------- */
   .lembar .cv-hijau {
@@ -1184,7 +1195,7 @@
     font-family: "DM Sans", Poppins, Arial, sans-serif;
   }
   .lembar .cv-hijau .hj-kiri { flex: 0 0 87.65mm; width: 87.65mm; position: relative; z-index: 2; }
-  .lembar .cv-hijau .hj-beige { background: #ede2d9; padding: 9mm 10mm 8mm 9.7mm; }
+  .lembar .cv-hijau .hj-beige { background: #ede2d9; padding: 9mm 10mm 8mm 9.7mm; min-height: 126mm; box-sizing: border-box; }
   .lembar .cv-hijau .hj-foto { width: 65.6mm; height: 65.6mm; overflow: hidden; background: #fff; }
   .lembar .cv-hijau .hj-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .lembar .cv-hijau.tanpa-foto .hj-foto { display: none; }
@@ -1194,12 +1205,12 @@
     border-top: .26pt solid #2e3729; padding: 3.4mm 0 3.4mm 0;
   }
   .lembar .cv-hijau .hj-kontak .cvb-ikon { width: 6.88mm; height: 6.88mm; flex: 0 0 6.88mm; }
-  .lembar .cv-hijau .hj-blok-kiri { padding: 3mm 10mm 5mm 9.7mm; }
+  .lembar .cv-hijau .hj-blok-kiri { padding: 3mm 10mm 3mm 9.7mm; }
   .lembar .cv-hijau h2 {
     margin: 0 0 3.6mm; padding-bottom: 2.1mm; font-size: calc(19pt * var(--teks)); font-weight: 700;
     color: #000; border-bottom: .26pt solid #2e3729; break-after: avoid; page-break-after: avoid;
   }
-  .lembar .cv-hijau .blok + .blok > h2 { margin-top: calc(5.4mm * var(--renggang)); }
+  .lembar .cv-hijau .blok + .blok > h2 { margin-top: calc(4.6mm * var(--renggang)); }
   .lembar .cv-hijau .hj-senarai { list-style: none; margin: 0; padding: 0; }
   .lembar .cv-hijau .hj-senarai li {
     display: flex; align-items: center; justify-content: space-between; gap: 2mm;
@@ -1238,10 +1249,6 @@
   .lembar .cv-hijau .hj-poin li::before {
     content: ''; position: absolute; left: 0; top: 1.7mm; width: 3mm; height: 3mm;
     border-radius: 50%; background: #555d50;
-  }
-  .lembar .cv-hijau .hj-cip {
-    display: inline-block; background: #555d50; color: #fff; font-size: calc(12pt * var(--teks));
-    font-weight: 400; padding: 1.5mm 4.2mm; white-space: nowrap;
   }
   .lembar .cv-hijau .hj-item-utama { margin: 4mm 0 0; font-size: calc(12pt * var(--teks)); font-weight: 700; }
   .lembar .cv-hijau .hj-item-sub { margin: 2.4mm 0 0; font-size: calc(11pt * var(--teks)); }
@@ -1849,9 +1856,12 @@
       '<label>Kemahiran / tajuk kecil</label>' +
       '<input class="bd-nama" type="text" placeholder="cth. Pengurusan Kos">' +
       '<label>Detail</label>' +
-      '<textarea class="bd-detail" rows="2" placeholder="cth. Menyedia BQ, mengawal kos dan lapor bulanan"></textarea>';
+      '<textarea class="bd-detail" rows="2" placeholder="cth. Menyedia BQ, mengawal kos dan lapor bulanan"></textarea>' +
+      '<label>Tarikh (pilihan - kosongkan kalau tiada)</label>' +
+      '<input class="bd-tarikh" type="text" placeholder="cth. AUG 2021 atau 2022-PRESENT">';
     d.querySelector('.bd-nama').value = data.nama || '';
     d.querySelector('.bd-detail').value = data.detail || '';
+    d.querySelector('.bd-tarikh').value = data.tarikh || '';
     d.querySelector('.btn-hapus-dua').addEventListener('click', function () {
       var kotak = d.parentNode;
       d.remove();
@@ -2748,7 +2758,8 @@
         Array.prototype.forEach.call(b.querySelectorAll('.baris-dua'), function (d2) {
           var nama = d2.querySelector('.bd-nama').value.trim();
           var detail = d2.querySelector('.bd-detail').value.split('\n').join(' ').trim();
-          if (nama || detail) bahagian.push({ nama: nama, detail: detail });
+          var tarikh = d2.querySelector('.bd-tarikh').value.trim();   /* tarikh pilihan */
+          if (nama || detail || tarikh) bahagian.push({ nama: nama, detail: detail, tarikh: tarikh });
         });
       }
       var o = {
@@ -3445,11 +3456,25 @@
             "tambahan": [
                   {
                         "t": "Certification",
-                        "b": "Certified Family Counselor\nArowwai Industries Training Center, Any City"
+                        "mod": "dua",
+                        "bahagian": [
+                              {
+                                    "nama": "Certified Family Counselor",
+                                    "detail": "Arowwai Industries Training Center, Any City",
+                                    "tarikh": "AUG 2021"
+                              }
+                        ]
                   },
                   {
                         "t": "Membership",
-                        "b": "AMFT Member\nAssociation for Marriage and Family Therapy"
+                        "mod": "dua",
+                        "bahagian": [
+                              {
+                                    "nama": "AMFT Member",
+                                    "detail": "Association for Marriage and Family Therapy",
+                                    "tarikh": "2022-PRESENT"
+                              }
+                        ]
                   }
             ],
             "foto": ""
@@ -3678,6 +3703,7 @@
         /* mod nama + detail: nama kemahiran tebal, detail selepasnya */
         blok['t' + i] = '<h2>' + esc(tajuk) + '</h2>' + o.bahagian.map(function (x) {
           return '<p class="cv-dua"><strong>' + esc(x.nama) + '</strong>' +
+                 (x.tarikh ? ' <span class="cv-cip">' + esc(x.tarikh) + '</span>' : '') +
                  (x.detail ? (x.nama ? ' &#8212; ' : '') + esc(x.detail) : '') + '</p>';
         }).join('');
       } else {
@@ -3766,6 +3792,7 @@
         /* mod nama + detail: nama kemahiran tebal, detail selepasnya */
         blok['t' + i] = '<h2>' + esc(tajuk) + '</h2>' + o.bahagian.map(function (x) {
           return '<p class="cv-dua"><strong>' + esc(x.nama) + '</strong>' +
+                 (x.tarikh ? ' <span class="cv-cip">' + esc(x.tarikh) + '</span>' : '') +
                  (x.detail ? (x.nama ? ' &#8212; ' : '') + esc(x.detail) : '') + '</p>';
         }).join('');
       } else {
@@ -3822,6 +3849,7 @@
       if (o.mod === 'dua' && Array.isArray(o.bahagian) && o.bahagian.length) {
         blok['t' + i] = '<h2>' + esc(tajuk) + '</h2>' + o.bahagian.map(function (x) {
           return '<p class="hj-dua"><strong>' + esc(x.nama) + '</strong>' +
+                 (x.tarikh ? ' <span class="cv-cip">' + esc(x.tarikh) + '</span>' : '') +
                  (x.detail ? (x.nama ? ' &#8212; ' : '') + esc(x.detail) : '') + '</p>';
         }).join('');
         return;
@@ -3838,7 +3866,7 @@
       blok.pendidikan = '<h2>' + tt('pendidikan') + '</h2>' + d.pendidikan.map(function (o) {
         var x = '<div class="hj-pendidikan">';
         x += '<div class="hj-baris"><strong>' + esc(o.kelulusan || '(Kelulusan)') + '</strong>' +
-             (o.tahun ? '<span class="hj-cip">' + esc(o.tahun) + '</span>' : '') + '</div>';
+             (o.tahun ? '<span class="cv-cip">' + esc(o.tahun) + '</span>' : '') + '</div>';
         if (o.institusi) x += '<div class="hj-baris hj-baris-sub"><span>' + esc(o.institusi) + '</span></div>';
         return x + '</div>';
       }).join('');
@@ -3847,7 +3875,7 @@
       blok.pengalaman = '<h2>' + tt('pengalaman') + '</h2>' + d.pengalaman.map(function (o) {
         var x = '<div class="hj-kerja">';
         x += '<div class="hj-baris"><strong>' + esc((o.jawatan || '') + (o.syarikat ? ' at' : '')) + '</strong>' +
-             (o.tempoh ? '<span class="hj-cip">' + esc(o.tempoh) + '</span>' : '') + '</div>';
+             (o.tempoh ? '<span class="cv-cip">' + esc(o.tempoh) + '</span>' : '') + '</div>';
         if (o.syarikat) x += '<strong class="hj-syarikat">' + esc(o.syarikat) + '</strong>';
         senaraiProjek(o).forEach(function (pk) {
           if (pk.nama || pk.klien) x += '<div class="hj-projek">' + esc(teksProjek(pk)) + '</div>';
@@ -3926,6 +3954,7 @@
       if (o.mod === 'dua' && Array.isArray(o.bahagian) && o.bahagian.length) {
         blok['t' + i] = '<h2>' + esc(tajuk) + '</h2>' + o.bahagian.map(function (x) {
           return '<p class="gd-dua"><strong>' + esc(x.nama) + '</strong>' +
+                 (x.tarikh ? ' <span class="cv-cip">' + esc(x.tarikh) + '</span>' : '') +
                  (x.detail ? (x.nama ? ' &#8212; ' : '') + esc(x.detail) : '') + '</p>';
         }).join('');
         return;
@@ -4087,6 +4116,7 @@
         /* mod nama + detail: nama kemahiran tebal, detail selepasnya */
         blok['t' + i] = '<h2>' + ikonKorp('petak') + esc(tajuk) + '</h2>' + o.bahagian.map(function (x) {
           return '<p class="cv-dua"><strong>' + esc(x.nama) + '</strong>' +
+                 (x.tarikh ? ' <span class="cv-cip">' + esc(x.tarikh) + '</span>' : '') +
                  (x.detail ? (x.nama ? ' &#8212; ' : '') + esc(x.detail) : '') + '</p>';
         }).join('');
       } else {

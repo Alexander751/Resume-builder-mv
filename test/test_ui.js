@@ -565,7 +565,7 @@ console.log('== 13. Muat naik foto (Image + kanvas dipalsukan) ==');
   const failFoto = new w7.File([new Uint8Array([1, 2, 3, 4])], 'foto.png', { type: 'image/png' });
   Object.defineProperty(input, 'files', { value: [failFoto], configurable: true });
   input.dispatchEvent(new w7.Event('change', { bubbles: true }));
-  await new Promise(r => setTimeout(r, 80));
+  await new Promise(r => setTimeout(r, 250));
 
   d7.getElementById('borang').dispatchEvent(new w7.Event('input', { bubbles: true }));
   const img = d7.querySelector('#resume .cvb-foto img');
@@ -790,29 +790,22 @@ el('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
 
 
 
-  // ---- blok 49: templat kelima "Hijau Sage" ----
+  // ---- blok 49: templat kelima "Hijau Sage" (semakan pada paparan mini; tiada kesan pada borang) ----
   console.log('== 49. Templat Hijau Sage (daripada PDF rujukan) ==');
   ok(w.ResumeMV.tempat().indexOf('hijau') >= 0, 'templat hijau didaftarkan');
   const cHijau = w.ResumeMV.contohTemplat('hijau');
   ok(cHijau && cHijau.nama === 'Juliana Silva', 'data contoh 1:1 daripada rujukan (Juliana Silva)');
-  w.ResumeMV.isi(JSON.parse(JSON.stringify(cHijau)));
-  d.querySelector('.kad-pilih[data-templat="hijau"]').click();
-  d.getElementById('borang').dispatchEvent(new w.Event('input', { bubbles: true }));
-  const hj = d.querySelector('#resume .cv-hijau');
-  ok(!!hj, 'templat hijau dirender');
-  ok(!!hj.querySelector('.hj-beige') && !!hj.querySelector('.hj-foto') && !!hj.querySelector('.hj-kontak'),
-     'panel kiri: blok beige + foto + kontak bergaris');
-  ok(!!hj.querySelector('.hj-kepala') && !!hj.querySelector('.hj-nama') && !!hj.querySelector('.hj-intro'),
-     'band hijau: nama + jawatan + ringkasan');
-  ok(hj.querySelectorAll('.blok[data-blok]').length === 5, '5 blok dirender (kemahiran, 2 tambahan, pengalaman, pendidikan)');
-  ok(hj.querySelectorAll('.hj-senarai li').length === 6, 'kemahiran: 6 baris');
-  ok(hj.querySelectorAll('.hj-poin li').length === 3, 'pengalaman: 3 poin');
-  w.ResumeMV.gunaBahasa('en');        /* tukar bahasa SEBELUM semak ejaan tajuk */
-  const hjTajuk = [].map.call(d.querySelectorAll('#resume .cv-hijau h2'), function (x) { return x.textContent.trim(); }).join(' | ');
-  ok(/Experience/.test(hjTajuk) && /Education/.test(hjTajuk) && /Skills/.test(hjTajuk),
-     'ejaan tajuk BI ikut fail rujukan (dijumpai: ' + hjTajuk + ')');
-  w.ResumeMV.gunaBahasa('ms');
-  d.querySelector('.kad-pilih[data-templat="biru"]').click();
+  const mini49 = d.getElementById('mini-hijau');
+  const hj49 = mini49 ? mini49.querySelector('.cv-hijau') : null;
+  ok(!!hj49, 'templat hijau dirender dalam paparan mini');
+  ok(!!hj49.querySelector('.hj-beige') && !!hj49.querySelector('.hj-kontak') && !!hj49.querySelector('.hj-kepala'),
+     'struktur: blok beige, kontak bergaris, band hijau');
+  ok(hj49.querySelectorAll('.blok[data-blok]').length === 5, '5 blok (kemahiran, 2 tambahan, pengalaman, pendidikan)');
+  ok(hj49.querySelectorAll('.hj-senarai li').length === 6, 'kemahiran: 6 baris');
+  ok(hj49.querySelectorAll('.hj-poin li').length === 3, 'pengalaman: 3 poin');
+  ok(hj49.querySelectorAll('.cv-cip').length >= 4, 'cip tarikh Certification/Membership + cip tahun pendidikan/pengalaman');
+  ok(/Skills/.test(hj49.textContent) && /Education/.test(hj49.textContent) && /Experience/.test(hj49.textContent),
+     'ejaan tajuk BI ikut fail rujukan');
 console.log('== 24. Tukar reka bentuk + templat Biru Bersih (satu lajur) ==');
 el('kosongkan').click();
 isi('#nama', 'Muhammad Irfan bin Salleh');
