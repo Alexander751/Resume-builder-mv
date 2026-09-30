@@ -1322,7 +1322,7 @@
   /* ---------- tanda air (watermark) + pesanan ---------- */
   .kertas { position: relative; }
   .cap-air {
-    position: absolute; inset: -8%; display: flex; flex-wrap: wrap; gap: 30px 38px;
+    position: absolute; inset: -8%; z-index: 6; display: flex; flex-wrap: wrap; gap: 30px 38px;
     align-content: center; justify-content: center; pointer-events: none; overflow: hidden;
     transform: rotate(-24deg) scale(1.3);
   }
@@ -1331,6 +1331,47 @@
     white-space: nowrap; color: rgba(18, 80, 140, .13);
   }
   body.mod-penjual .cap-air { display: none; }
+
+  /* ---------- mod Builder (kotak teks + imej/logo bebas, gaya Canva) ----------
+     Lapisan kedudukan mutlak penuh A4 dalam unit mm (0,0 = penjuru kiri-atas helaian).
+     pointer-events: none pada lapisan, auto pada elemen - klik di kawasan kosong
+     terus jatuh ke kandungan (mod Susun blok dsb). z-index 3: atas kandungan (z 0-2),
+     bawah tanda air (z 6). */
+  .pembina-lapisan { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+  .pb-el {
+    position: absolute; box-sizing: border-box; pointer-events: auto; cursor: move;
+    user-select: none; -webkit-user-select: none; min-width: 12mm; min-height: 6mm;
+  }
+  .pb-el.pb-pilih { outline: 1.4px dashed #1268b3; outline-offset: 1px; }
+  .pb-el .pb-teks {
+    width: 100%; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word;
+    font-size: 12pt; line-height: 1.35; color: #323b4c; background: transparent;
+    padding: 0; margin: 0; outline: none; cursor: move; min-height: 8mm;
+  }
+  .pb-el .pb-teks:focus { cursor: text; }
+  .pb-el.pb-imej img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .pb-handle {
+    position: absolute; right: -5px; bottom: -5px; width: 11px; height: 11px;
+    background: #1268b3; border: 1.5px solid #fff; border-radius: 50%;
+    cursor: nwse-resize; z-index: 2; display: none;
+  }
+  .pb-el.pb-pilih .pb-handle { display: block; }
+  .pb-alat {
+    position: absolute; left: 0; top: -32px; display: none; gap: 2px; align-items: center;
+    background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 3px;
+    box-shadow: 0 4px 14px rgba(16, 24, 40, .14); z-index: 5; white-space: nowrap;
+  }
+  .pb-el.pb-pilih .pb-alat { display: flex; }
+  .pb-alat button {
+    min-width: 26px; height: 24px; border: 1px solid transparent; border-radius: 6px;
+    background: transparent; cursor: pointer; font-size: 13px; line-height: 1; color: #33415c;
+    display: inline-flex; align-items: center; justify-content: center; padding: 0 5px;
+  }
+  .pb-alat button:hover { background: var(--brand-soft); }
+  .pb-alat button.pb-hapus:hover { background: #fdeaea; color: #b42318; }
+  .pb-alat input[type="color"] {
+    width: 22px; height: 22px; padding: 0; border: none; background: none; cursor: pointer; display: block;
+  }
   /* ---------- cetak ---------- */
   @page { size: A4; margin: 0; }
   @media print {
@@ -1435,6 +1476,11 @@
     .lembar .cv-bersih { min-height: auto; }
     .lembar .cv-bersih h2 { break-after: avoid; page-break-after: avoid; }
     /* item biru bersih juga dibenarkan mengalir (bulet sahaja yang tidak boleh dipecah) */
+    /* mod Builder: elemen KEKAL dicetak; pemegang + bar alat + garis pilihan DISOROK */
+    .pembina-lapisan { inset: 0 0 auto 0; height: 297mm; }   /* kunci ke halaman 1 sahaja */
+    .pb-el { outline: none !important; cursor: default; }
+    .pb-el .pb-handle, .pb-el .pb-alat { display: none !important; }
+    .pb-el .pb-teks { outline: none !important; }
   }
 </style>
 </head>
@@ -1708,6 +1754,8 @@
           <button type="button" class="btn-alat" id="susun-reset" hidden>Tetapkan semula</button>
           <button type="button" class="btn-alat" id="susun-rasmi" hidden>Jadikan susunan rasmi</button>
           <button type="button" class="btn-alat" id="susun-rasmi-buang" hidden>Buang susunan rasmi</button>
+          <button type="button" class="btn-alat btn-tambah-kotak">+ Kotak teks</button>
+          <button type="button" class="btn-alat btn-tambah-imej">+ Imej/Logo</button>
           <button type="button" class="btn-alat" id="tutup-sisi">Tutup</button>
         </span>
       </div>
@@ -1716,6 +1764,7 @@
           <div class="sambungan" id="sambung-sisi">
             <article class="lembar" id="sisi-kertas"></article>
           </div>
+          <div class="pembina-lapisan" id="pembina-sisi"></div>
           <div class="cap-air" id="cap-air-sisi" aria-hidden="true"></div>
         </div>
       </div>
@@ -1746,6 +1795,8 @@
         <button type="button" class="btn-alat" id="togol-susun-3" aria-pressed="false">Susun blok</button>
   <button type="button" class="btn-alat" id="susun-rasmi-3" hidden>Jadikan susunan rasmi</button>
   <button type="button" class="btn-alat" id="susun-rasmi-buang-3" hidden>Buang susunan rasmi</button>
+        <button type="button" class="btn-alat btn-tambah-kotak">+ Kotak teks</button>
+        <button type="button" class="btn-alat btn-tambah-imej">+ Imej/Logo</button>
         <button type="button" class="btn-undur" id="balik-3">&larr; Kembali edit</button>
         <button type="button" class="btn-utama" id="ke-4">Seterusnya: Hantar &rarr;</button>
       </div>
@@ -1757,6 +1808,7 @@
             <div class="sambungan" id="sambung-1">
               <article id="resume" class="lembar"></article>
             </div>
+            <div class="pembina-lapisan" id="pembina-1"></div>
             <div class="cap-air" id="cap-air" aria-hidden="true"></div>
           </div>
         </div>
@@ -1796,6 +1848,8 @@
   </section>
 </main>
 
+<input type="file" id="pembina-imej" accept="image/*" hidden>
+
 <script>
 (function () {
   'use strict';
@@ -1805,6 +1859,10 @@
   var bilTahap = { kemahiran: 0, bahasa: 0 };
   var TAHAP_NAMA = ['', 'Asas', 'Sederhana', 'Mahir', 'Sangat mahir', 'Pakar'];
   var BUANG = [];   // bahagian piawai yang pelanggan pilih untuk dibuang
+  var PEMBINA = [];   // elemen mod Builder (kotak teks + imej/logo bebas, unit mm)
+  var bilPembina = 0;
+  var PB_PILIH = null;   // id elemen builder terpilih
+  var PB_SERET = null;   // keadaan seret/ubah saiz elemen builder
 
   /* ============================================================
      TETAPAN PENJUAL — tukar dua baris ini sahaja
@@ -2279,6 +2337,20 @@
     "Nama projek dalam setiap kad adalah": "The project name in each card is"
   });
 
+  /* kamus mod Builder (kotak teks + imej/logo) */
+  Object.assign(KAMUS_EN, {
+    '+ Kotak teks': '+ Text box',
+    '+ Imej/Logo': '+ Image/Logo',
+    'Buang': 'Delete',
+    'Kecilkan teks': 'Smaller text',
+    'Besarkan teks': 'Larger text',
+    'Tebal': 'Bold',
+    'Jajar kiri': 'Align left',
+    'Jajar tengah': 'Align center',
+    'Jajar kanan': 'Align right',
+    'Warna teks': 'Text colour'
+  });
+
   /* tambahan kamus: mesej log, teks tahap, teks kad templat */
   Object.assign(KAMUS_EN, {
     '\u2190 Butiran Reka Bentuk': '\u2190 Design Details',
@@ -2519,7 +2591,7 @@
     if (typeof kemasLkNota === 'function') kemasLkNota();   // nota "belum diisi" ikut bahasa
     if (typeof semakSimpanan === 'function') semakSimpanan();   // nota resume tersimpan ikut bahasa
                                              // (bina semula akan membuang rujukan elemen & pilihan semasa)
-    
+    paparPembina();                         // bar alat mini builder ikut bahasa
   }
 
   function gunaBahasa(bhs) {
@@ -2722,7 +2794,8 @@
       pendidikan: [],
       tambahan: [],          // bahagian yang pelanggan tambah sendiri (tajuk + isi)
       buang: BUANG.slice(),  // bahagian piawai yang pelanggan buang
-      susun: SUSUN ? { kiri: SUSUN.kiri.slice(), kanan: SUSUN.kanan.slice() } : null   // susunan blok
+      susun: SUSUN ? { kiri: SUSUN.kiri.slice(), kanan: SUSUN.kanan.slice() } : null,   // susunan blok
+      pembina: PEMBINA.slice()   // elemen mod Builder (kotak teks + imej/logo)
     };
     Array.prototype.forEach.call(document.querySelectorAll('#senarai-pengalaman .baris'), function (b) {
       var projek = [];
@@ -4171,7 +4244,15 @@
       x: d.buang || [],                                                                 // bahagian dibuang
       y: (d.susun && (d.susun.kiri || d.susun.kanan)) ? d.susun : null,                  // susunan blok
       lp: d.labelProjek || LABEL_PROJEK || 'projek',                                     // label nama projek
-      bh: d.bahasaResume || BAHASA || 'en'                                               // bahasa resume
+      bh: d.bahasaResume || BAHASA || 'en',                                              // bahasa resume
+      bd: (d.pembina || []).filter(function (o) {                                        // elemen mod Builder
+        return o.jenis === 'imej' ? !!o.src : String(o.teks || '').trim();
+      }).map(function (o) {
+        var r = { i: o.id, j: o.jenis, x: o.x, y: o.y, w: o.w };
+        if (o.jenis === 'imej') { r.h = o.h; r.s = o.src; }
+        else { r.t = o.teks; r.f = o.fon; r.b = o.tebal ? 1 : 0; r.c = o.warna; r.a = o.sejajar; }
+        return r;
+      })
     };
     var b64 = window.btoa(unescape(encodeURIComponent(JSON.stringify(ringkas))));
     return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -4196,7 +4277,15 @@
         tambahan: Array.isArray(o.a) ? o.a : [], buang: Array.isArray(o.x) ? o.x : [],
         susun: (o.y && (o.y.kiri || o.y.kanan)) ? { kiri: o.y.kiri || [], kanan: o.y.kanan || [] } : null,
         labelProjek: 'projek',   // dropdown label dibuang (Fasa 49); medan 'Klien' pula menggantikannya
-        bahasaResume: (o.bh === 'ms' || o.bh === 'en') ? o.bh : null   // kod lama tiada bahasa: guna tetapan semasa
+        bahasaResume: (o.bh === 'ms' || o.bh === 'en') ? o.bh : null,  // kod lama tiada bahasa: guna tetapan semasa
+        pembina: (Array.isArray(o.bd) ? o.bd.map(function (b) {
+          return {
+            id: b.i, jenis: b.j === 'imej' ? 'imej' : 'teks',
+            x: b.x || 0, y: b.y || 0, w: b.w || 40,
+            h: b.h || 0, src: b.s || '', teks: b.t || '',
+            fon: b.f || 12, tebal: !!b.b, warna: b.c || '#323b4c', sejajar: b.a || 'kiri'
+          };
+        }) : [])
       };
     } catch (e) {
       return null;
@@ -4441,6 +4530,9 @@
     });
     BUANG = [];
     SUSUN = null;
+    PEMBINA = [];
+    PB_PILIH = null;
+    paparPembina();
     kemasSek();
     try { localStorage.removeItem(KUNCI); } catch (e) { /* abaikan */ }
     tulisLogFoto();
@@ -4493,6 +4585,9 @@
     el('senarai-tambahan').innerHTML = '';
     bilTambahan = 0;
     (d.tambahan || []).forEach(function (o) { el('senarai-tambahan').appendChild(barisTambahan(o)); });
+    PEMBINA = (d.pembina || []).slice();
+    PB_PILIH = null;
+    paparPembina();
   }
 
   /* ---------- muat data lama ---------- */
@@ -4518,13 +4613,13 @@
       : (BAHASA === 'en' ? 'No photo yet (optional).' : 'Belum ada foto (pilihan).'));
   }
 
-  function kecilkanFoto(fail, sudah) {
+  function kecilkanFoto(fail, sudah, siling) {
     var pembaca = new window.FileReader();
     pembaca.onload = function () {
       var imej = new window.Image();
       imej.onload = function () {
         try {
-          var siling = 420;
+          siling = siling || 420;
           var lebar = imej.width || siling, tinggi = imej.height || siling;
           var skala = Math.min(1, siling / Math.max(lebar, tinggi));
           var kanvas = document.createElement('canvas');
@@ -5283,6 +5378,255 @@
       el('senarai-' + kunci).appendChild(barisTahap(kunci));
     }
   });
+  /* ============================================================
+     MOD BUILDER (gaya Canva): kotak teks + imej/logo bebas pada helaian A4.
+     Elemen disimpan dalam unit mm (0,0 = penjuru kiri-atas). Lapisan ini overlay
+     penuh A4 dan ia TIDAK dibina semula oleh papar() - hanya dibina semula bila
+     elemen ditambah/dibuang/dialih/ubah saiz/gaya, supaya kotak teks tidak hilang
+     fokus ketika pengguna menaip.
+     ============================================================ */
+
+  function cariPbIndex(id) {
+    for (var i = 0; i < PEMBINA.length; i++) if (PEMBINA[i].id === id) return i;
+    return -1;
+  }
+  function cariPb(id) { var i = cariPbIndex(id); return i >= 0 ? PEMBINA[i] : null; }
+  function pbIdBaru() { return 'pb' + Date.now().toString(36) + '_' + (++bilPembina); }
+
+  function htmlTeks(teks) { return esc(teks || '').split('\n').join('<br>'); }
+  function teksDariHtml(html) {
+    return String(html || '')
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/(div|p)>/gi, '\n')
+      .replace(/<[^>]+>/g, '')
+      .replace(/&nbsp;/gi, ' ')
+      .replace(/&amp;/gi, '&').replace(/&lt;/gi, '<').replace(/&gt;/gi, '>').replace(/&quot;/gi, '"');
+  }
+
+  function pbAlat(x) {
+    if (x.jenis === 'imej') {
+      return '<div class="pb-alat">' +
+        '<button type="button" data-pb="hapus" class="pb-hapus" title="' + tb('Buang') + '">&times;</button>' +
+        '</div>';
+    }
+    return '<div class="pb-alat">' +
+      '<button type="button" data-pb="fon-" title="' + tb('Kecilkan teks') + '">A&ndash;</button>' +
+      '<button type="button" data-pb="fon+" title="' + tb('Besarkan teks') + '">A+</button>' +
+      '<button type="button" data-pb="tebal" title="' + tb('Tebal') + '"><b>B</b></button>' +
+      '<button type="button" data-pb="kiri" title="' + tb('Jajar kiri') + '">&larr;</button>' +
+      '<button type="button" data-pb="tengah" title="' + tb('Jajar tengah') + '">&harr;</button>' +
+      '<button type="button" data-pb="kanan" title="' + tb('Jajar kanan') + '">&rarr;</button>' +
+      '<label class="pb-warna" title="' + tb('Warna teks') + '"><input type="color" data-pb="warna" value="' + (x.warna || '#323b4c') + '"></label>' +
+      '<button type="button" data-pb="hapus" class="pb-hapus" title="' + tb('Buang') + '">&times;</button>' +
+      '</div>';
+  }
+
+  function pbHtml(x) {
+    var st = 'left:' + (x.x || 0) + 'mm; top:' + (x.y || 0) + 'mm; width:' + (x.w || 40) + 'mm;'
+      + (x.h ? ' height:' + x.h + 'mm;' : '');
+    var dalam;
+    if (x.jenis === 'imej') {
+      dalam = '<img src="' + esc(x.src || '') + '" alt="">';
+    } else {
+      var gaya = 'font-size:' + (x.fon || 12) + 'pt;'
+        + (x.tebal ? ' font-weight:700;' : '')
+        + ' color:' + (x.warna || '#323b4c') + ';'
+        + ' text-align:' + (x.sejajar || 'kiri') + ';';
+      dalam = '<div class="pb-teks" style="' + gaya + '">' + htmlTeks(x.teks) + '</div>';
+    }
+    return '<div class="pb-el pb-' + x.jenis + '" data-id="' + esc(x.id) + '" style="' + st + '">' +
+      dalam + pbAlat(x) + '<span class="pb-handle" aria-hidden="true"></span></div>';
+  }
+
+  function paparPembina() {
+    var senarai = PEMBINA || [];
+    ['pembina-1', 'pembina-sisi'].forEach(function (id) {
+      var lapisan = el(id);
+      if (!lapisan) return;
+      lapisan.innerHTML = senarai.map(pbHtml).join('');
+    });
+    if (PB_PILIH) {
+      Array.prototype.forEach.call(document.querySelectorAll('.pembina-lapisan .pb-el'), function (n) {
+        n.classList.toggle('pb-pilih', n.getAttribute('data-id') === String(PB_PILIH));
+      });
+    }
+  }
+
+  function pilihPb(id) {
+    PB_PILIH = id || null;
+    Array.prototype.forEach.call(document.querySelectorAll('.pembina-lapisan .pb-el'), function (n) {
+      n.classList.toggle('pb-pilih', n.getAttribute('data-id') === String(id));
+    });
+  }
+
+  function tambahKotak() {
+    var id = pbIdBaru();
+    PEMBINA.push({ id: id, jenis: 'teks', x: 55, y: 130, w: 100, h: 0,
+      teks: '', fon: 12, tebal: false, warna: '#323b4c', sejajar: 'kiri' });
+    paparPembina();
+    pilihPb(id);
+    kemasSemula();
+    var n = document.querySelector('.pb-el[data-id="' + id + '"] .pb-teks');
+    if (n) { n.setAttribute('contenteditable', 'true'); n.focus(); }
+    tulisLog(BAHASA === 'en'
+      ? 'Text box added. Type your content, then drag to move it.'
+      : 'Kotak teks ditambah. Taip kandungan, kemudian seret untuk alih.', 'info');
+  }
+
+  function tambahImej(fail) {
+    if (!fail) return;
+    if (fail.size > 6 * 1024 * 1024) { tulisLog(BAHASA === 'en' ? 'Image too large - maximum 6 MB.' : 'Imej terlalu besar - maksimum 6 MB.', 'ralat'); return; }
+    kecilkanFoto(fail, function (dataUrl) {
+      if (!dataUrl) { tulisLog(BAHASA === 'en' ? 'Could not read that image. Try JPG or PNG.' : 'Gagal membaca imej itu. Cuba format JPG atau PNG.', 'ralat'); return; }
+      var id = pbIdBaru();
+      PEMBINA.push({ id: id, jenis: 'imej', x: 65, y: 40, w: 60, h: 40, src: dataUrl });
+      paparPembina();
+      pilihPb(id);
+      kemasSemula();
+      tulisLog(BAHASA === 'en'
+        ? 'Image/logo added. Drag to move, drag the bottom corner to resize.'
+        : 'Imej/logo ditambah. Seret untuk alih, seret sudut bawah untuk ubah saiz.', 'info');
+    }, 800);
+  }
+
+  function pbMmPerPx() {
+    var lap = el('pembina-1');
+    if (!lap || !lap.parentElement) return 3.7795;
+    var r = lap.parentElement.getBoundingClientRect();
+    return r && r.width ? 210 / r.width : 3.7795;
+  }
+  function pbClamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+  function pbBulat(v) { return Math.round(v * 10) / 10; }
+
+  document.addEventListener('pointerdown', function (e) {
+    var t = e.target;
+    if (!t || !t.closest) return;
+    var el2 = t.closest('.pb-el');
+    if (!el2) { pilihPb(null); return; }
+    var id = el2.getAttribute('data-id');
+    var o = cariPb(id);
+    if (!o) return;
+    pilihPb(id);
+    if (t.closest('.pb-alat')) return;                       // bar alat: jangan seret
+    if (t.closest('.pb-teks') && t.closest('.pb-teks').isContentEditable) return;   // sedang menaip
+    var saiz = !!t.closest('.pb-handle');
+    PB_SERET = { id: id, jenis: saiz ? 'saiz' : 'alih', mulaX: e.clientX, mulaY: e.clientY,
+      asal: { x: o.x, y: o.y, w: o.w || 40, h: o.h || 0, jenis: o.jenis } };
+    if (e.preventDefault) e.preventDefault();
+  });
+
+  document.addEventListener('pointermove', function (e) {
+    if (!PB_SERET) return;
+    var s = PB_SERET;
+    var mm = pbMmPerPx();
+    var dx = (e.clientX - s.mulaX) * mm;
+    var dy = (e.clientY - s.mulaY) * mm;
+    var k = cariPbIndex(s.id);
+    if (k < 0) return;
+    var o = PEMBINA[k];
+    if (s.jenis === 'alih') {
+      o.x = pbBulat(pbClamp(s.asal.x + dx, 0, 210 - (s.asal.w || 0)));
+      o.y = pbBulat(pbClamp(s.asal.y + dy, 0, 297 - (s.asal.h || 6)));
+    } else {
+      o.w = pbBulat(pbClamp(s.asal.w + dx, 12, 210 - s.asal.x));
+      o.h = s.asal.jenis === 'imej' ? pbBulat(pbClamp(s.asal.h + dy, 8, 297 - s.asal.y)) : 0;
+    }
+    var n = document.querySelector('.pb-el[data-id="' + s.id + '"]');
+    if (n) {
+      n.style.left = o.x + 'mm'; n.style.top = o.y + 'mm'; n.style.width = o.w + 'mm';
+      n.style.height = o.h ? o.h + 'mm' : '';
+    }
+  });
+
+  document.addEventListener('pointerup', function () {
+    if (!PB_SERET) return;
+    PB_SERET = null;
+    kemasSemula();   // simpan kedudukan baharu (localStorage + kod WhatsApp)
+  });
+  document.addEventListener('pointercancel', function () { PB_SERET = null; });
+
+  document.addEventListener('dblclick', function (e) {
+    var t = e.target;
+    if (!t || !t.closest) return;
+    var teksNod = t.closest('.pb-teks');
+    if (!teksNod || teksNod.isContentEditable) return;
+    teksNod.setAttribute('contenteditable', 'true');
+    teksNod.focus();
+    var sel = window.getSelection ? window.getSelection() : null;
+    var julat = document.createRange ? document.createRange() : null;
+    if (sel && julat) { julat.selectNodeContents(teksNod); julat.collapse(false); sel.removeAllRanges(); sel.addRange(julat); }
+  });
+
+  document.addEventListener('input', function (e) {
+    var t = e.target;
+    if (!t || !t.getAttribute) return;
+    if (t.classList && t.classList.contains('pb-teks')) {
+      var el2 = t.closest('.pb-el');
+      if (!el2) return;
+      var k = cariPbIndex(el2.getAttribute('data-id'));
+      if (k >= 0) PEMBINA[k].teks = teksDariHtml(t.innerHTML);
+      return;
+    }
+    if (t.getAttribute('data-pb') === 'warna') {
+      var el3 = t.closest('.pb-el');
+      if (!el3) return;
+      var k2 = cariPbIndex(el3.getAttribute('data-id'));
+      var teksNod = el3.querySelector('.pb-teks');
+      if (k2 >= 0) PEMBINA[k2].warna = t.value;
+      if (teksNod) teksNod.style.color = t.value;
+    }
+  });
+
+  document.addEventListener('change', function (e) {
+    var t = e.target;
+    if (t && t.getAttribute && t.getAttribute('data-pb') === 'warna') kemasSemula();
+  });
+
+  document.addEventListener('focusout', function (e) {
+    var t = e.target;
+    if (!t || !t.classList || !t.classList.contains('pb-teks')) return;
+    kemasSemula();
+    t.removeAttribute('contenteditable');   // kembali ke mod seret
+  });
+
+  document.addEventListener('click', function (e) {
+    var b = e.target && e.target.closest ? e.target.closest('[data-pb]') : null;
+    if (!b) return;
+    var el2 = b.closest('.pb-el');
+    if (!el2) return;
+    var id = el2.getAttribute('data-id');
+    var k = cariPbIndex(id);
+    if (k < 0) return;
+    var act = b.getAttribute('data-pb');
+    if (act === 'warna') return;   // warna diurus oleh peristiwa input/change
+    var o = PEMBINA[k];
+    if (act === 'hapus') { PEMBINA.splice(k, 1); pilihPb(null); paparPembina(); kemasSemula(); return; }
+    if (act === 'fon+') o.fon = Math.min(48, (o.fon || 12) + 2);
+    if (act === 'fon-') o.fon = Math.max(6, (o.fon || 12) - 2);
+    if (act === 'tebal') o.tebal = !o.tebal;
+    if (act === 'kiri') o.sejajar = 'kiri';
+    if (act === 'tengah') o.sejajar = 'tengah';
+    if (act === 'kanan') o.sejajar = 'kanan';
+    paparPembina();
+    pilihPb(id);
+    kemasSemula();
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll('.btn-tambah-kotak'), function (b) {
+    b.addEventListener('click', tambahKotak);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.btn-tambah-imej'), function (b) {
+    b.addEventListener('click', function () { var inp = el('pembina-imej'); if (inp) inp.click(); });
+  });
+  var inpPembinaImej = el('pembina-imej');
+  if (inpPembinaImej) {
+    inpPembinaImej.addEventListener('change', function (e) {
+      var fail = e.target.files && e.target.files[0];
+      e.target.value = '';
+      tambahImej(fail);
+    });
+  }
+
   window.ResumeMV = { kod: kodDari, dariKod: borangDariKod, isi: isiBorang, kumpul: kumpul,
     templat: function () { return KUNCI_TEMPLAT; }, renggang: function () { return RENGGANG; },
     penuh: function () { return PENUH; }, teks: function () { return TEKS; },
@@ -5297,9 +5641,12 @@
     /* data contoh sesebuah templat (1:1 daripada fail rujukan) - untuk ujian/audit */
     contohTemplat: function (k) { return (TEMPLAT[k] || {}).contoh || null; },
     kamus: function (k) { return KAMUS_EN[k]; }, uiAsal: function () { return UI_ASAL.length; },
-    tempat: function () { return Object.keys(TEMPLAT); }, urutan: urutan, pindah: pindahBlok };
+    tempat: function () { return Object.keys(TEMPLAT); }, urutan: urutan, pindah: pindahBlok,
+    pembina: function () { return PEMBINA.slice(); },
+    tambahKotak: tambahKotak, tambahImej: tambahImej, pilihPb: pilihPb };
   kemasSemula();
   kemasSek();
+  paparPembina();
   try { BAHASA = (localStorage.getItem(KUNCI_BAHASA) === 'ms') ? 'ms' : 'en'; } catch (e) { BAHASA = 'en'; }
   kumpulTeksUI();          // kumpul teks elemen (legend/label/nota/butang)
   terjemahElemen(document.body);   // + nod teks (termasuk di dalam elemen ber-markup)

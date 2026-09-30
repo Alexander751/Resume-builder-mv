@@ -1912,6 +1912,63 @@ ok(w.ResumeMV.templat() === 'korporat' && isFinite(w.ResumeMV.halaman()) && isFi
   ok(/height: 45mm/.test(html) && /left: 82\.8mm; top: 6mm/.test(html) && /left: 7\.8mm; top: 16\.2mm/.test(html),
      'halaman 1 templat Biru kekal sama (banner dan kandungannya dianjak 5mm ke atas)');
 
+  console.log('== 50. Fasa 58: mod Builder (kotak teks + imej/logo) ==');
+  ok(!!el('pembina-1'), 'lapisan builder #pembina-1 wujud');
+  ok(!!el('pembina-sisi'), 'lapisan builder #pembina-sisi wujud');
+  ok(d.querySelectorAll('.btn-tambah-kotak').length === 2, 'dua butang "+ Kotak teks" (sisi + halaman 3)');
+  ok(d.querySelectorAll('.btn-tambah-imej').length === 2, 'dua butang "+ Imej/Logo" (sisi + halaman 3)');
+  ok(!!el('pembina-imej'), 'input fail imej #pembina-imej wujud');
+  ok(typeof w.ResumeMV.tambahKotak === 'function' && typeof w.ResumeMV.tambahImej === 'function',
+     'API tambahKotak/tambahImej didedahkan');
+
+  // tambah kotak teks
+  var pbSebelum = w.ResumeMV.pembina().length;
+  w.ResumeMV.tambahKotak();
+  var pbSelepas = w.ResumeMV.pembina();
+  ok(pbSelepas.length === pbSebelum + 1, 'tambahKotak menambah satu elemen');
+  ok(pbSelepas[pbSelepas.length - 1].jenis === 'teks', 'elemen baharu jenis teks');
+  ok(!!d.querySelector('#pembina-1 .pb-el.pb-teks'), 'kotak teks dirender dalam #pembina-1');
+  ok(!!d.querySelector('#pembina-sisi .pb-el.pb-teks'), 'kotak teks dirender dalam #pembina-sisi');
+  ok(!!d.querySelector('#pembina-1 .pb-el .pb-teks'), 'kandungan .pb-teks wujud');
+  ok(!!d.querySelector('#pembina-1 .pb-el .pb-handle'), 'pemegang ubah saiz wujud');
+  var pbAlat1 = d.querySelector('#pembina-1 .pb-el .pb-alat');
+  ok(!!pbAlat1, 'bar alat mini wujud');
+  ok(!!pbAlat1.querySelector('[data-pb="fon+"]') && !!pbAlat1.querySelector('[data-pb="fon-"]'), 'kawalan saiz fon ada');
+  ok(!!pbAlat1.querySelector('[data-pb="tebal"]') && !!pbAlat1.querySelector('[data-pb="warna"]'), 'kawalan tebal + warna ada');
+  ok(!!pbAlat1.querySelector('[data-pb="hapus"]'), 'butang hapus ada');
+  ok(/left:\s*\d+(\.\d+)?mm/.test(d.querySelector('#pembina-1 .pb-el').getAttribute('style') || ''),
+     'kedudukan elemen dalam unit mm');
+
+  // hapus kotak
+  var pbIdHapus = pbSelepas[pbSelepas.length - 1].id;
+  d.querySelector('#pembina-1 .pb-el[data-id="' + pbIdHapus + '"] [data-pb="hapus"]').click();
+  ok(w.ResumeMV.pembina().length === pbSebelum, 'hapus membuang elemen');
+  ok(!d.querySelector('#pembina-1 .pb-el'), 'lapisan kosong selepas hapus');
+
+  // kod pesanan bawa elemen builder + round-trip
+  w.ResumeMV.tambahKotak();
+  var pbKotak = w.ResumeMV.pembina();
+  pbKotak[pbKotak.length - 1].teks = 'Logo Syarikat ABC';
+  var pbKod = w.ResumeMV.kod(w.ResumeMV.kumpul());
+  var pbBalik = w.ResumeMV.dariKod(pbKod);
+  ok(Array.isArray(pbBalik.pembina) && pbBalik.pembina.length === pbKotak.length,
+     'kod pesanan membawa elemen builder');
+  ok(pbBalik.pembina[pbBalik.pembina.length - 1].teks === 'Logo Syarikat ABC',
+     'teks kotak round-trip melalui kod pesanan');
+  // kotak teks kosong TIDAK masuk kod (tapisan)
+  pbKotak[pbKotak.length - 1].teks = '';
+  var pbBalikKosong = w.ResumeMV.dariKod(w.ResumeMV.kod(w.ResumeMV.kumpul()));
+  ok(pbBalikKosong.pembina.length === 0, 'kotak teks kosong tidak dibawa dalam kod pesanan');
+
+  // CSS cetak: pemegang + bar alat disorok, lapisan dikunci ke halaman 1
+  ok(/\.pb-el \.pb-handle, \.pb-el \.pb-alat \{ display: none !important; \}/.test(html),
+     'pemegang + bar alat disorok semasa cetak');
+  ok(/\.pembina-lapisan \{ inset: 0 0 auto 0; height: 297mm; \}/.test(html),
+     'lapisan builder dikunci ke halaman 1 semasa cetak');
+  // dwibahasa: kamus ada entri builder
+  ok(w.ResumeMV.kamus('+ Kotak teks') === '+ Text box', 'kamus: + Kotak teks -> + Text box');
+  ok(w.ResumeMV.kamus('Buang') === 'Delete', 'kamus: Buang -> Delete');
+
   Promise.resolve().then(function () {
     console.log('\n' + pass + ' lulus, ' + fail + ' gagal, ' + skip + ' dilangkau');
     process.exit(fail ? 1 : 0);
